@@ -177,7 +177,8 @@ class dataset:
         
         script = self.script()
 
-        compiler = sd.util.compiler(dizest=sd, dataset=self)
+        filename = self.__storage__.abspath("script.py")
+        compiler = sd.util.compiler(dizest=sd, dataset=self, __file__=filename)
         if logger is not None:
             compiler.set_logger(logger)
         compiler.compile(script)

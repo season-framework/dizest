@@ -29,11 +29,13 @@ class compiler:
         env['__builtins__'] = builtins
         env['print'] = logger
         exec(code, env, local_env)
+        
+        # print(local_env['counter_init'])
 
         codes = []
         for key in local_env:
             codes.append(f"__builtins__.{key} = {key}")
         codes = "\n".join(codes)
-        exec(codes, env, local_env)  
+        exec(codes, env, local_env)
 
         return env

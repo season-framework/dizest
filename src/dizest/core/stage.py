@@ -1,5 +1,9 @@
 import datetime
 import traceback
+import inspect
+import imp
+import importlib
+import importlib.util
 
 import dizest as sd
 from dizest.core import data as sddata
@@ -130,6 +134,16 @@ class stage:
 
     def last(self):
         return self[-1]
+
+    def code(self):
+        filename = self.__dataset__.__storage__.abspath("script.py")
+        code = self.__dataset__.__storage__.read("script.py")
+        code = code.split("#dizest.codearea")
+        code = code[1:]
+        if self.__index__ is None:
+            return code[0]
+        code = code[1:]
+        return code[self.__index__].strip()
 
     def build(self):
         try:
