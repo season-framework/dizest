@@ -3,6 +3,7 @@ import time
 import traceback
 from io import StringIO 
 import sys
+
 mp.set_start_method('fork')
 processes = {}
 
@@ -26,10 +27,7 @@ class process:
             if self.sync:
                 q.put((e, stderr))
             else:
-                try:
-                    self.logger(f"Dizest Process Error: {type(e)} \n{stderr}", color=91)
-                except:
-                    pass
+                self.logger(stderr)
 
         if self.sync:
             q.put((None, result))

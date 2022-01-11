@@ -6,7 +6,6 @@ class config:
         
         self.defaults = sd.util.stdClass()
         self.defaults.cache = "memory"
-        self.defaults.logger = print
 
     def __getattr__(self, key):
         def fn(value=None):
@@ -19,13 +18,3 @@ class config:
             self.data[key] = value
             return self.data[key]
         return fn
-
-    def get(self, key):
-        return self.__getattr__(key)()
-
-    def set(self, key, value):
-        return self.__getattr__(key)(value)
-
-    def delete(self, key):
-        del self.data[key]
-

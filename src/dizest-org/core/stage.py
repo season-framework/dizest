@@ -110,11 +110,11 @@ class stage:
         return self.process(index, reload=reload)
         
     def get(self, index=None):
-        if index == 'build': index = None
+        if index == 'builder': index = None
         if index is None:
             self.__index__ = None
-            self.namespace = "build"
             self.__current__ = self.__dataset__.__builder__
+            self.namespace = self.__current__['namespace']
             return self
 
         # if index is namespace, transform to list index
@@ -134,16 +134,6 @@ class stage:
 
     def last(self):
         return self[-1]
-
-    def code(self):
-        filename = self.__dataset__.__storage__.abspath("script.py")
-        code = self.__dataset__.__storage__.read("script.py")
-        code = code.split("#dizest.codearea")
-        code = code[1:]
-        if self.__index__ is None:
-            return code[0]
-        code = code[1:]
-        return code[self.__index__].strip()
 
     def build(self):
         try:

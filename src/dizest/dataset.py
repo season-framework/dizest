@@ -1,206 +1,144 @@
-import datetime
-import dizest as sd
-from dizest.core import stage
-from dizest.core import config
-from dizest.core import data as sddata
-import inspect
+import dizest
 
 class dataset:
+    def __init__(self, workspace):
+        self.workspace = workspace
 
-    def __init__(self, basepath, logger=None, **kwargs):
-        self.__basepath__ = basepath
-        self.__kwargs__ = kwargs
-        self.__logger__ = logger
-        self.config = config(**kwargs)
-        
-        fs = self.__storage__ = sd.util.storage(basepath)
+        self.__data__ = dizest.util.stdClass()
+        self.__data__.deleted = dict()
+        self.__data__.updated = dict()
+        self.__data__.cached = dict()
 
-        self.init()
+        self.__indexes__ = self.fs().read.pickle("__indexes__", list())
+        self.__index__ = 0
 
-    # decorators
-    # : dataset process decorators
-    # - regist: regist data process
-    
-    def builder(self, *args, **package):
-        def wrapper(func):
-            def decorator(*args, **kwargs):
-                return func(*args, **kwargs)
+    def fs(self):
+        return self.workspace.storage.use("dataset")
 
-            package['process'] = decorator
-            self.__builder__ = package
-            return decorator
+    def __update__(self, key, value):
+        if key in self.__data__.deleted: 
+            del self.__data__.deleted[key]
+        self.__data__.updated[key] = value
+        self.__data__.cached[key] = value
 
-        if len(args) > 0:
-            func = args[0]
-            return wrapper(func)
-
-        return wrapper
-
-    def regist(self, *args, **package):                
-        def wrapper(register):
-            namespace = package['namespace']
-            if namespace == "build":
-                raise Exception("dizest: deny using namespace `build`")
-            package['process'] = register
-            namespaces = self.stage.namespaces()
-            if namespace in namespaces:
-                find = namespaces.index(namespace)
-                self.__regist__[find] = package
-            else:
-                self.__regist__.append(package)
-            return register
-
-        if len(args) > 0:
-            func = args[0]
-            if 'namespace' not in package:
-                package['namespace'] = func.__name__
-            return wrapper(func)
-
-        if 'namespace' not in package:
-            raise Exception("dizest: not defined namespace")
-
-        return wrapper
-
-    # list magic functions
-    # : dataset as list
-    
     def __getitem__(self, index):
-        return self.get(index)
+        key = self.__indexes__[index]
 
-    def __iter__(self):
-        pass
+        if type(key) == list:
+            res = []
+            for idx in key:
+                res.append(self.__getitem__(idx))
+            return res
 
-    def __next__(self):
-        if self.__position__ >= len(self):
-            raise StopIteration
-        
-        data = self.__getitem__(self.__position__)
-        self.__position__ += 1
-        return data
+        if key in self.__data__.updated:
+            return self.__data__.updated[key]
 
-    def __len__(self):
-        if self.readonly:
-            fs = self.__storage__.use("dataset")
-            data = sddata(fs)
-            if data.exists():
-                return len(data)
-            return 0
+        if key in self.__data__.cached:
+            return self.__data__.cached[key]
 
-        last_stage = self.stage.last()
-        return len(last_stage.data)
+        fs = self.fs()
+        item = fs.read.pickle(str(key), ValueError)
 
-    # general functions
-    # : dataset functions
-    # - use: change namespace of dataset
-    # - update: save changed of dataset from cached
-
-    def get(self, index):        
-        # if stage data not exists in dataset dir
-        if self.readonly:
-            fs = self.__storage__.use("dataset")
-            data = sddata(fs)
-            if data.exists():
-                try:        
-                    item = data[index]
-                except Exception as e:
-                    item = type(e)
-
-                if item not in [IndexError, ValueError]:
-                    return item
-
-            raise item
-
-        last_stage = self.stage.last()
-        err = None
-
-        try:
-            item = last_stage.data[index]
-        except Exception as e:
-            err = e
-            item = type(e)
-
-        if item in [IndexError, ValueError]:
-            self.stage.build()
-            for stage in self.stage:
-                stage(index)
-            item = last_stage.data[index]
-            self.stage.save()
-        elif err is not None:
-            raise err
-
-        if item is ValueError:
-            raise ValueError
+        if item is not ValueError:
+            self.__data__.cached[key] = item
 
         return item
 
-    def process(self):
-        fs = self.__storage__.use("dataset")
-        fs.delete()
+    def __setitem__(self, index, value):
+        if index < 0:
+            raise IndexError
+        key = self.__indexes__[index]
+        self.__update__(key, value)
 
-        build_data = self.stage.data.build()
+    def __delitem__(self, index):
+        key = self.__indexes__[index]
+        if key in self.__data__.updated: del self.__data__.updated[key]
+        if key in self.__data__.cached: del self.__data__.cached[key]
+        self.__data__.deleted[key] = True
         
-        data = sddata(fs)
-        data.set(build_data)
+        del self.__indexes__[index]
+    
+    def __iter__(self):
+        self.__index__ = 0
+        return self
 
-        for index in range(len(build_data)):
-            err = None
+    def __next__(self):
+        if self.__index__ >= len(self):
+            raise StopIteration
+        item = self.__getitem__(self.__index__)
+        self.__index__ += 1
+        return item
+
+    def __len__(self):
+        return len(self.__indexes__)
+
+    def updated(self):
+        return len(self.__data__.updated)
+
+    def save(self):
+        fs = self.fs()
+
+        updated = self.__data__.updated
+        for key in updated:
+            item = updated[key]
+            if item is not None:
+                fs.write.pickle(str(key), item)
+            self.__data__.cached[key] = item
+        self.__data__.updated = dict()
+
+        deleted = self.__data__.deleted
+        for key in deleted:
             try:
-                item = self[index]
-            except Exception as e:
-                err = e
-                item = type(e)
-            
-            if item in [IndexError, ValueError]:
-                for stage in self.stage:
-                    stage(index)
-            elif err is not None:
-                raise err
+                fs.delete(str(key))
+                del self.__data__.cached[key]
+            except:
+                pass
+        self.__data__.deleted = dict()
 
-            last_stage = self.stage.last()
-            item = last_stage.data[index]
-            data[index] = item
-        
-        self.stage.save()
-        data.save()
-
-    def logger(self, *args):
-        logger = self.__logger__
-        if logger is not None:
-            logger(*args)
-
-    def init(self):
-        logger = self.__logger__
-
-        self.stage = stage(self)
-        self.__regist__ = list()
-        self.__builder__ = None
-        
-        script = self.script()
-
-        filename = self.__storage__.abspath("script.py")
-        compiler = sd.util.compiler(dizest=sd, dataset=self, __file__=filename)
-        if logger is not None:
-            compiler.set_logger(logger)
-        compiler.compile(script)
-
-        self.readonly = False
-        if len(self.stage) == 0 or self.stage.last().data().exists() == False:
-            self.readonly = True
-
-    def script(self, script=None):
-        fs = self.__storage__
-        if script is None:
-            return fs.read("script.py", "")
-        
-        fs.write("script.py", script)
-        self.init()
-        return script
+        fs.write.pickle("__indexes__", self.__indexes__)
 
     def clear(self):
-        fs = self.__storage__.use("dataset")
-        fs.remove()
-        fs = self.__storage__.use("stage")
-        fs.remove()
+        self.fs().remove()
+        self.revert()
 
-    def storage(self):
-        return self.__storage__.use("storage")
+    def revert(self):
+        self.__data__.updated = dict()
+        self.__data__.cached = dict()
+        self.__data__.deleted = dict()
+
+        self.__indexes__ = self.fs().read.pickle("__indexes__", list())
+
+    def push(self, *args):
+        self.append(**args)
+
+    def append(self, *args):
+        for arg in args:
+            if len(self.__indexes__) == 0: index = 0
+            else: index = self.__indexes__[-1] + 1
+            self.__update__(index, arg)
+            self.__indexes__.append(index)
+
+    def remove(self, index):
+        self.__delitem__(index)
+
+    def last(self):
+        return self.__indexes__[-1]
+
+    def tolist(self):
+        res = []
+        for i in range(len(self)):
+            res.append(self[i])
+        return res
+
+    def exists(self, index=None):
+        if index is None:
+            return self.fs().isdir()
+        key = self.__indexes__[index]
+        if key in self.__data__.updated:
+            return True
+        if key in self.__data__.cached:
+            return True
+        fs = self.fs()
+        if fs.isfile(str(key)):
+            return True
+        return False

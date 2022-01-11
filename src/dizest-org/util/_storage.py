@@ -118,16 +118,13 @@ class write:
         f.write(data)
         f.close()
 
-    def json(self, filepath, obj, default=None, indent=None):
+    def json(self, filepath, obj):
         def json_default(value):
             if isinstance(value, datetime.date): 
                 return value.strftime('%Y-%m-%d %H:%M:%S')
             return value
 
-        if default is None:
-            default = json_default
-
-        obj = json.dumps(obj, default=default, indent=indent)
+        obj = json.dumps(obj, default=json_default)
         abspath = self.__parent__.abspath(filepath)
         self.__parent__.__makedirs__(abspath)
         f = open(abspath, 'w')

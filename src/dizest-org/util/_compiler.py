@@ -21,19 +21,21 @@ class compiler:
     def compile(self, code):
         kwargs = self.kwargs
         logger = self.logger
+
         env = dict()
         local_env = dict()
+
         for key in kwargs: env[key] = kwargs[key]
         env['__builtins__'] = builtins
         env['print'] = logger
         exec(code, env, local_env)
         
+        # print(local_env['counter_init'])
+
         codes = []
         for key in local_env:
-            if key != 'process':
-                codes.append(f"__builtins__.{key} = {key}")
-            else:
-                codes.append(f"{key} = {key}")
+            codes.append(f"__builtins__.{key} = {key}")
         codes = "\n".join(codes)
         exec(codes, env, local_env)
-        return local_env
+
+        return env
