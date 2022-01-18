@@ -8,4 +8,6 @@ SEASON Dizest Platform (dizest) provides visual convenience for artificial intel
 
 ```bash
 pip install dizest
+cd <your-workspace>
+dizest run
 ```

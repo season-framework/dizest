@@ -12,10 +12,11 @@ def package_files(directory):
     paths = []
     for (path, directories, filenames) in os.walk(directory):
         for filename in filenames:
-            paths.append(os.path.join(path, filename)[13:])
+            paths.append(os.path.join(path, filename)[11:])
     return paths
 
-extra_files = package_files(os.path.join(SEASON_PKG_DIR, 'resources')) + package_files(os.path.join(SEASON_PKG_DIR, 'templates')) + package_files(os.path.join(SEASON_PKG_DIR, 'screenshots'))
+extra_files = package_files(os.path.join(SEASON_PKG_DIR, 'command'))
+extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'config'))
 
 setup(
     name='dizest',
@@ -42,7 +43,8 @@ setup(
         'psutil',
         'Pillow',
         'numpy',
-        'pandas'
+        'pandas',
+        'season'
     ],
     python_requires='>=3.6',
     classifiers=[
