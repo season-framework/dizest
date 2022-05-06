@@ -1,0 +1,72 @@
+aside.navbar.navbar-vertical.navbar-expand-lg.navbar-side
+    .container
+        .navbar-brand-container.bg-primary
+            button.navbar-toggler.text-white(type='button' data-bs-toggle='collapse' data-bs-target='#navbar-menu')
+                span.navbar-toggler-icon
+
+            a.navbar-brand.navbar-brand-autodark.d-none-navbar-horizontal.pr-0.m-0(href='/')
+                .text-center
+                    - if hubconfig.logo
+                        img.m-0(src='{$hubconfig.logo$}' style='height:32px; margin: 5px 0 !important;')
+                    - else
+                        img.m-0(src='/resources/images/brand/dizest-hub-white.png' style='height:32px; margin: 5px 0 !important;')
+
+        #navbar-menu.navbar-collapse.collapse
+            .card.profile-card
+                .card-stamp
+                    .card-stamp-icon.text-primary.bg-white
+                        svg.icon.icon-tabler.icon-tabler-chart-circles(xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round")
+                            path(stroke="none" d="M0 0h24v24H0z" fill="none")
+                            circle(cx="9.5" cy="9.5" r="5.5")
+                            circle(cx="14.5" cy="14.5" r="5.5")
+
+                .card-body
+                    .row.row-sm.align-items-center
+                        .col
+                            h3.mb-0= session.id
+                            .text-h5= session.email
+
+                .card-body.footer-menu.p-2.text-center
+                    - each menu in menu.profile
+                        .profile-menu(style="display: inline-block;")
+                            a(href=menu.url)= menu.title
+                            span.divider-line |
+
+            ul.navbar-nav
+                - each menu in menu.main
+                    - if menu.child == null
+                        li.nav-item(class=menu['class'])
+                            .row.m-0.p-0
+                                .col.m-0.p-0
+                                    a.nav-link(href=menu['url'] target=menu['target'])
+                                        - if menu.icon
+                                            span.mr-2(style="width: 20px; text-align: center;")
+                                                i(class=menu['icon'])
+                                        span.nav-link-title= menu['title']
+                                    
+                                .nav-item-status.col-auto.align-self-center.m-0.p-0.mr-2
+                                    i.fa-solid.fa-circle
+
+                    - if menu.child
+                        li.nav-item.dropdown(class=menu['class'])
+                            a.nav-link(href=menu.child[0]['url'] target=menu.child[0]['target'] class=menu['show'])
+                                - if menu.icon
+                                    span.mr-2(style="width: 20px; text-align: center;")
+                                        i(class=menu['icon'])
+                                span.nav-link-title= menu['title']
+
+                            ul.dropdown-menu(class=menu['show'])
+                                - each child in menu.child
+                                    li
+                                        - if child.type == 'header'
+                                            span.dropdown-header= child['title']
+                                        - elif child.type == 'divider'
+                                            div.dropdown-divider(style="{$child['style']$}")
+                                        - else
+                                            a.dropdown-item(href=child['url'] target=child['target'] class=child['class'])
+                                                | {$child['title']$}
+            
+                - each menu in topmenus
+                    li.nav-item.if-mobile(class=menu['class'])
+                        a.nav-link(href=menu['url'] target=menu['target'])
+                            span.nav-link-title= menu['title']

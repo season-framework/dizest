@@ -1,0 +1,19 @@
+let wiz_controller = async ($sce, $scope, $timeout) => {
+    let _$timeout = $timeout;
+    $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
+
+    $scope.kernel = {};
+    $scope.kernel.load = async () => {
+        let res = await wiz.API.async("running");
+        $scope.kernel.data = res.data;
+        $scope.kernel.data.sort((a,b)=> a.created.localeCompare(b.created));
+        await $timeout();
+    }
+
+    $scope.kernel.stop = async (wpid) => {
+        await wiz.API.async("stop", {workflow_id: wpid});
+        await $scope.kernel.load();    
+    }
+
+    await $scope.kernel.load();
+}

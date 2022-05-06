@@ -44,7 +44,8 @@ setup(
         'Pillow',
         'numpy',
         'pandas',
-        'season'
+        'season',
+        'peewee'
     ],
     python_requires='>=3.6',
     classifiers=[

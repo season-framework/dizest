@@ -1,0 +1,130 @@
+.wrapper
+    .scrollbox
+        .container
+            form.form.pb-1
+                .text-center.mb-4
+                    a.cursor-pointer(href="/" style="display: inline-block;")
+                        img(src="/resources/images/brand/dizest-hub-white.png" style="width: 200px; display: inline-block;")
+                
+                .card.mb-5(ng-if="step == 'step1'")
+                    .card-body.text-center Hub Information
+                    
+                    .card-body.p-4
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Hub Title
+                            .col
+                                input.form-control(type="text" placeholder="Hub Title" ng-model="config.title")
+                        
+                        .form-group.row
+                            label.form-label.col-3.col-form-label Logo
+                            .col.text-left
+                                .text-center
+                                    .bg-primary.text-center(style="padding: 0.75rem 0; width: 280px; display: inline-block;")
+                                        img(ng-if="config.logo" ng-src="{{config.logo}}" style="height: 32px; margin: 5px 0;")
+                                        img(ng-if="!config.logo" src="/resources/images/brand/dizest-hub-white.png" style="height: 32px; margin: 5px 0;")
+                                
+                                .text-right.mt-2
+                                    .btn.btn-primary(ng-click="uploader()") Upload
+                                    .btn.btn-outline-danger(ng-if="config.logo" ng-click="config.logo = ''") Delete
+
+                                input.form-control#file-logo(type="file" accept="image/*" style="display: none")
+                            
+                    .card-footer.d-flex.p-2
+                        .ml-auto
+                        .btn.btn-primary.btn-circle(ng-click="step1()" style="width: 120px;") Next
+
+                .card.mb-5(ng-if="step == 'step2'")
+                    .card-body.text-center Database Configuration
+                    
+                    .card-body.p-4
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Type
+                            .col
+                                .form-selectgroup
+                                    label.form-selectgroup-item
+                                        input.form-selectgroup-input(type="radio" name="dbtype" value="sqlite" ng-model="config.db.type")
+                                        span.form-selectgroup-label
+                                            span sqlite
+                                    label.form-selectgroup-item
+                                        input.form-selectgroup-input(type="radio" name="dbtype" value="mysql" ng-model="config.db.type")
+                                        span.form-selectgroup-label
+                                            span MySQL
+
+                        div(ng-if="config.db.type == 'mysql'")
+                            .form-group.row.mb-3
+                                label.form-label.col-3.col-form-label Database
+                                .col
+                                    input.form-control(type="text" placeholder="database" ng-model="config.db.database")
+
+                            .form-group.row.mb-3
+                                label.form-label.col-3.col-form-label Host
+                                .col
+                                    input.form-control(type="text" placeholder="127.0.0.1" ng-model="config.db.config.host")
+                            
+                            .form-group.row.mb-3
+                                label.form-label.col-3.col-form-label Port
+                                .col
+                                    input.form-control(type="number" placeholder="3306" ng-model="config.db.config.port")
+
+                            .form-group.row.mb-3
+                                label.form-label.col-3.col-form-label User
+                                .col
+                                    input.form-control(type="text" placeholder="dbuser" ng-model="config.db.config.user")
+
+                            .form-group.row.mb-3
+                                label.form-label.col-3.col-form-label Password
+                                .col
+                                    input.form-control(type="password" placeholder="dbpass" ng-model="config.db.config.passwd")
+                            
+                    .card-footer.d-flex.p-2
+                        .btn.btn-white.btn-circle(ng-click="movestep('step1')" style="width: 120px;") Prev
+                        .ml-auto
+                        .btn.btn-primary.btn-circle(ng-click="step2()" style="width: 120px;") Next
+
+                .card.mb-5(ng-if="step == 'step3'")
+                    .card-body.text-center Create admin account for DIZEST Hub.
+                    
+                    .card-body.p-4
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label User ID
+                            .col
+                                input.form-control(type="text" placeholder="ID" ng-model="user.id")
+
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Email
+                            .col
+                                input.form-control(type="email" placeholder="mail" ng-model="user.email")
+                        
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Username
+                            .col
+                                input.form-control(type="text" placeholder="username" ng-model="user.username")
+
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Password
+                            .col
+                                input.form-control(type="password" placeholder="password" ng-model="user.password")
+
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Confirm Password
+                            .col
+                                input.form-control(type="password" placeholder="Confirm Password" ng-model="user.password_re")
+                            
+                    .card-footer.d-flex.p-2
+                        .btn.btn-white.btn-circle(ng-click="movestep('step2')" style="width: 120px;") Prev
+                        .ml-auto
+                        .btn.btn-primary.btn-circle(ng-click="step3(user)" style="width: 120px;") Start
+
+    ul.bg-bubbles
+        li
+        li
+        li
+        li
+        li
+        li
+        li
+        li
+        li
+        li
+
+    {$ wiz.render("modal.message") $}

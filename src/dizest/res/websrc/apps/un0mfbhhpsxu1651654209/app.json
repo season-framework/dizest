@@ -1,0 +1,1 @@
+{"id": "un0mfbhhpsxu1651654209", "title": "/admin/kernel", "namespace": "page.admin.kernel", "properties": {"html": "pug", "js": "javascript", "css": "scss"}, "viewuri": "", "created": "2022-05-04 17:50:09", "updated": "2022-05-06 20:49:04", "category": "page", "controller": "admin", "theme": "dizest/aside"}

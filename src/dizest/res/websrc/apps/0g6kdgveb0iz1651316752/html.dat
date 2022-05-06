@@ -1,0 +1,46 @@
+.workflow-list
+    .workflow-list-header
+        .page-header.d-print-none
+            .row.align-items-center
+                .col-auto
+                    span.status-indicator.status-indicator-animated.status-primary
+                        span.status-indicator-circle
+                        span.status-indicator-circle
+                        span.status-indicator-circle
+                .col
+                    h2.page-title Workflows
+                    .text-muted
+                        ul.list-inline.list-inline-dots.mb-0
+                            li.list-inline-item My workflow
+                
+                .col-auto.actions
+                    a.btn.btn-primary(href="/hub/workflow/item/new")
+                        i.fa-solid.fa-plus.mr-2
+                        span Create Workflow
+
+    .workflow-list-item
+        .container.pt-4
+            .row.row-deck.row-cards
+                .col-md-3.p-3(ng-repeat="item in workflow.list")
+                    .card.card-hover(ng-click="link('/hub/workflow/item/' + item.id)")
+                        .card-body.p-0
+                            .img-responsive(style="position: relative; background-image: url('{{item.featured}}')")
+                                svg(viewBox="0 0 16 9")
+                                    rect(width="16" height="12" style="fill:rgba(255,255,255,0);")
+
+                        .card-footer.d-flex(style="align-items: center;")
+                            .avatar-area.avatar-area-sm.mr-3
+                                .avatar-container
+                                    span.avatar(style="background-image: url({{item.logo}})")
+                            .text-area
+                                h3.card-title.mb-0
+                                    .text-reset(style="white-space: normal; word-break: break-all;") {{item.title}}
+                                .text-muted {{item.updated}}
+    
+    .workflow-pagenation
+        .pagenation.text-center
+            button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="workflow.load.page(workflow.query.page*1-1)")
+                i.fas.fa-angle-double-left
+            button.btn.btn-sm(ng-repeat="page in workflow.pages" ng-class="page == workflow.query.page ? 'btn-primary' : 'btn-link'" ng-click="workflow.load.page(page)") {{page}}
+            button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="workflow.load.page(workflow.query.page*1+1)")
+                i.fas.fa-angle-double-right

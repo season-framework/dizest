@@ -1,0 +1,5 @@
+wiz.response.render("/admin/setting", "page.admin.setting")
+wiz.response.render("/admin/kernel", "page.admin.kernel")
+wiz.response.render("/admin/packages", "page.admin.packages")
+wiz.response.render("/admin/users", "page.admin.users")
+wiz.response.redirect("/admin/setting")

@@ -1,0 +1,122 @@
+let resizer = (file, width, quality) => new Promise((resolve) => {
+    if (!quality) quality = 0.8;
+    if (!width) width = 64;
+
+    let photo = function (file, maxSize, callback) {
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (readerEvent) {
+            resize(readerEvent.target.result, maxSize, callback);
+        };
+    }
+
+    let resize = function (dataURL, maxSize, callback) {
+        let image = new Image();
+
+        image.onload = function () {
+            let canvas = document.createElement('canvas'),
+                width = image.width,
+                height = image.height;
+            if (width > height) {
+                if (width > maxSize) {
+                    height *= maxSize / width;
+                    width = maxSize;
+                }
+            } else {
+                if (height > maxSize) {
+                    width *= maxSize / height;
+                    height = maxSize;
+                }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+            output(canvas, callback);
+        };
+
+        image.onerror = function () {
+            return;
+        };
+
+        image.src = dataURL;
+    };
+
+    let output = function (canvas, callback) {
+        let blob = canvas.toDataURL('image/png', quality);
+        callback(blob);
+    }
+
+    photo(file, width, (blob) => {
+        resolve(blob);
+    });
+});
+
+let wiz_controller = async ($sce, $scope, $timeout) => {
+    let _$timeout = $timeout;
+    $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
+
+    let alert = async (message) => {
+        await wiz.connect("modal.message")
+            .data({
+                title: "Warning",
+                message: message,
+                btn_close: "Cancel",
+                btn_action: "Confirm",
+                btn_class: "btn-primary"
+            })
+            .event("modal-show");
+    }
+
+    $scope.status = {};
+    $scope.config = wiz.data.config;
+    $scope.processes = wiz.data.processes;
+
+    $scope.check = async () => {
+        if ($scope.status.db) return;
+        let data = angular.copy($scope.config);
+        data = JSON.stringify(data);
+        let res = await wiz.API.async("checkdb", { data: data });
+        if (res.code == 200) {
+            $scope.status.db = true;
+        } else {
+            await alert("Database connection error");
+        }
+
+        await $timeout();
+    }
+
+    $scope.update = async () => {
+        let data = angular.copy($scope.config);
+        data = JSON.stringify(data);
+        await wiz.API.async("update", { data: data, db: $scope.status.db });
+
+        if ($scope.status.db) {
+            location.reload();
+            return;
+        }
+
+        toastr.success("Config updated")
+    }
+
+    $scope.uploader = async () => {
+        $('#file-logo').click();
+        $('#file-logo').change(async () => {
+            let file = document.querySelector('#file-logo').files[0];
+            file = await resizer(file, 128, 0.8);
+            $('#file-logo').val(null);
+            if (file.length > 1024 * 100) {
+                await alert("file size under 100kb");
+                return;
+            }
+            $scope.config.logo = file;
+            await $timeout();
+        });
+    }
+
+    $scope.$watch('config.db', async () => {
+        $scope.status.db = false;
+        await $timeout();
+    }, true);
+
+    await $timeout();
+}

@@ -1,0 +1,41 @@
+.workspace-area
+    .workspace-header
+        .page-header.d-print-none
+            .row.align-items-center
+                .col-auto
+                    span.status-indicator.status-indicator-animated.status-primary
+                        span.status-indicator-circle
+                        span.status-indicator-circle
+                        span.status-indicator-circle
+                .col
+                    h2.page-title Storage
+                
+                .col-auto.actions
+                    a.btn.btn-primary(href="/hub/workflow/item/new")
+                        i.fa-solid.fa-plus.mr-2
+                        span Create Workflow
+    
+    .workspace-container
+        .side-menu
+            .item-list
+                a.item-info.mode-local(href="/hub/storage/local")
+                    .avatar-area.avatar-area-sm.mr-3
+                        .avatar-container
+                            i.fa-solid.fa-key
+                    .title-area
+                        .item-title Local
+            
+                a.item-info.mode-public(href="/hub/storage/public")
+                    .avatar-area.avatar-area-sm.mr-3
+                        .avatar-container
+                            i.fa-solid.fa-cloud
+                    .title-area
+                        .item-title Public
+
+        .main-context test2
+    
+    style.
+        .mode-{$ mode $} {
+            background-color: rgba(32,107,196,.05);
+            color: #3843D0 !important;
+        }

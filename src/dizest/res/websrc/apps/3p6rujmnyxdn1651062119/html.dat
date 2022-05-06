@@ -1,0 +1,109 @@
+.workspace-area
+    .workspace-header
+        .page-header.d-print-none
+            .row.align-items-center
+                .col-auto
+                    span.status-indicator.status-indicator-animated.status-primary
+                        span.status-indicator-circle
+                        span.status-indicator-circle
+                        span.status-indicator-circle
+                .col
+                    h2.page-title Users
+                    .text-muted
+                        ul.list-inline.list-inline-dots.mb-0
+                            li.list-inline-item managing DIZEST Hub users.
+
+                .col-auto
+                    .actions
+                        .btn.btn-primary(ng-click="userinfo()")
+                            i.fa-solid.fa-plus.mr-2
+                            span Add User
+
+    .workspace-container
+        .container.pt-4(style="max-width: 860px;")
+            .overflow-x
+                table.table.table-hover.board-table.table-vcenter
+                    thead
+                        tr
+                            th.text-center.width-2 Role
+                            th.text-center.width-2 ID
+                            th.text-center.width-2 Username
+                            th.text-center Email
+                            th.text-center.w-1
+
+                    tbody
+                        tr(ng-repeat="item in users")
+                            td.width-2
+                                span.status(class="{{item.role == 'admin' ? 'status-blue' : 'status-yellow'}}")
+                                    span.status-dot
+                                    span {{item.role}}
+                            td.width-2.text-center {{item.id}}
+                            td.width-2.text-center {{item.username}}
+                            td.text-center {{item.email}}
+                            td.w-1
+                                .btn.btn-circle.btn-primary(ng-click="userinfo(item)")
+                                    i.fa-solid.fa-gear
+                
+                .pagenation.text-center.mt-4.mb-4(ng-if="facet.pages.length > 0")
+                    button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="event.page(1)")
+                        i.fas.fa-angle-double-left
+                    button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="event.page(search.page*1-1)")
+                        i.fas.fa-angle-left
+                    button.btn.btn-sm(ng-repeat="page in facet.pages" ng-class="page == search.page ? 'btn-primary' : 'btn-link'" ng-click="event.page(page)") {{page}}
+                    button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="event.page(search.page*1+1)")
+                        i.fas.fa-angle-right
+                    button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="event.page(facet.lastpage)")
+                        i.fas.fa-angle-double-right
+
+    #offcanvas-user-info.offcanvas.offcanvas.offcanvas-end(tabindex="-1")
+        .offcanvas-header
+            h3.p-0.m-0 User Information
+            .close(type="button" data-bs-dismiss="offcanvas" aria-label="Close")
+                i.fa-solid.fa-xmark
+
+        .offcanvas-body.p-0
+            .container
+                .card.mt-4
+                    .card-body.p-4
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Role
+                            .col
+                                .form-selectgroup
+                                    label.form-selectgroup-item
+                                        input.form-selectgroup-input(type="radio" name="userrole" value="user" ng-model="user.role" ng-disabled="session.id == user.id")
+                                        span.form-selectgroup-label
+                                            i.fa-solid.fa-user.mr-2
+                                            span User
+                                    label.form-selectgroup-item
+                                        input.form-selectgroup-input(type="radio" name="userrole" value="admin" ng-model="user.role" ng-disabled="session.id == user.id")
+                                        span.form-selectgroup-label
+                                            i.fa-solid.fa-user-gear.mr-2
+                                            span Admin
+
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label User ID
+                            .col
+                                input.form-control(type="text" placeholder="user id" ng-model="user.id" ng-disabled="!isnew")
+                        
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Username
+                            .col
+                                input.form-control(type="text" placeholder="John Doe" ng-model="user.username")
+
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Email
+                            .col
+                                input.form-control(type="email" placeholder="user@gmail.com" ng-model="user.email")
+                        
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Password
+                            .col
+                                input.form-control(type="password" placeholder="Password" ng-model="user.password")
+                        
+                    .card-footer.d-flex.p-2
+                        .btn.btn-outline-red.btn-circle(style="width: 120px;" ng-click="delete()" ng-if="!isnew && session.id != user.id") Delete
+                        .ml-auto
+                        .btn.btn-primary.btn-circle(style="width: 120px;" ng-if="isnew" ng-click="update()") Create
+                        .btn.btn-primary.btn-circle(style="width: 120px;" ng-if="!isnew" ng-click="update()") Update
+                
+    {$ wiz.render("modal.message") $}

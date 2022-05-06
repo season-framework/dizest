@@ -1,0 +1,9 @@
+.modal.fade(tabindex="-1")
+    .modal-dialog.modal-sm(role='document')
+        .modal-content
+            .modal-body
+                .modal-title {{data.title}}
+                div {{data.message}}
+            .modal-footer
+                button.btn.btn-link.link-secondary.mr-auto(type='button' ng-click="event.close()") {{data.btn_close}}
+                button.btn(type='button' class="{{data.btn_class}}" ng-click="event.submit()") {{data.btn_action}}

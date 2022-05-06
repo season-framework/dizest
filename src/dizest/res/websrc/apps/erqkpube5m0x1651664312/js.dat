@@ -1,0 +1,23 @@
+let wiz_controller = async ($sce, $scope, $timeout) => {
+    let _$timeout = $timeout;
+    $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
+
+    $scope.pip = {};
+    $scope.pip.load = async () => {
+        let res = await wiz.API.async("installed");
+        $scope.pip.data = res.data;
+        $scope.pip.data.sort((a, b) => a.name.localeCompare(b.name));
+        await $timeout();
+    }
+
+    $scope.pip.install = async (packages) => {
+        $scope.pip.install_message = null;
+        await $timeout();
+        let res = await wiz.API.async("install", {package: packages});
+        $scope.pip.install_message = res.data;
+        await $timeout();
+        await $scope.pip.load();
+    }
+
+    await $scope.pip.load();
+}

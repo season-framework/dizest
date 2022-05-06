@@ -1,0 +1,7 @@
+.modal-body {
+    color: #000;
+
+    div {
+        word-break: break-all;
+    }
+}

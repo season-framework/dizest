@@ -1,0 +1,321 @@
+.apps-container
+    .apps-list-area
+        .top-menu
+            .action-btns
+                .action-btn(ng-click="apps.load.installed()" class="{{ apps.tab == 'installed' ? 'active' : '' }}")
+                    span Flow
+                .action-btn(ng-click="apps.load.private(true)" class="{{ apps.tab == 'private' ? 'active' : '' }}")
+                    span My Apps
+                .action-btn(ng-click="apps.load.hub(true)" class="{{ apps.tab == 'hub' ? 'active' : '' }}")
+                    span Hub Apps
+
+        .top-submenu
+            input.form-control.form-control-sm.search-form(placeholder="enter for search" ng-model="apps.query.text" ng-enter="apps.load.current(true)")
+
+        .app-list(ng-if="apps.tab == 'installed'" ui-sortable='sortableOptions' ng-model="workflow.floworder")
+            .no-items.text-center.p-6(ng-if="workflow.floworder.length == 0")
+                i.fa-solid.fa-cube
+                .mt-2 No Apps
+
+            .app-info(ng-repeat="(i, item) in workflow.floworder" ng-mouseover="workflow.active_flow(item.id)" ng-mouseleave="workflow.active_flow()")
+                .avatar-area.avatar-area-sm.mr-3
+                    .avatar-container
+                        span.avatar(style="background-image: url({{workflow.data.apps[item.app_id].logo}})")
+                .title-area
+                    .app-header.mb-1.pb-1 {{workflow.data.apps[item.app_id].title}}
+                    .app-namespace.text-muted {{workflow.data.apps[item.app_id].version}}
+                .ml-auto
+                    button.btn.btn-white.btn-sm.btn-rounded.mr-1(ng-click="movedown(i, workflow.floworder)")
+                        i.fa-solid.fa-arrow-down
+                    button.btn.btn-primary.btn-sm.btn-rounded(ng-click="moveup(i, workflow.floworder)")
+                        i.fa-solid.fa-arrow-up
+
+        .app-list(ng-if="apps.tab != 'installed'")
+            .no-items.text-center.p-6(ng-if="apps.list.length == 0 && apps.loading")
+                i.fa-solid.fa-cube
+                .mt-2 No Apps
+
+            .app-info(ng-repeat="item in apps.list" draggable="true" ondragstart="drag(event)" data-node="{{item.id}}")
+                .avatar-area.avatar-area-sm.mr-3
+                    .avatar-container
+                        span.avatar(style="background-image: url({{item.logo}})")
+                .title-area
+                    .app-header.mb-1.pb-1 {{item.title}}
+                    .app-namespace.text-muted {{item.version}}
+                .ml-auto
+                    button.btn.btn-white.btn-sm.btn-rounded.mr-1(ng-click="app.info(item.id)")
+                        i.fa-solid.fa-info
+                    button.btn.btn-primary.btn-sm.btn-rounded(ng-click="addNodeToDrawFlow(item.id)")
+                        i.fa-solid.fa-plus
+
+        .app-pagenation
+            .pagenation.text-center(ng-if="apps.tab != 'installed'")
+                button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="apps.load.page(apps.query.page*1-1)")
+                    i.fas.fa-angle-double-left
+                button.btn.btn-sm(ng-repeat="page in apps.pages" ng-class="page == apps.query.page ? 'btn-primary' : 'btn-link'" ng-click="apps.load.page(page)") {{page}}
+                button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="apps.load.page(apps.query.page*1+1)")
+                    i.fas.fa-angle-double-right
+
+    .appinfo-area
+        .floating-menu.top
+            .btn-group
+                .btn.btn-primary(ng-click="drawflow.zoom_out()")
+                    i.fa-solid.fa-magnifying-glass-minus
+                .btn.btn-primary(ng-click="drawflow.zoom_reset()")
+                    i.fa-solid.fa-magnifying-glass
+                .btn.btn-primary(ng-click="drawflow.zoom_in()")
+                    i.fa-solid.fa-magnifying-glass-plus
+
+        .floating-menu
+            .btn.btn-primary.btn-circle.mr-2(ng-click="workflow.stop()")
+                i.fa-solid.fa-stop
+            .btn.btn-primary.btn-circle.mr-2(ng-click="workflow.run()")
+                i.fa-solid.fa-play
+            .btn.btn-primary.btn-circle(ng-click="workflow.save()")
+                i.fa-solid.fa-save
+    
+        .top-menu
+            .header
+                .header-title {{workflow.data.id ? workflow.data.title : 'New Workflow'}}
+                .ml-auto
+                .btns
+                    .btn.btn-orange.mr-2(type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-workflow-info" aria-controls="offcanvas-workflow-info") Workflow Info
+                    a.btn.btn-orange(href="/hub/workflow/list") List
+
+        .drawflow-area
+            .workflow-loading(ng-if="!workflow.loaded")
+                table
+                    tr
+                        td
+                            .spinner-border.text-primary
+
+            #drawflow(ondrop="drop(event)" ondragover="allowDrop(event)")
+
+    #offcanvas-workflow-info.offcanvas.offcanvas-end(tabindex="-1")
+        .offcanvas-header
+            h3.p-0.m-0 Workflow Information
+            .close(type="button" data-bs-dismiss="offcanvas" aria-label="Close")
+                i.fa-solid.fa-xmark
+        .offcanvas-body
+            .card.mb-4
+                .card-header
+                    h4.card-title Information
+
+                .card-body.p-4
+                    .form-group.row.mb-3(ng-if="workflow.data.id")
+                        label.form-label.col-3.col-form-label App ID
+                        .col
+                            input.form-control(type="text" ng-model="workflow.data.id" disabled="disabled")
+                    
+                    .form-group.row.mb-3
+                        label.form-label.col-3.col-form-label Workflow Title
+                        .col
+                            input.form-control(type="text" placeholder="Workflow Title" ng-model="workflow.data.title")
+                    
+                    .form-group.row.mb-3
+                        label.form-label.col-3.col-form-label Workflow Version
+                        .col
+                            input.form-control(type="text" placeholder="1.0.0" ng-model="workflow.data.version")
+
+                    .form-group.row.mb-3
+                        label.form-label.col-3.col-form-label Update Policy
+                        .col
+                            .form-selectgroup
+                                label.form-selectgroup-item
+                                    input.form-selectgroup-input(type="radio" name="updatepolicy" value="auto" ng-model="workflow.data.updatepolicy")
+                                    span.form-selectgroup-label
+                                        i.fa-solid.fa-wand-magic-sparkles.mr-2
+                                        span Auto
+                                label.form-selectgroup-item
+                                    input.form-selectgroup-input(type="radio" name="updatepolicy" value="manual" ng-model="workflow.data.updatepolicy")
+                                    span.form-selectgroup-label
+                                        i.fa-solid.fa-repeat.mr-2
+                                        span Manual
+
+                    .form-group.row.mb-3
+                        label.form-label.col-3.col-form-label Visibility
+                        .col
+                            .form-selectgroup
+                                label.form-selectgroup-item
+                                    input.form-selectgroup-input(type="radio" name="visibility" value="private" ng-model="workflow.data.visibility")
+                                    span.form-selectgroup-label
+                                        i.fa-solid.fa-lock.mr-2
+                                        span Private
+                                label.form-selectgroup-item
+                                    input.form-selectgroup-input(type="radio" name="visibility" value="hub" ng-model="workflow.data.visibility")
+                                    span.form-selectgroup-label
+                                        i.fa-brands.fa-hubspot.mr-2
+                                        span Hub
+                            
+                            .mt-2
+                                span.text-muted(ng-if="workflow.data.visibility == 'private'") This workflow is for your own use only.
+                                span.text-muted(ng-if="workflow.data.visibility == 'hub'") This workflow is shared with hub users.
+
+                    .form-group.row.mb-3
+                                label.form-label.col-3.col-form-label Logo
+                                .col.text-left
+                                    .avatar-area
+                                        .avatar-container
+                                            span.avatar(style="background-image: url({{workflow.data.logo}})")
+
+                                    input.form-control#file-logo(type="file" accept="image/*" style="display: none")
+                                .col-2
+                                    .btn.btn-primary.btn-block(ng-click="workflow.uploader.logo()") Upload
+                                    .btn.btn-outline-danger.btn-block.mt-2(ng-if="workflow.data.logo" ng-click="workflow.data.logo = ''") Delete
+
+                            .form-group.row.mb-3
+                                label.form-label.col-3.col-form-label Featured Image
+                                .col.text-center
+                                    input.form-control#file-featured(type="file" accept="image/*" style="display: none")
+                                    img(ng-if="workflow.data.featured" ng-src="{{workflow.data.featured}}" style="width: 100%;")
+                                .col-2
+                                    .btn.btn-primary.btn-block(ng-click="workflow.uploader.featured()") Upload
+                                    .btn.btn-outline-danger.btn-block.mt-2(ng-if="workflow.data.featured" ng-click="workflow.data.featured = ''") Delete
+                            
+
+            .card.mb-4
+                .card-header
+                    h4.card-title Workflow Description
+
+                .card-body.p-0
+                    textarea#description-editor
+
+            .card.mb-4(ng-if="workflow.data.id")
+                .card-header
+                    h4.card-title Delete Workflow
+
+                .card-body
+                    .btn.btn-block.btn-outline-danger(ng-click="workflow.delete()") Delete
+
+    #offcanvas-app-info.offcanvas.offcanvas-end(tabindex="-1")
+        .offcanvas-header
+            h3.p-0.m-0 App Information
+            .close(type="button" data-bs-dismiss="offcanvas" aria-label="Close")
+                i.fa-solid.fa-xmark
+
+        .offcanvas-body.p-0
+            .img-responsive(ng-if="app.data.featured" style="position: relative; background-image: url('{{app.data.featured}}')")
+                svg(viewBox="0 0 21 9")
+                    rect(width="21" height="9" style="fill:rgba(255,255,255,0);")
+            
+            .container.mt-5(style="max-width: 720px;")
+                .d-flex.mb-4
+                    .app-title
+                        h2.mb-0 {{app.data.title}}
+                            small.ml-2.text-muted /
+                            small.ml-2.text-muted {{app.data.version}}
+                        h3.mb-0
+                            span.text-primary {{app.data.user_id}}
+                        
+                        .btn.btn-primary.mt-3(ng-click="app.loader(app.data.id, true)") Update
+
+                    .avatar-area.ml-auto
+                        .avatar-container
+                            span.avatar(style="background-image: url({{app.data.logo}})")
+
+                textarea#app-description
+
+    div(ng-repeat="(key, value) in workflow.status")
+        div(ng-if="value.status == 'error'")
+            style.
+                .{{value.flow_id}} {
+                    box-shadow: 0 2px 20px 2px #d63939 !important;
+                }
+
+        div(ng-if="value.status == 'pending'")
+            style.
+                .{{value.flow_id}} .pending-indicator {
+                    display: block !important;
+                }
+
+                .{{value.flow_id}} .action-btn-play {
+                    display: none;
+                }
+
+                .{{value.flow_id}} .action-btn-stop {
+                    display: block !important;
+                }
+                
+
+        div(ng-if="value.status == 'finish'")
+            style.
+                .{{value.flow_id}} .finish-indicator {
+                    display: block !important;
+                    padding-top: 9px;
+                    text-align: center;
+                    font-size: 12px;
+                    background: rgba(47,179,68,.1);
+                    color: #2fb344;
+                    font-weight: 1000;
+                }
+
+        div(ng-if="value.status == 'running'")
+            style.
+                :root {
+                    --animate-duration: 1s;
+                    --animate-delay: 1s;
+                    --animate-repeat: 1;
+                }
+
+                @keyframes heartBeat {
+                    0% {
+                        -webkit-transform: scale(1);
+                        transform: scale(1);
+                    }
+
+                    25% {
+                        -webkit-transform: scale(1.02);
+                        transform: scale(1.02);
+                    }
+
+                    50% {
+                        -webkit-transform: scale(1);
+                        transform: scale(1);
+                    }
+
+                    75% {
+                        -webkit-transform: scale(1.02);
+                        transform: scale(1.02);
+                    }
+
+                    100% {
+                        -webkit-transform: scale(1);
+                        transform: scale(1);
+                    }
+                }
+
+                .{{value.flow_id}} {
+                    // -webkit-animation-name: heartBeat;
+                    // animation-name: heartBeat;
+                    // -webkit-animation-duration: calc(1s * 1.3);
+                    // animation-duration: calc(1s * 1.3);
+                    // -webkit-animation-duration: calc(var(--animate-duration) * 1.3);
+                    // animation-duration: calc(var(--animate-duration) * 1.3);
+                    // -webkit-animation-timing-function: ease-in-out;
+                    // animation-timing-function: ease-in-out;
+                    // animation-iteration-count: infinite;
+                    box-shadow: 0 2px 20px 2px #4ea9ff !important;
+                }
+
+                .{{value.flow_id}} .action-btn-play {
+                    display: none;
+                }
+
+                .{{value.flow_id}} .action-btn-stop {
+                    display: block !important;
+                }
+
+                .{{value.flow_id}} .progress {
+                    display: flex !important;
+                }
+
+    div(ng-if="workflow.active_flow_id")
+        style.
+            .{{workflow.active_flow_id}} {
+                    background: white;
+                    border: 1px solid #4ea9ff;
+                    -webkit-box-shadow: 0 2px 20px 2px #4ea9ff !important;
+                    box-shadow: 0 2px 20px 2px #4ea9ff;
+            }
+
+    {$ wiz.render("modal.message") $}

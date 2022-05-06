@@ -1,0 +1,25 @@
+.wrapper
+    .container
+        form.form.pb-1
+            a.mb-4.cursor-pointer(href="/" style="display: inline-block;")
+                - if hubconfig.logo
+                    img(src="{$ hubconfig.logo $}" style="width: 200px; display: inline-block;")
+                - else
+                    img(src="/resources/images/brand/dizest-hub-white.png" style="width: 200px; display: inline-block;")
+            input(type="text" placeholder="Username" ng-model="user.id")
+            input(type="password" placeholder="Password" ng-model="user.password" ng-enter="login(user)")
+            button#login-button(ng-click="login(user)") LOGIN
+
+    ul.bg-bubbles
+        li
+        li
+        li
+        li
+        li
+        li
+        li
+        li
+        li
+        li
+
+    {$ wiz.render("modal.message") $}

@@ -1,0 +1,114 @@
+.workspace-area
+    .workspace-header
+        .page-header.d-print-none
+            .row.align-items-center
+                .col-auto
+                    span.status-indicator.status-indicator-animated.status-primary
+                        span.status-indicator-circle
+                        span.status-indicator-circle
+                        span.status-indicator-circle
+                .col
+                    h2.page-title Settings
+                    .text-muted
+                        ul.list-inline.list-inline-dots.mb-0
+                            li.list-inline-item configure DIZEST Hub system.
+
+                .col-auto
+                    .actions
+                        .btn.btn-primary(ng-click="update()")
+                            span Update
+
+    .workspace-container
+        .container(style="max-width: 860px;")
+            .card.mt-5.mb-5
+                .card-header
+                    h4.card-title Hub Information
+
+                .card-body.p-4
+                    .form-group.row.mb-3
+                        label.form-label.col-3.col-form-label Hub Title
+                        .col
+                            input.form-control(type="text" placeholder="Hub Title" ng-model="config.title")
+                    
+                    .form-group.row
+                        label.form-label.col-3.col-form-label Logo
+                        .col.text-left
+                            .bg-primary.text-center(style="padding: 0.75rem 0; width: 280px;")
+                                img(ng-if="config.logo" src="{{config.logo}}" style="height: 32px; margin: 5px 0;")
+                                img(ng-if="!config.logo" src="/resources/images/brand/dizest-hub-white.png" style="height: 32px; margin: 5px 0;")
+
+                            input.form-control#file-logo(type="file" accept="image/*" style="display: none")
+                        .col-2
+                            .btn.btn-primary.btn-block(ng-click="uploader()") Upload
+                            .btn.btn-outline-danger.btn-block.mt-2(ng-if="config.logo" ng-click="config.logo = ''") Delete
+
+            .card.mb-5
+                .card-header
+                    h4.card-title Database
+                
+                .card-body.p-4
+                    .form-group.row.mb-3
+                        label.form-label.col-3.col-form-label Type
+                        .col
+                            .form-selectgroup
+                                label.form-selectgroup-item
+                                    input.form-selectgroup-input(type="radio" name="dbtype" value="sqlite" ng-model="config.db.type")
+                                    span.form-selectgroup-label
+                                        span sqlite
+                                label.form-selectgroup-item
+                                    input.form-selectgroup-input(type="radio" name="dbtype" value="mysql" ng-model="config.db.type")
+                                    span.form-selectgroup-label
+                                        span MySQL
+                    
+                    div(ng-if="config.db.type == 'mysql'")
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Database
+                            .col
+                                input.form-control(type="text" placeholder="database" ng-model="config.db.database")
+
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Host
+                            .col
+                                input.form-control(type="text" placeholder="127.0.0.1" ng-model="config.db.config.host")
+                        
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Port
+                            .col
+                                input.form-control(type="number" placeholder="3306" ng-model="config.db.config.port")
+
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label User
+                            .col
+                                input.form-control(type="text" placeholder="dbuser" ng-model="config.db.config.user")
+
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Password
+                            .col
+                                input.form-control(type="password" placeholder="dbpass" ng-model="config.db.config.passwd")
+                        
+                .card-footer.d-flex.p-2
+                    .ml-auto
+                    .btn.btn-primary.btn-circle(style="width: 120px;" ng-click="check()" ng-if="!status.db") Test Database
+                    .btn.btn-primary.btn-circle(style="width: 120px;" ng-if="status.db")
+                        i.fa-solid.fa-check.mr-2
+                        span Connected
+
+            .card.mb-5
+                .card-header
+                    h4.card-title Child Processes ({$ processid $}, {{processes.length}})
+                .table-responsive
+                    table.table.table-hover.table-vcenter.card-table
+                        thead
+                            tr
+                                th PID
+                                th Parent
+                                th CMD
+                        tbody
+                            tr(ng-repeat="item in processes")
+                                td.text-center.pr-2.pl-2 {{item.pid}} 
+                                td.text-center.pr-2.pl-2 {{item.parent}}
+                                td.text-left.pr-2.pl-2 {{item.cmd}}
+
+    .workspace-footer
+
+    {$ wiz.render("modal.message") $}

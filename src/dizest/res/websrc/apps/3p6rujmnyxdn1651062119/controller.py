@@ -1,0 +1,1 @@
+kwargs['session'] = wiz.session.get()

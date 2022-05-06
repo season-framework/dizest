@@ -1,15 +1,8 @@
-import time
 import os
-import signal
+import sys
 import subprocess
 import psutil
-import multiprocessing as mp
-import fnmatch
 import shutil
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-
-from argh import arg, expects_obj
 from git import Repo
 import socket
 import pathlib
@@ -26,16 +19,13 @@ def portchecker(port):
         pass
     return False
 
-HOMEDIR = pathlib.Path.home()
-DIZESTHOME = os.path.join(HOMEDIR, ".dizest")
-PATH_PROJECT = os.path.join(DIZESTHOME, "websrc")
-PATH_FRAMEWORK = season.core.PATH.FRAMEWORK
+PATH_USERHOME = pathlib.Path.home()
+PATH_WIZ = season.core.PATH.FRAMEWORK
 PATH_DIZEST = os.path.dirname(os.path.dirname(__file__))
-WATCH_URI = os.path.join(PATH_PROJECT, "config")
 
-PATH_WORKSPACE = os.getcwd()
-
-fs = dizest.util.storage(DIZESTHOME)
+PATH_WORKINGDIR = os.getcwd()
+PATH_WEBSRC = os.path.join(PATH_WORKINGDIR, "websrc")
+PATH_DIZEST_CONFIG = os.path.join(PATH_WORKINGDIR, "dizest.json")
 
 def copytree(src, dst, symlinks=False, ignore=None):
     for item in os.listdir(src):
@@ -47,26 +37,34 @@ def copytree(src, dst, symlinks=False, ignore=None):
             shutil.copy2(s, d)
 
 def install():
+    fs = dizest.util.os.storage(PATH_WORKINGDIR)
     fs.remove("websrc")
-    PATH_PUBLIC_SRC = os.path.join(PATH_FRAMEWORK, 'data', 'wizbase')
-    shutil.copytree(PATH_PUBLIC_SRC, PATH_PROJECT)
+    
+    PATH_PUBLIC_SRC = os.path.join(PATH_WIZ, 'data', 'wizbase')
+    shutil.copytree(PATH_PUBLIC_SRC, PATH_WEBSRC)
 
     print("install wiz...")
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-setting', os.path.join(PATH_PROJECT, 'plugin', 'core.setting'))
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-branch', os.path.join(PATH_PROJECT, 'plugin', 'core.branch'))
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-workspace', os.path.join(PATH_PROJECT, 'plugin', 'core.workspace'))
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-theme', os.path.join(PATH_PROJECT, 'plugin', 'theme'))
+    Repo.clone_from('https://github.com/season-framework/wiz-plugin-setting', os.path.join(PATH_WEBSRC, 'plugin', 'core.setting'))
+    Repo.clone_from('https://github.com/season-framework/wiz-plugin-branch', os.path.join(PATH_WEBSRC, 'plugin', 'core.branch'))
+    Repo.clone_from('https://github.com/season-framework/wiz-plugin-workspace', os.path.join(PATH_WEBSRC, 'plugin', 'core.workspace'))
+    Repo.clone_from('https://github.com/season-framework/wiz-plugin-theme', os.path.join(PATH_WEBSRC, 'plugin', 'theme'))
 
     print("install dizest...")
-    Repo.clone_from('https://github.com/season-framework/dizest-wiz', os.path.join(PATH_PROJECT, 'branch', 'master'))
+    shutil.copytree(os.path.join(PATH_DIZEST, 'res', 'websrc'), os.path.join(PATH_WEBSRC, 'branch', 'master'))
+    
+    fs.makedirs("storage")
+    fs.makedirs("cache")
+
+    if fs.exists(PATH_DIZEST_CONFIG) == False:
+        fs.write.json(PATH_DIZEST_CONFIG, {"db": {"type": "sqlite"}})
 
     print("installed!")
 
 def run():
-    if os.path.isdir(PATH_PROJECT) is False:
+    fs = dizest.util.os.storage(PATH_WEBSRC)    
+    if fs.exists() is False:
         install()
-
-    config = fs.read.json("dizest.config.json", dict())
+    config = fs.read.json(PATH_DIZEST_CONFIG, dict())
 
     # port finder
     startport = 3000
@@ -77,41 +75,40 @@ def run():
         startport = startport + 1
     
     config['port'] = startport
-
+    
     # host finder
     host = '0.0.0.0'
     if 'host' in config:
         host = config['host']
     config['host'] = host
 
-    config['workspace'] = PATH_WORKSPACE
+    config['path'] = PATH_WORKINGDIR
 
     # save dizest config
-    fs.write.json("dizest.config.json", config)
+    fs.write.json(PATH_DIZEST_CONFIG, config)
 
     # build config
-    CONFIG_BASE_PATH = os.path.join(PATH_DIZEST, 'config', 'config.py')
-    CONFIG_PATH = os.path.join(PATH_PROJECT, 'config', 'config.py')
-    f = open(CONFIG_BASE_PATH, 'r')
-    data = f.read()
-    f.close()
+    PATH_CONFIG_BASE = os.path.join(PATH_DIZEST, 'res', 'config', 'config.py')
+    PATH_CONFIG = os.path.join(PATH_WEBSRC, 'config', 'config.py')
+
+
+    data = fs.read.text(PATH_CONFIG_BASE)
     data = data.replace("__PORT__", str(startport))
     data = data.replace("__HOST__", str(host))
-    f = open(CONFIG_PATH, 'w')
-    f.write(data)
-    f.close()
+    fs.write.text(PATH_CONFIG, data)
     
     # copy config
-    fs.copy(os.path.join(PATH_DIZEST, 'config', 'wiz.py'), "websrc/config/wiz.py")
-    fs.copy(os.path.join(PATH_DIZEST, 'config', 'wiz.json'), "websrc/wiz.json")
+    fs.copy(os.path.join(PATH_DIZEST, 'res', 'config', 'wiz.py'), "config/wiz.py")
+    fs.copy(os.path.join(PATH_DIZEST, 'res', 'config', 'wiz.json'), "wiz.json")
 
     # run server
-    publicpath = os.path.join(PATH_PROJECT, 'public')
+    publicpath = os.path.join(PATH_WEBSRC, 'public')
     apppath = os.path.join(publicpath, 'app.py')
 
     if os.path.isfile(apppath) == False:
         print("Invalid Project path: dizest structure not found in this folder.")
         return
 
-    cmd = "python {}".format(apppath)
+    executable = sys.executable
+    cmd = f"{executable} {apppath}"
     subprocess.call(cmd, shell=True)
