@@ -21,7 +21,6 @@ class Controller(wiz.controller("view")):
         menu.append({ 'title': 'Apps', 'url': '/hub/apps', 'icon': 'fa-solid fa-cube' })
         menu.append({ 'title': 'Workflow', 'url': '/hub/workflow', 'icon': 'fa-solid fa-cubes' })
         menu.append({ 'title': 'Dataset', 'url': '/hub/dataset', 'icon': 'fa-solid fa-database' })
-        menu.append({ 'title': 'Storage', 'url': '/hub/storage', 'icon': 'fa-solid fa-folder-tree' })
-        menu.append({ 'title': 'Kernels', 'url': '/hub/kernels', 'icon': 'fa-solid fa-microchip' })
+        menu.append({ 'title': 'Drive', 'url': '/hub/drive', 'icon': 'fa-solid fa-folder-tree' })
         self.set_menu(main=menu)
         

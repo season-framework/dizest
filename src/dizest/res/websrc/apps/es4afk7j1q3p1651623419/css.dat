@@ -26,6 +26,44 @@ $color-secondary: rgba(116, 108, 112, .1);
 
         .main-context {
             flex: auto;
+            overflow: hidden;
+
+            table {
+                margin: 0;
+            }
+
+            .navigation {
+                padding: 8px 16px;
+                background-color: $color-primary-lt;
+                border-bottom: 1px solid $color-border;
+            }
+
+            .list-back {
+                height: 36px;
+            }
+
+            .list-area {
+                width: 100%;
+                height: calc(100% - 37px);
+                overflow: auto;
+            }
+
+            &.active {
+                .list-area {
+                    width: 100%;
+                    height: calc(100% - 73px);
+                    overflow: auto;
+                }   
+            }
+
+            .breadcrumb {
+                li {
+                    padding-left: 4px;
+                    &::before {
+                        padding-right: 4px;
+                    }
+                }
+            }
         }
 
         .item-list {
@@ -64,17 +102,94 @@ $color-secondary: rgba(116, 108, 112, .1);
 }
 
 .w-1 {
+    width: 8px;
     white-space: nowrap;
     text-align: center;
-    padding: 0 12px;
 }
 
 th {
     text-align: center;
 }
 
+tr {
+    .d-flex {
+        .form-control {
+            border-radius: 36px;
+        }
+    }
+    
+    .actions {
+        font-size: 24px;
+        
+        .dropdown {
+            display: inline-block;
+            
+            ul {
+                display: none;
+
+                i {
+                    width: 20px;
+                    margin-right: 4px;
+                }
+            }
+        }
+
+        .btn {
+            opacity: 0;
+            min-width: 48px;
+        }
+    }
+
+    &:hover {
+        .dropdown {
+            display: inline-block;
+
+            ul.show {
+                display: block;
+            }
+        }
+        
+        .btn {
+            opacity: 1;
+        }
+    }
+    
+}
+
 th, td {
-    text-align: center;
+    padding: 8px 12px;
+    cursor: initial;
+
+    .icon-box {
+        display: inline-block;
+    }
+
+    a {
+        color: #2F374E;
+        cursor: pointer;
+    }
+    
+    .avatar-container {
+        display: flex;
+        align-items: center;
+        height: 32px;
+        width: 32px;
+        border-radius: 4px;
+        text-align: center;
+        vertical-align: middle;
+        background-color: $color-secondary;
+        color: #666;
+
+        &.folder {
+            background-color: #92CEFF;
+            color: #51ACF6;
+        }
+
+        i {
+            width: 32px;
+            text-align: center;
+        }
+    }
 }
 
 .nav.nav-tabs {

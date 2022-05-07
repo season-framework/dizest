@@ -1,1 +1,1 @@
-{"id": "2o2psqh5zrid1650800749", "title": "/hub/*", "namespace": "2o2psqh5zrid1650800749", "route": "/hub/<path:path>", "viewuri": "", "created": "2022-04-24 20:45:49", "updated": "2022-05-05 21:48:12", "controller": "user"}
+{"id": "2o2psqh5zrid1650800749", "title": "/hub/*", "namespace": "2o2psqh5zrid1650800749", "route": "/hub/<path:path>", "viewuri": "", "created": "2022-04-24 20:45:49", "updated": "2022-05-07 17:30:13", "controller": "user"}

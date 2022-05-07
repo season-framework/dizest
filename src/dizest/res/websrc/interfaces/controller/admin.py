@@ -17,6 +17,7 @@ class Controller(wiz.controller("user")):
         self.set_menu(profile=menu)
 
         menu = []
+        menu.append({ 'title': 'Dashboard', 'url': '/admin/dashboard', 'icon': 'fa-solid fa-gauge-simple' })
         menu.append({ 'title': 'Setting', 'url': '/admin/setting', 'icon': 'fa-solid fa-cogs' })
         menu.append({ 'title': 'Users', 'url': '/admin/users', 'icon': 'fa-solid fa-users' })
         menu.append({ 'title': 'Kernel', 'url': '/admin/kernel', 'icon': 'fa-solid fa-microchip' })

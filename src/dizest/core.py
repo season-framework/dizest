@@ -216,6 +216,9 @@ class Kernel:
     def _start(self):
         if self.p is not None:
             raise Exception("Process already running")
+        
+        self.start()
+
         self.q = mp.Queue()
         self.p = mp.Process(target=self._process, args=[self.q])
         self.p.start()
@@ -235,6 +238,8 @@ class Kernel:
         self.q.put(data)
         
     def _stop(self):
+        self.stop()
+
         try:
             self.p.kill()
             self.p.join()
@@ -256,17 +261,17 @@ class Kernel:
     def __del__(self):
         self.stop()
 
-class SingleThreadKernel(Kernel):
+class SharedKernel(Kernel):
     def run(self, flow_id):
         self.workflow.flow(flow_id).run()
 
     def stop(self):
-        self._stop()
+        pass
 
     def start(self):
-        self._start()
+        pass
 
-class MultiThreadKernel(Kernel):
+class IndependentKernel(Kernel):
     def run(self, flow_id):
         def process(workflow, flow_id):
             workflow.flow(flow_id).run()
@@ -276,13 +281,16 @@ class MultiThreadKernel(Kernel):
         p.kill()
         
     def stop(self):
-        self._stop()
+        pass
 
     def start(self):
-        self._start()
+        pass
+
+Kernel.Shared = SharedKernel
+Kernel.Independent = IndependentKernel
 
 class Workflow:
-    def __init__(self, package, kernel=MultiThreadKernel, status_changed_api=None):
+    def __init__(self, package, kernel=Kernel.Independent, status_changed_api=None):
         self.kernel_class = kernel
         self._id = package['id']
         self._package = mp.Manager().dict()
@@ -295,10 +303,10 @@ class Workflow:
         self._status = mp.Manager().dict()
         self._output = mp.Manager().dict()
         self.kernel = self.kernel_class(self)
-        self.kernel.start()
+        self.kernel._start()
         
     def __del__(self):
-        self.kernel.stop()
+        self.kernel._stop()
 
     def update(self, package):
         self._package['flow'] = package['flow']
@@ -323,11 +331,11 @@ class Workflow:
         return flow
     
     def start(self):
-        self.kernel.start()
+        self.kernel._start()
 
     def restart(self):
         self.stop()
-        self.kernel.start()
+        self.kernel._start()
         
     def stop(self, flow_id=None):
         if flow_id is None:
@@ -349,7 +357,7 @@ class Workflow:
                     flow.set_status('code', 0)
                     flow.set_status('message', "")
 
-        self.kernel.stop()
+        self.kernel._stop()
         
     def run(self, flow_id):
         flow = self.flow(flow_id)

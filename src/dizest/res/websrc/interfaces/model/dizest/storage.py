@@ -174,7 +174,7 @@ class Model:
         self.write = write(self)
         
     def basepath(self):
-        return os.path.join(self.config, self.namespace)
+        return os.path.realpath(self.config + "/" + self.namespace)
 
     def __json__(self, jsonstr):
         try:
@@ -193,6 +193,7 @@ class Model:
 
     @staticmethod
     def use(path, namespace=""):
+        if ".." in namespace: namespace = ""
         fs = Model(path)
         fs.namespace = namespace
         return fs
@@ -202,6 +203,8 @@ class Model:
         return self
 
     def cd(self, namespace):
+        if ".." in namespace:
+            return self
         namespace = os.path.join(self.namespace, namespace)
         self.namespace = namespace
         return self
@@ -209,11 +212,11 @@ class Model:
     def pwd(self):
         return self.abspath()
 
-    def ls(self):
-        return self.files()
+    def ls(self, filepath=""):
+        return self.files(filepath)
 
-    def list(self):
-        return self.files()
+    def list(self, filepath=""):
+        return self.files(filepath)
 
     def files(self, filepath="", page=None, dump=20, recursive=False):
         try:
@@ -267,9 +270,11 @@ class Model:
         self.__copy__(filepath1, filepath2)
 
     def abspath(self, filepath=""):
-        target_path = os.path.join(self.basepath(), filepath)
+        target_path = os.path.realpath(self.basepath() + "/" + filepath)
         notallowed = ["", "/"]
         if target_path in notallowed: 
+            raise Exception("not allowed path")
+        if self.basepath() not in target_path:
             raise Exception("not allowed path")
         return os.path.realpath(target_path)
 
@@ -291,7 +296,11 @@ class Model:
         path = self.abspath(path)
         return mimetypes.guess_type(path)[0]
 
-    # remove file
+    def move(self, path, rename):
+        path = self.abspath(path)
+        rename = self.abspath(rename)
+        shutil.move(path, rename)
+    
     def remove(self, filepath=""):
         self.delete(filepath)
 

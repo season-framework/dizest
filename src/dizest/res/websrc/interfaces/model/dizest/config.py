@@ -1,13 +1,13 @@
 import os
 import season
 
-BASEPATH = season.core.PATH.PROJECT
+BASEPATH = os.path.realpath(season.core.PATH.PROJECT + "/..")
 
 class Model:
     @staticmethod
     def load():
         try:
-            fs = wiz.model("dizest/storage").use(BASEPATH, "..")
+            fs = wiz.model("dizest/storage").use(BASEPATH)
             config = fs.read.json("dizest.json")
             config = season.stdClass(config)
             return config
@@ -29,5 +29,5 @@ class Model:
         return True
 
     def update(config):
-        fs = wiz.model("dizest/storage").use(BASEPATH, "..")
+        fs = wiz.model("dizest/storage").use(BASEPATH)
         config = fs.write.json("dizest.json", config)

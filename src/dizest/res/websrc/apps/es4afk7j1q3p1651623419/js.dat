@@ -1,2 +1,93 @@
 let wiz_controller = async ($sce, $scope, $timeout) => {
+    let _$timeout = $timeout;
+    $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
+
+    let alert = async (message) => {
+        await wiz.connect("modal.message")
+            .data({
+                title: "Alert",
+                message: message,
+                btn_action: "Close",
+                btn_class: "btn-primary"
+            })
+            .event("modal-show");
+    }
+
+    let api = async (action, query) => {
+        if (!query) query = {};
+        query = angular.copy(query);
+        query['mode'] = wiz.data.mode;
+        let res = await wiz.API.async(action, query);
+        if (res.code == 200) {
+            return res.data;
+        }
+        throw Exception(res.data);
+    }
+
+    $scope.timer = (value) => {
+        return moment(new Date(value * 1000)).format("YYYY-MM-DD HH:mm:ss");
+    }
+
+    $scope.filesize = (value) => {
+        if (!value) return "--";
+        let kb = value / 1024;
+        if (kb < 1) return value + "B";
+        let mb = kb / 1024;
+        if (mb < 1) return Math.round(kb * 100) / 100 + "KB";
+        let gb = mb / 1024;
+        if (gb < 1) return Math.round(mb * 100) / 100 + "MB";
+        return Math.round(gb * 100) / 100 + "GB";
+    }
+
+    $scope.mode = wiz.data.mode;
+    $scope.query = { path: location.href.split("#")[1] ? decodeURIComponent(location.href.split("#")[1]) : '' };
+
+    $scope.load = async (item) => {
+        if (item) {
+            if (item.type == 'folder') {
+                $scope.query.path = $scope.query.path + "/" + item.name;
+                location.href = "#" + $scope.query.path;
+            } else {
+                return;
+            }
+        }
+
+        $scope.paths = $scope.query.path.split("/").splice(1);
+
+        $scope.files = await api("ls", $scope.query);
+        $scope.files.sort((a, b) => {
+            return b.type.localeCompare(a.type);
+        });
+        await $timeout();
+    }
+
+    $scope.load_parent = async () => {
+        let path = $scope.query.path.split("/");
+        path = path.splice(0, path.length - 1);
+        path = path.join("/");
+        $scope.query.path = path;
+        location.href = "#" + $scope.query.path;
+        await $scope.load();
+    }
+
+    $scope.rename = async (file) => {
+        file.rename = file.name;
+        file.edit = true;
+        await $timeout();
+    }
+
+    $scope.api = {};
+    $scope.api.rename = async (file) => {
+        let data = angular.copy(file);
+        data.path = $scope.query.path;
+        await api('rename', data);
+
+        await $scope.load();    
+
+        // file.edit = false;
+        // file.name = file.rename;
+        // await $timeout();
+    }
+
+    await $scope.load();
 }

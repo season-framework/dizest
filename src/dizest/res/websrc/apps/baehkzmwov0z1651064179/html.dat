@@ -93,22 +93,6 @@
                         i.fa-solid.fa-check.mr-2
                         span Connected
 
-            .card.mb-5
-                .card-header
-                    h4.card-title Child Processes ({$ processid $}, {{processes.length}})
-                .table-responsive
-                    table.table.table-hover.table-vcenter.card-table
-                        thead
-                            tr
-                                th PID
-                                th Parent
-                                th CMD
-                        tbody
-                            tr(ng-repeat="item in processes")
-                                td.text-center.pr-2.pl-2 {{item.pid}} 
-                                td.text-center.pr-2.pl-2 {{item.parent}}
-                                td.text-left.pr-2.pl-2 {{item.cmd}}
-
     .workspace-footer
 
     {$ wiz.render("modal.message") $}

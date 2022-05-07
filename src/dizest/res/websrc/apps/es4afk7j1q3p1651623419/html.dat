@@ -8,34 +8,94 @@
                         span.status-indicator-circle
                         span.status-indicator-circle
                 .col
-                    h2.page-title Storage
+                    h2.page-title Drive
                 
                 .col-auto.actions
-                    a.btn.btn-primary(href="/hub/workflow/item/new")
-                        i.fa-solid.fa-plus.mr-2
-                        span Create Workflow
+                    .btn.btn-primary
+                        i.fa-solid.fa-upload.mr-2
+                        span Upload
     
     .workspace-container
         .side-menu
             .item-list
-                a.item-info.mode-local(href="/hub/storage/local")
+                a.item-info.mode-local(href="/hub/drive/local")
                     .avatar-area.avatar-area-sm.mr-3
                         .avatar-container
                             i.fa-solid.fa-key
                     .title-area
                         .item-title Local
             
-                a.item-info.mode-public(href="/hub/storage/public")
+                a.item-info.mode-public(href="/hub/drive/public")
                     .avatar-area.avatar-area-sm.mr-3
                         .avatar-container
                             i.fa-solid.fa-cloud
                     .title-area
                         .item-title Public
 
-        .main-context test2
+        .main-context(class="{{query.path != '' ? 'active' : ''}}")
+            nav.navigation
+                ol.breadcrumb
+                    li.breadcrumb-item.active= mode
+                    li.breadcrumb-item.active(ng-repeat="item in paths") {{item}}
+
+            .list-back(ng-if="query.path != ''")
+                table.table.table-sm.table-hover.table-vcenter
+                    tr
+                        td.text-left.cursor-pointer(ng-click="load_parent()")
+                            svg.icon.mr-2(xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round")
+                                path(stroke="none" d="M0 0h24v24H0z" fill="none")
+                                path(d="M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4")
+                            span ...
+            
+            .list-area
+                table.table.table-sm.table-hover.table-vcenter
+                    tr(ng-repeat="file in files")
+                        td.w-1.pr-0
+                            input.form-check-input(type="checkbox")
+                        td.w-1.pr-0
+                            .avatar-area.avatar-area-sm
+                                .avatar-container(class="{{file.type == 'folder' ? 'folder' : ''}}")
+                                    i.fa-solid.fa-file(ng-if="file.type == 'file'")
+                                    i.fa-solid.fa-folder(ng-if="file.type == 'folder'")
+                        td.text-left(ng-if="!file.edit")
+                            a(ng-click="load(file)") {{file.name}}
+                        td.text-left(ng-if="file.edit")
+                            .d-flex
+                                input.form-control(ng-model="file.rename" ng-enter="api.rename(file)")
+                                .btn.btn-primary.btn-circle.ml-2(style="width: 36px;" ng-click="api.rename(file))
+                                    i.fa-solid.fa-check
+                        td.w-1.text-right.text-muted {{timer(file.ctime)}}
+                        td.w-1.text-right.text-muted {{filesize(file.size)}}
+                        td.w-1.text-right.pr-5.actions
+                            .btn.btn-sm.btn-white
+                                i.fa-solid.fa-download
+                            
+                            .dropdown
+                                button.btn.btn-white.btn-sm(data-bs-toggle="dropdown" aria-expanded="false")
+                                    i.fa-solid.fa-ellipsis-vertical
+                                ul.dropdown-menu
+                                    li
+                                        a.dropdown-item(ng-click="rename(file)")
+                                            i.fa-solid.fa-pen-to-square
+                                            span Rename
+                                    li
+                                        a.dropdown-item
+                                            i.fa-solid.fa-download
+                                            span Download
+                                    li
+                                        a.dropdown-item
+                                            i.fa-solid.fa-arrow-right-arrow-left
+                                            span Move
+                                    li
+                                        a.dropdown-item
+                                            i.fa-solid.fa-trash
+                                            span Delete
+
     
     style.
         .mode-{$ mode $} {
             background-color: rgba(32,107,196,.05);
             color: #3843D0 !important;
         }
+
+    {$ wiz.render("modal.message") $}
