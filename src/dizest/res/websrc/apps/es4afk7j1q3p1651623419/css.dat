@@ -9,6 +9,32 @@ $color-secondary: rgba(116, 108, 112, .1);
     height: 100%;
     overflow: hidden;
 
+    .workspace-loader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2000;
+        background-color: $color-secondary;
+
+        table {
+            width: 100%;
+            height: 100%;
+
+            td {
+                height: 100%;
+                vertical-align: middle;
+                text-align: center;
+
+                .spinner-border {
+                    width: 48px;
+                    height: 48px;
+                }
+            }
+        }
+    }
+
     .workspace-header {
         padding-top: 12px;
         padding-bottom: 13px;
@@ -134,9 +160,10 @@ tr {
             }
         }
 
-        .btn {
+        .dropdown, .btn {
             opacity: 0;
             min-width: 48px;
+            margin: 0;
         }
     }
 
@@ -149,7 +176,7 @@ tr {
             }
         }
         
-        .btn {
+        .dropdown, .btn {
             opacity: 1;
         }
     }
@@ -319,6 +346,7 @@ $radius: 24px;
         padding: 8px 16px;
         font-weight: 1000;
         border-radius: $radius;
+        margin-left: 4px;
     }
 
     .btn-group {
@@ -366,5 +394,13 @@ $radius: 24px;
                 border-top-right-radius: 0;
             }
         }   
+    }
+}
+
+.offcanvas {
+    .offcanvas-body {
+        .btn {
+            padding: 8px 16px;
+        }
     }
 }

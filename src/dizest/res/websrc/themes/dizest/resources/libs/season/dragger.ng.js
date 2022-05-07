@@ -25,6 +25,7 @@
             $(element).css("position", "relative");
 
             var onstage = $("<div></div>")
+            onstage.css("align-items", "center");
             onstage.css("position", "absolute");
             onstage.css("left", 0);
             onstage.css("top", 0);
@@ -34,14 +35,13 @@
             onstage.css("display", "none");
             onstage.css("color", "#fff");
             onstage.css("text-align", "center");
-            onstage.css("font-size", "24px");
-            onstage.css("padding-top", "50%");
-            onstage.html(config.text);
+            onstage.css("font-size", "32px");
+            onstage.html("<div style='width: 100%; text-align: center;'>" + config.text + "</div>");
             $(element).append(onstage);
 
             $(element).on("dragenter", function (e) {
                 e.preventDefault();
-                onstage.css("display", "block");
+                onstage.css("display", "flex");
             });
 
             $(element).on("dragenter", function (e) {
