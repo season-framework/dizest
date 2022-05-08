@@ -13,6 +13,10 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             .event("modal-show");
     }
 
+    $scope.download = (file) => {
+        return wiz.API.url("download/" + encodeURIComponent($scope.query.path) + "/" + encodeURIComponent(file.name));
+    }
+
     let api = async (action, query) => {
         if (!query) query = {};
         query = angular.copy(query);

@@ -6,15 +6,35 @@ import json
 import traceback
 import sys
 import requests
+import pypugjs
+import sass
 
-class Dizest:
+class Dizest(util.std.stdClass):
     def __init__(self):
         self.data = dict()
         self._output = dict()
+
+    def storage(self, mode='local'):
+        auth = self.get("auth")
+        user = self.get("user")
+        cwd = self.get("cwd")
+        rw = True
+        if mode == 'public':
+            basepath = os.path.join(cwd, mode)
+            if auth not in ['admin', 'root']:
+                rw = False
+        else:
+            basepath = os.path.join(cwd, mode, user)
+        return util.os.storage(basepath, root=False, rw=rw)
     
     def set(self, **kwargs):
         for key in kwargs:
             self.data[key] = kwargs[key]
+    
+    def get(self, key, default=None):
+        if key in self.data:
+            return self.data[key]
+        return default
     
     def input(self, name, default=None, id=None):
         try:
@@ -37,9 +57,6 @@ class Dizest:
     
     def output(self, name, value):
         self._output[name] = value
-    
-    def get_output(self):
-        return self._output
 
 class App:
     def __init__(self, package):
@@ -89,10 +106,59 @@ class Flow:
     
     def outputs(self):
         return self._outputs
-    
-    def run(self, **kwargs):
+
+    def dizest(self):
         flow_id = self.id()
         workflow = self.workflow
+        use_sample = workflow.develop
+
+        values = self.values()
+
+        inputs_define = self.inputs()
+        inputs = dict()
+
+        is_runnable = True
+        if use_sample == False:
+            required_process_flow = []
+            for name in inputs_define:
+                inputs[name] = dict()
+                rows = inputs_define[name]
+                for item in rows:
+                    output = self.workflow.flow(item['flow_id']).get_output(item['name'])
+                    if output is None:
+                        required_process_flow.append(item['flow_id'])
+                        is_runnable = False
+                    else:
+                        inputs[name][item['flow_id']] = output
+            
+            if is_runnable == False:
+                return False, required_process_flow
+        else:
+            sample = self.app().get("sample", "")
+            env = dict()
+            env['data'] = dict()
+            exec(sample, env)
+            output = env['data']
+            for name in inputs_define:
+                inputs[name] = dict()
+                if name in output:
+                    inputs[name]['sample'] = output[name]
+                    del output[name]
+            values = output
+
+        dizest = Dizest()
+        dizest.set(inputs=inputs, values=values, user=workflow.user, cwd=workflow.cwd, auth=workflow.auth)
+
+        return True, dizest
+    
+    def run(self, **env):
+        flow_id = self.id()
+        workflow = self.workflow
+
+        cwd = workflow.cwd
+        if workflow.user is not None:
+            os.chdir(os.path.join(cwd, 'local', workflow.user))
+
         index = workflow.get_status('index', 0)
         index = index + 1
 
@@ -102,39 +168,24 @@ class Flow:
         self.set_status('index', index)
         self.set_status('code', 0)
         self.set_status('status', 'running')
-
-        inputs_define = self.inputs()
-        inputs = dict()
-                
-        is_runnable = True
-        required_process_flow = []
-        for name in inputs_define:
-            inputs[name] = dict()
-            rows = inputs_define[name]
-            for item in rows:
-                output = self.workflow.flow(item['flow_id']).get_output(item['name'])
-                if output is None:
-                    required_process_flow.append(item['flow_id'])
-                    is_runnable = False
-                else:
-                    inputs[name][item['flow_id']] = output
+        self.set_status('message', "")
         
-        if is_runnable == False:
+        fullfill, dizest = self.dizest()
+
+        if fullfill == False:
             self.set_status('status', 'error')
             self.set_status('code', 1)
-            self.set_status('message', required_process_flow)
+            self.set_status('message', dizest)
             return
-        
-        values = self.values()
-        
-        dizest = Dizest()
-        dizest.set(inputs=inputs, values=values)
-        
+
         # run process
         app = self.app()
         app_code = app.get("code")
 
-        env = dict()
+        if workflow.logger is not None:
+            env['print'] = workflow.logger
+            env['display'] = workflow.logger
+
         env['dizest'] = dizest
         local_env = dict()
         
@@ -143,15 +194,47 @@ class Flow:
         except Exception as e:
             self.set_status('status', 'error')
             self.set_status('code', 2)
-            self.set_status('message', str(e))
+            stderr = traceback.format_exc()
+            if workflow.develop and workflow.logger is not None:
+                workflow.logger(stderr, color=91)
+            self.set_status('message', stderr)
             return
         
-        output = dizest.get_output()
+        output = dizest._output
         for key in output:
             self.set_output(key, output[key])
 
         self.set_status('code', 0)
         self.set_status('status', 'finish')
+
+    def render(self):
+        app = self.app()
+        pug = app.get("pug")
+
+        pugconfig = dict()
+        pugconfig['variable_start_string'] = '{$'
+        pugconfig['variable_end_string'] = '$}'
+
+        pug = pypugjs.Parser(pug)
+        pug = pug.parse()
+        pug = pypugjs.ext.jinja.Compiler(pug, **pugconfig).compile()
+        
+        js = app.get("js")
+        if js is None or len(js) == 0:
+            js = ""
+        else:
+            js = f"<script type='text/javascript'>{js}</script>"
+
+        css = app.get("css")
+        try:
+            css = sass.compile(string=css)
+            css = str(css)
+            css = f"<style>{css}</style>"
+        except:
+            css = ""
+
+        view = f"{pug}{js}{css}"
+        return view
 
     def get_status(self, name, default=None):
         flow_id = self.id()
@@ -159,10 +242,9 @@ class Flow:
         except: return default
     
     def set_status(self, name, value):
-        flow_id = self.id()
-        self.workflow._status[f"{flow_id}::{name}"] = value
-
         try:
+            flow_id = self.id()
+            self.workflow._status[f"{flow_id}::{name}"] = value
             if self.workflow.status_changed_api is not None:
                 wpid = self.workflow.id()
                 fid = self.id()
@@ -171,9 +253,11 @@ class Flow:
             pass
 
     def get_output(self, name, default=None):
-        flow_id = self.id()
-        try: return dict(self.workflow._output)[f"{flow_id}::{name}"]
-        except: return default
+        try: 
+            flow_id = self.id()
+            return dict(self.workflow._output)[f"{flow_id}::{name}"]
+        except: 
+            return default
     
     def set_output(self, name, value):
         flow_id = self.id()
@@ -239,7 +323,6 @@ class Kernel:
         
     def _stop(self):
         self.stop()
-
         try:
             self.p.kill()
             self.p.join()
@@ -289,8 +372,15 @@ class IndependentKernel(Kernel):
 Kernel.Shared = SharedKernel
 Kernel.Independent = IndependentKernel
 
-class Workflow:
-    def __init__(self, package, kernel=Kernel.Independent, status_changed_api=None):
+class Workflow(util.std.stdClass):
+    def __init__(self, package, kernel=Kernel.Shared, status_changed_api=None, cwd=None, user=None, auth='admin', develop=False, logger=None):
+        if cwd is None:
+            cwd = os.getcwd()
+        self.logger = logger
+        self.user = user
+        self.auth = auth
+        self.develop = develop
+        self.cwd = cwd
         self.kernel_class = kernel
         self._id = package['id']
         self._package = mp.Manager().dict()
@@ -303,7 +393,6 @@ class Workflow:
         self._status = mp.Manager().dict()
         self._output = mp.Manager().dict()
         self.kernel = self.kernel_class(self)
-        self.kernel._start()
         
     def __del__(self):
         self.kernel._stop()
@@ -363,12 +452,18 @@ class Workflow:
         flow = self.flow(flow_id)
         flow.set_status('code', 0)
         flow.set_status('status', 'pending')
+        flow.set_status('message', "")
         self.kernel.action('run', flow_id)
         return self.flow(flow_id)
         
     def get_status(self, name, default=None):
-        try: return dict(self._global_status)[name]
-        except: return default
+        try: 
+            return dict(self._global_status)[name]
+        except: 
+            return default
     
     def set_status(self, name, value):
-        self._global_status[name] = value
+        try:
+            self._global_status[name] = value
+        except:
+            pass

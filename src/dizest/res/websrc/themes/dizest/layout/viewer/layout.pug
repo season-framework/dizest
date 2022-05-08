@@ -1,0 +1,26 @@
+doctype 5
+
+html(ng-app="app")
+    head
+        {$ wiz.theme('dizest', 'viewer', 'header.pug') $}
+        link(href='/resources/themes/dizest/core/css/dizest.viewer.scss' rel='stylesheet')
+        
+    body.antialiased
+        script(src='/resources/themes/dizest/libs/tabler/dist/js/tabler.min.js')
+        
+        .page
+            .content(ng-cloak)
+                - if topmenus
+                    .content-top.text-right.p-2.if-desktop(style="border-bottom: 1px solid rgb(217, 217, 217); background: white;")
+                        - each menu in topmenus
+                            a.text-dark.ml-3(href=menu.url ng-click=menu.click)
+                                span.nav-link-title= menu['title']
+
+                .content-area.bg-white
+                    - if topmenus
+                        .text-right.p-2.if-desktop
+                            - each menu in topmenus
+                                a.text-white.ml-3(href=menu.url ng-click=menu.click)
+                                    span.nav-link-title= menu['title']
+
+                    {$ view $}

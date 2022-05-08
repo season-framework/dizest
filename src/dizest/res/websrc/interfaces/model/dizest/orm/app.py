@@ -26,6 +26,7 @@ class Model(wiz.model("dizest/orm/base")):
     
     description = pw.TextField()
     code = pw.TextField()
+    sample = pw.TextField()
     api = pw.TextField()
     pug = pw.TextField()
     js = pw.TextField()

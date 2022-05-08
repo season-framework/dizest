@@ -243,23 +243,30 @@
                         .code-select.bg-primary.d-flex(style="margin-top: -2px;")
                             a.btn.btn-square.btn-sm.p-2(ng-click="app.editor.tab('{$tab$}', 'info')" class="{{app.editor.tabs.{$tab$}.target == 'info' ? 'text-dark' : 'bg-primary'}}") Info
                             a.btn.btn-square.btn-sm.p-2(ng-click="app.editor.tab('{$tab$}', 'code')" class="{{app.editor.tabs.{$tab$}.target == 'code' ? 'text-dark' : 'bg-primary'}}") Code
+                            a.btn.btn-square.btn-sm.p-2(ng-click="app.editor.tab('{$tab$}', 'sample')" class="{{app.editor.tabs.{$tab$}.target == 'sample' ? 'text-dark' : 'bg-primary'}}") Sample
                             a.btn.btn-square.btn-sm.p-2(ng-if="app.data.mode == 'ui'" ng-click="app.editor.tab('{$tab$}', 'api')" class="{{app.editor.tabs.{$tab$}.target == 'api' ? 'text-dark' : 'bg-primary'}}") API
                             a.btn.btn-square.btn-sm.p-2(ng-if="app.data.mode == 'ui'" ng-click="app.editor.tab('{$tab$}', 'pug')" class="{{app.editor.tabs.{$tab$}.target == 'pug' ? 'text-dark' : 'bg-primary'}}") PUG
                             a.btn.btn-square.btn-sm.p-2(ng-if="app.data.mode == 'ui'" ng-click="app.editor.tab('{$tab$}', 'js')" class="{{app.editor.tabs.{$tab$}.target == 'js' ? 'text-dark' : 'bg-primary'}}") JS
-                            a.btn.btn-square.btn-sm.p-2(ng-if="app.data.mode == 'ui'" ng-click="app.editor.tab('{$tab$}', 'scss')" class="{{app.editor.tabs.{$tab$}.target == 'scss' ? 'text-dark' : 'bg-primary'}}") SCSS
+                            a.btn.btn-square.btn-sm.p-2(ng-if="app.data.mode == 'ui'" ng-click="app.editor.tab('{$tab$}', 'css')" class="{{app.editor.tabs.{$tab$}.target == 'css' ? 'text-dark' : 'bg-primary'}}") SCSS
                             a.btn.btn-square.btn-sm.p-2(ng-if="app.data.mode == 'ui'" ng-click="app.editor.tab('{$tab$}', 'preview')" class="{{app.editor.tabs.{$tab$}.target == 'preview' ? 'text-dark' : 'bg-primary'}}") Preview
 
                         div(ng-if="!['preview', 'info'].includes(app.editor.tabs.{$tab$}.target) && app.editor.tabs.{$tab$}.status" ng-model="app.data[app.editor.tabs.{$tab$}.target]" ui-monaco-opts="app.editor.tabs.{$tab$}.monaco" ui-monaco)
                         div(ng-if="app.editor.tabs.{$tab$}.target == 'info'" style="width: 100%; height: calc(100% - 33px); overflow-y: auto; overflow-x: hidden;")
                             .container.pt-4(style="max-width: 860px;")
                                 +info(tab)
-                        .code-preview(ng-if="app.editor.tabs.{$tab$}.target == 'preview'" style="max-width: none; width: 100%; height: 100%;")
+                        .code-preview(ng-if="app.editor.tabs.{$tab$}.target == 'preview'" style="max-width: none; width: 100%; height: calc(100% - 33px);")
                             iframe.preview(style="height: 100%;" ng-show="app.preview.status")
     
                 #editor-area.code-editor(ng-if="app.view == 'editor'")
                     .floating-menu
                         .btn.btn-primary.btn-circle.mr-2(ng-click="layout.change(layout.active_layout <= 3 ? layout.active_layout + 3 : layout.active_layout)" ng-if="layout.active_layout <= 3")
                             i.fa-solid.fa-terminal
+
+                        .btn.btn-primary.btn-circle.mr-2(ng-click="app.stop()" ng-if="['running', 'pending'].includes(app.running_status.status)")
+                            i.fa-solid.fa-stop
+
+                        .btn.btn-primary.btn-circle.mr-2(ng-click="app.run()" ng-if="['error', 'finish', 'ready'].includes(app.running_status.status)")
+                            i.fa-solid.fa-play
 
                         .btn.btn-primary.btn-circle(ng-click="app.save()")
                             i.fa-solid.fa-save

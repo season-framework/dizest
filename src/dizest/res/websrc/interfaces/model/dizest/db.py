@@ -61,9 +61,18 @@ class Model:
         db = orm[self.tablename]
         query = db.select()
 
+        if like is not None:
+            like = like.split(",")
+
         for key in where:
-            field = getattr(db, key)
-            query = query.where(field==where[key])  
+            try:
+                field = getattr(db, key)
+                qo = field==where[key]
+                if key in like:
+                    qo = field.contains(where[key])
+                query = query.where(qo)
+            except:
+                pass
 
         if orderby is not None:
             orderby = orderby.split(",")

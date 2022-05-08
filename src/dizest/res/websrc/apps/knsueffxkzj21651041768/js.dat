@@ -54,6 +54,10 @@ let resizer = (file, width, quality) => new Promise((resolve) => {
 let wiz_controller = async ($sce, $scope, $timeout) => {
     let _$timeout = $timeout;
     $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
+    $scope.trustAsHtml = $sce.trustAsHtml;
+
+    let ansi_up = new AnsiUp();
+    let socket = wiz.socket.get();
 
     let alert = async (message) => {
         await wiz.connect("modal.message")
@@ -114,7 +118,11 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     $scope.layout.viewstate.horizonal = {};
     $scope.layout.viewstate.vertical_1_1 = {};
     $scope.layout.viewstate.vertical_1_2 = {};
-    $scope.layout.active_layout = 5;
+
+    if ($(window).width() > 1920)
+        $scope.layout.active_layout = 6;
+    else
+        $scope.layout.active_layout = 5;
 
     $scope.layout.change = async (layout) => {
         await $timeout();
@@ -280,6 +288,20 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
     $scope.app.init = {};
 
+    $scope.app.preview = {};
+    $scope.app.preview.status = false;
+    $scope.app.preview.load = async () => {
+        let app_id = $scope.app.data.id;
+        let url = "/dizest/ui/viewer/develop/" + app_id;
+        $scope.app.preview.status = false;
+        await $timeout();
+        $('iframe.preview').attr('src', url);
+        $('iframe.preview').on('load', async () => {
+            $scope.app.preview.status = true;
+            await $timeout();
+        });
+    }
+
     $scope.app.init.info = async () => {
         $scope.app.view = 'empty';
         await $timeout();
@@ -298,6 +320,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
         ckeditor.enableReadOnlyMode('app-description')
         ckeditor.data.set($scope.app.data.description);
+        await $scope.app.preview.load();
     }
 
     $scope.app.init.editor = async () => {
@@ -351,7 +374,16 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         await $scope.apps.load.private();
     }
 
-    $scope.app.save = async () => {
+    $scope.app.run = async () => {
+        await $scope.app.save(true);
+        socket.emit("run", { id: $scope.app.data.id });
+    }
+
+    $scope.app.stop = async () => {
+        socket.emit("stop", { id: $scope.app.data.id });
+    }
+
+    $scope.app.save = async (notshowresult) => {
         $scope.app.data.description = $scope.app.desc_editor.data.get();
         let data = angular.copy($scope.app.data);
 
@@ -388,8 +420,10 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         let res = null;
         if (data.id) {
             res = await wiz.API.async("update", { data: JSON.stringify(data) });
-            toastr.success("Saved");
-            await $scope.apps.load.private();
+            if (!notshowresult) {
+                toastr.success("Saved");
+                await $scope.apps.load.private();
+            }
         } else {
             res = await wiz.API.async("create", { data: JSON.stringify(data) });
             if (res.code == 200) {
@@ -397,6 +431,8 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                 await $scope.apps.load.private();
             }
         }
+
+        await $scope.app.preview.load();
     }
 
     $scope.app.create = async () => {
@@ -449,7 +485,6 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         $('#file-featured').change(async () => {
             let file = document.querySelector('#file-featured').files[0];
             file = await resizer(file, 512, 0.5);
-            // file = await toBase64(file);
             $('#file-featured').val(null);
             if (file.length > 1024 * 100) {
                 await alert("file size under 100kb");
@@ -467,7 +502,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
         $scope.app.editor.tabs[tab].target = target;
         if (!['preview', 'info'].includes(target)) {
-            let map = { code: 'python', api: 'python', scss: 'scss', pug: 'pug', js: 'javascript' };
+            let map = { sample: 'python', code: 'python', api: 'python', css: 'scss', pug: 'pug', js: 'javascript' };
             $scope.app.editor.tabs[tab].monaco = monaco_option(map[target]);
         }
 
@@ -488,12 +523,16 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             if ($scope.app.data.description)
                 $scope.app.desc_editor.data.set($scope.app.data.description);
         }
+
+        if (target == "preview") {
+            await $scope.app.preview.load();
+        }
     }
 
     $scope.app.editor.tabs = {}
     $scope.app.editor.tabs.tab1 = { status: true, target: 'info' };
     $scope.app.editor.tabs.tab2 = { status: true, target: 'code', monaco: monaco_option('python') };
-    $scope.app.editor.tabs.tab3 = { status: true, target: 'preview' };
+    $scope.app.editor.tabs.tab3 = { status: true, target: 'sample', monaco: monaco_option('python') };
 
     $scope.shortcut = {};
 
@@ -536,4 +575,40 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     window.addEventListener("focus", $scope.shortcut.bind, false);
 
     await $scope.apps.load.private(true);
+    let ROOM = $scope.app.data.id;
+
+    await $timeout();
+
+    $scope.app.running_status = {};
+    $scope.socket = {};
+    $scope.socket.log = "";
+    $scope.socket.clear = async () => {
+        $scope.socket.log = "";
+        await $timeout();
+    }
+
+    socket.on("connect", async () => {
+        socket.emit("join", { id: ROOM });
+    });
+
+    socket.on("status", async (data) => {
+        $scope.app.running_status = data;
+        await $timeout();
+    });
+
+    socket.on("log", async (data) => {
+        data = data.replace(/ /gim, "__SEASONWIZPADDING__");
+        data = ansi_up.ansi_to_html(data).replace(/\n/gim, '<br>').replace(/__SEASONWIZPADDING__/gim, '&nbsp;');
+        $scope.socket.log = $scope.socket.log + data;
+        await $timeout();
+        let element = $('.dizest-debug-messages')[0];
+        if (!element) return;
+        element.scrollTop = element.scrollHeight - element.clientHeight;
+    });
+
+    $scope.$watch('app.data.id', async () => {
+        socket.emit("leave", { id: ROOM });
+        ROOM = $scope.app.data.id;
+        socket.emit("join", { id: ROOM });
+    }, true)
 }

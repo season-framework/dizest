@@ -59,10 +59,12 @@ def timer(func):
 
 # file system util
 class storage:
-    def __init__(self, basepath="."):
+    def __init__(self, basepath=".", root=True, rw=True):
         self.config = std.stdClass()
         self.config.path = basepath
         self.namespace = ""
+        self.root = root
+        self.rw = rw
 
         DEFAULT_VALUE = "__ERROR__"
 
@@ -220,7 +222,8 @@ class storage:
                 self.__image_pil__(filepath, img)
 
         self.read = read(self)
-        self.write = write(self)
+        if rw:
+            self.write = write(self)
         
     def basepath(self):
         return os.path.join(self.config.path, self.namespace)
@@ -299,6 +302,7 @@ class storage:
         return os.path.isdir(self.abspath(filepath))
 
     def __copy__(self, src, dest, ignore=None):
+        if self.rw == False: raise Exception("Permission denied")
         if os.path.isdir(src):
             if not os.path.isdir(dest):
                 os.makedirs(dest)
@@ -311,6 +315,7 @@ class storage:
             shutil.copyfile(src, dest)
 
     def copy(self, filepath1, filepath2):
+        if self.rw == False: raise Exception("Permission denied")
         filepath1 = self.abspath(filepath1)
         filepath2 = self.abspath(filepath2)
         self.__copy__(filepath1, filepath2)
@@ -320,9 +325,12 @@ class storage:
         notallowed = ["", "/"]
         if target_path in notallowed: 
             raise Exception("not allowed path")
+        if self.root == False and self.basepath() not in target_path:
+            raise Exception("not allowed path")
         return os.path.realpath(target_path)
 
     def makedirs(self, path=""):
+        if self.rw == False: raise Exception("Permission denied")
         try:
             path = self.abspath(path)
             os.makedirs(path)
@@ -330,6 +338,7 @@ class storage:
             pass
 
     def __makedirs__(self, path):
+        if self.rw == False: raise Exception("Permission denied")
         try:
             filedir = os.path.dirname(path)
             os.makedirs(filedir)
@@ -340,10 +349,18 @@ class storage:
         path = self.abspath(path)
         return mimetypes.guess_type(path)[0]
 
+    def move(self, path, rename):
+        if self.rw == False: raise Exception("Permission denied")
+        path = self.abspath(path)
+        rename = self.abspath(rename)
+        shutil.move(path, rename)
+
     def remove(self, filepath=""):
+        if self.rw == False: raise Exception("Permission denied")
         self.delete(filepath)
 
     def delete(self, filepath=""):
+        if self.rw == False: raise Exception("Permission denied")
         abspath = self.abspath(filepath)
         try:
             shutil.rmtree(abspath)

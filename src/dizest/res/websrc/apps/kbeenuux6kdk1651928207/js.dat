@@ -1,0 +1,25 @@
+let dizest = {};
+
+dizest.API = {};
+dizest.API.url = (name) => {
+    name = "dizest_api/" + wiz.data.workflow_id + "/" + wiz.data.flow_id + "/" + name;
+    return wiz.API.url(name);
+}
+dizest.API.async = async (name, data) => {
+    name = "dizest_api/" + wiz.data.workflow_id + "/" + wiz.data.flow_id + "/" + name;
+    if (!data) data = {};
+    return await wiz.API.async(name, data);
+}
+dizest.API.function = (name, data, cb) => {
+    name = "dizest_api/" + wiz.data.workflow_id + "/" + wiz.data.flow_id + "/" + name;
+    if (!data) data = {};
+    wiz.API.function(name, data, cb);
+}
+window.dizest = dizest;
+
+let wiz_controller = async () => {};
+
+try {
+    wiz_controller = dizest_controller;
+} catch (e) {
+}

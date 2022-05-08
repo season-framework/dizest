@@ -16,7 +16,8 @@ def package_files(directory):
     return paths
 
 extra_files = package_files(os.path.join(SEASON_PKG_DIR, 'command'))
-extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'config'))
+extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'res'))
+extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'util'))
 
 setup(
     name='dizest',

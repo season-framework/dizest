@@ -215,6 +215,19 @@
 
                 textarea#app-description
 
+    #offcanvas-app-viewer.offcanvas.offcanvas-end(tabindex="-1" style="z-index: 1090;")
+        .offcanvas-header
+            h3.p-0.m-0 UI Viewer
+            .close(type="button" data-bs-dismiss="offcanvas" aria-label="Close")
+                i.fa-solid.fa-xmark
+        
+        .offcanvas-body.p-0(style="overflow: hidden;")
+            iframe#viewer-frame(style="width: 100%; height: 100%;" ng-show="workflow.display")
+            .d-flex(style="width: 100%; height: 100%; align-items: center;" ng-if="!workflow.display")
+                .w-100(style="width: 100%; text-align: center;")
+                    .spinner-border.text-primary(style="width: 64px; height: 64px;")
+
+
     div(ng-repeat="(key, value) in workflow.status")
         div(ng-if="value.status == 'error'")
             style.

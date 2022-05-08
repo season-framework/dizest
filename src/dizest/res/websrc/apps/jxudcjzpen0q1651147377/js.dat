@@ -123,7 +123,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         $scope.workflow.floworder = [];
         for (let key in $scope.workflow.data.flow) {
             if (!$scope.workflow.data.flow[key].order) {
-                $scope.workflow.data.flow[key].order = 1;
+                $scope.workflow.data.flow[key].order = 999999;
             }
             $scope.workflow.floworder.push($scope.workflow.data.flow[key]);
         }
@@ -463,7 +463,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
         for (let key in $scope.workflow.data.flow) {
             if (!$scope.workflow.data.flow[key].order) {
-                $scope.workflow.data.flow[key].order = 1;
+                $scope.workflow.data.flow[key].order = 99999;
             }
             floworder.push($scope.workflow.data.flow[key]);
         }
@@ -492,9 +492,15 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     }
 
     window.appDisplay = async (flow_id) => {
+        $scope.workflow.display = false;
+        await $timeout();
+        $('#offcanvas-app-viewer').offcanvas('show');
         await $scope.workflow.save(true);
-        let data = angular.copy($scope.workflow.data);
-        console.log(data);
+        $('#offcanvas-app-viewer iframe').attr('src', "/dizest/ui/viewer/" + $scope.workflow.data.id + "/" + flow_id);
+        $('#offcanvas-app-viewer iframe').on('load', async () => {
+            $scope.workflow.display = true;
+            await $timeout();
+        });
     }
 
     window.appInfo = $scope.app.info = async (appid) => {

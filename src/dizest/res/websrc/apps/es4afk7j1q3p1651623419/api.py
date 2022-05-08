@@ -1,5 +1,10 @@
 import json
 import os
+import zipfile
+import tempfile
+import time
+import datetime
+import shutil
 
 MODE = wiz.request.query("mode", "local")
 USER_ID = wiz.session.get("id")
@@ -29,6 +34,29 @@ def ls(wiz):
         res[i] = obj
 
     wiz.response.status(200, res);
+
+def download(wiz):
+    path = "/".join(wiz.request.segment.path().split("/")[3:])
+    if storage.isdir(path):
+        path = storage.abspath(path)
+        filename = os.path.splitext(os.path.basename(path))[0] + ".zip"
+        zippath = os.path.join(tempfile.gettempdir(), 'dizest', datetime.datetime.now().strftime("%Y%m%d"), str(int(time.time())), filename)
+        if len(zippath) < 10: return
+        try:
+            shutil.remove(zippath)
+        except:
+            pass
+        os.makedirs(os.path.dirname(zippath))
+        zipdata = zipfile.ZipFile(zippath, 'w')
+        for folder, subfolders, files in os.walk(path):
+            for file in files:
+                zipdata.write(os.path.join(folder, file), os.path.relpath(os.path.join(folder,file), path), compress_type=zipfile.ZIP_DEFLATED)
+        zipdata.close()
+        wiz.response.download(zippath, as_attachment=True, filename=filename)
+    else:
+        path = storage.abspath(path)
+        wiz.response.download(path, as_attachment=True)
+    wiz.response.status(404)
 
 def rename(wiz):
     check_role()

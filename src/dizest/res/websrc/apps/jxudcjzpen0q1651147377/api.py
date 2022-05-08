@@ -98,8 +98,11 @@ def delete(wiz):
     wiz.response.status(200)
     
 def stop(wiz):
-    wpid = wiz.request.query("workflow_id", True)
-    fid = wiz.request.query("flow_id", None)
-    dizest = wiz.model("dizest/scheduler")(wpid)
-    dizest.stop()
+    try:
+        wpid = wiz.request.query("workflow_id", True)
+        fid = wiz.request.query("flow_id", None)
+        dizest = wiz.model("dizest/scheduler")(wpid)
+        dizest.stop()
+    except:
+        pass
     wiz.response.status(200)

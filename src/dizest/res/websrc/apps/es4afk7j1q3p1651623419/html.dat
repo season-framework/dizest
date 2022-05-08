@@ -73,25 +73,25 @@
             
             .list-area(ng-drop="event.drop")
                 table.table.table-sm.table-hover.table-vcenter
-                    tr(ng-repeat="file in files" ng-click="event.check(file)")
+                    tr(ng-repeat="file in files")
                         td.w-1.pr-0
-                            input.form-check-input(type="checkbox" ng-model="file.checked")
-                        td.w-1.pr-0
+                            input.form-check-input(type="checkbox" ng-model="file.checked" ng-click="event.check(file)")
+                        td.w-1.pr-0(ng-click="event.check(file)")
                             .avatar-area.avatar-area-sm
                                 .avatar-container(class="{{file.type == 'folder' ? 'folder' : ''}}")
                                     i.fa-solid.fa-file(ng-if="file.type == 'file'")
                                     i.fa-solid.fa-folder(ng-if="file.type == 'folder'")
-                        td.text-left(ng-if="!file.edit")
+                        td.text-left(ng-if="!file.edit" ng-click="event.check(file)")
                             a(ng-click="load(file)") {{file.name}}
                         td.text-left(ng-if="file.edit")
                             .d-flex
                                 input.form-control(ng-model="file.rename" ng-enter="api.rename(file)")
                                 .btn.btn-primary.btn-circle.ml-2(style="width: 36px;" ng-click="api.rename(file))
                                     i.fa-solid.fa-check
-                        td.w-1.text-right.text-muted {{timer(file.ctime)}}
-                        td.w-1.text-right.text-muted {{filesize(file.size)}}
+                        td.w-1.text-right.text-muted(ng-click="event.check(file)") {{timer(file.ctime)}}
+                        td.w-1.text-right.text-muted(ng-click="event.check(file)") {{filesize(file.size)}}
                         td.w-1.text-right.pr-5.actions
-                            .btn.btn-sm.btn-white
+                            a.btn.btn-sm.btn-white(ng-href="{{download(file)}}" target="_blank")
                                 i.fa-solid.fa-download
                             
                             .dropdown
@@ -103,13 +103,13 @@
                                             i.fa-solid.fa-pen-to-square
                                             span Rename
                                     li
-                                        a.dropdown-item
+                                        a.dropdown-item(ng-href="{{download(file)}}" target="_blank")
                                             i.fa-solid.fa-download
                                             span Download
-                                    li
-                                        a.dropdown-item
-                                            i.fa-solid.fa-arrow-right-arrow-left
-                                            span Move
+                                    // li
+                                    //     a.dropdown-item
+                                    //         i.fa-solid.fa-arrow-right-arrow-left
+                                    //         span Move
                                     li
                                         a.dropdown-item(ng-click="api.remove(file)")
                                             i.fa-solid.fa-trash
