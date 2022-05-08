@@ -42,6 +42,7 @@ setup(
     install_requires=[
         'argh',
         'psutil',
+        'requests',
         'Pillow',
         'numpy',
         'pandas',
