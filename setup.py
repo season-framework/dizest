@@ -47,7 +47,8 @@ setup(
         'numpy',
         'pandas',
         'season',
-        'peewee'
+        'peewee',
+        'bcrypt'
     ],
     python_requires='>=3.6',
     classifiers=[
