@@ -54,7 +54,8 @@ def create(wiz):
         data['user_id'] = user_id
         app_id = data['id']
         app_id = db.apps.insert(data)
-    except:
+    except Exception as e:
+        raise e
         wiz.response.status(500)
     wiz.response.status(200, app_id)
 

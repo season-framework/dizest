@@ -442,6 +442,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         $scope.app.data.inputs = [];
         $scope.app.data.outputs = [];
         $scope.app.data.code = '';
+        $scope.app.data.sample = '';
         $scope.app.data.api = '';
         $scope.app.data.pug = '';
         $scope.app.data.js = '';
@@ -607,8 +608,8 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     });
 
     $scope.$watch('app.data.id', async () => {
-        socket.emit("leave", { id: ROOM });
+        if (ROOM) socket.emit("leave", { id: ROOM });
         ROOM = $scope.app.data.id;
-        socket.emit("join", { id: ROOM });
+        if (ROOM) socket.emit("join", { id: ROOM });
     }, true)
 }
