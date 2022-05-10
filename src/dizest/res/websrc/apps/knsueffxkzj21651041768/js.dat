@@ -546,6 +546,13 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                     await $scope.app.save();
                 }
             },
+            'run': {
+                key: 'Shift Enter',
+                monaco: monaco.KeyMod.Shift | monaco.KeyCode.Enter,
+                fn: async () => {
+                    await $scope.app.run();
+                }
+            },
             'clear': {
                 key: 'Ctrl KeyK',
                 monaco: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_K,

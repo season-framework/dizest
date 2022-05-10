@@ -5,6 +5,10 @@ import builtins
 import urllib
 import requests
 import traceback
+import multiprocessing as mp
+
+host = urllib.parse.urlparse(wiz.flask.request.base_url)
+host = f"{host.scheme}://{host.netloc}/dizest/api/kernel/dev"
 
 Dizest = wiz.model("dizest/scheduler")
 wpid = wiz.request.segment.get(0)
@@ -20,21 +24,43 @@ else:
     dizest = Dizest(wpid, workflow)
     flow = dizest.flow(fid)
 
-def logger(*args, color=94):
-    if develop == False: return
-    tag = "[dizest]"
-    log_color = color
-    args = list(args)
-    for i in range(len(args)): 
-        args[i] = str(args[i])
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-    logdata = f"\033[{log_color}m[{timestamp}]{tag}\033[0m " + " ".join(args)
-    try:
-        wiz.socketio.emit("log", logdata + "\n", to=fid, namespace="/wiz/api/page.hub.apps", broadcast=True)
-    except:
-        pass
+wp = dizest.workflow
+
+def logger_fn(host, fid):
+    def logger(*args, color=94):
+        tag = f"[dizest][{fid}]"
+        log_color = color
+        args = list(args)
+        for i in range(len(args)): 
+            args[i] = str(args[i])
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+        logdata = f"\033[{log_color}m[{timestamp}]{tag}\033[0m " + " ".join(args)
+        res = requests.post(host, {"data": logdata, "id": fid})
+    return logger
 
 def dizest_api(wiz):
+    def run(q, logger, dizest, flow, fnname, cwd, user):
+        os.chdir(os.path.join(cwd, 'local', user))
+
+        env = dict()
+        env['print'] = logger
+        env['display'] = logger
+        env['dizest'] = dizest
+
+        try:
+            code = flow.app().get("api")
+            local_env = dict()
+            exec(code, env, local_env)
+            local_env[fnname]()
+            q.put(None)
+        except season.core.CLASS.RESPONSE.STATUS as e:
+            q.put(e)
+        except Exception as e:
+            stderr = traceback.format_exc()
+            logger(f"Dizest API Error: {type(e)} \n{stderr}", color=91)
+            q.put(e)
+
+    cwd = wp.cwd
     wiz.pid = os.getpid()
     fnname = wiz.request.segment.get(2)
 
@@ -46,20 +72,13 @@ def dizest_api(wiz):
     dizest.response = wiz.response
     dizest.request = wiz.request
 
-    env = dict()
-    env['print'] = logger
-    env['display'] = logger
-    env['dizest'] = dizest
+    logger = logger_fn(host, flow.id())
 
-    code = flow.app().get("api")
-    local_env = dict()
-    exec(code, env, local_env)
-
-    try:
-        local_env[fnname]()
-    except season.core.CLASS.RESPONSE.STATUS as e:
-        raise e
-    except Exception as e:
-        stderr = traceback.format_exc()
-        logger(f"Dizest API Error: {type(e)} \n{stderr}", color=91)
-        wiz.response.status(500, e)
+    q = mp.Queue()
+    p = mp.Process(target=run, args=[q, logger, dizest, flow, fnname, cwd, wiz.session.get("id")])
+    p.start()
+    p.join()
+    res = q.get()
+    
+    if res is not None:
+        raise res

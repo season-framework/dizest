@@ -1,5 +1,7 @@
+from argh import arg, expects_obj
 import os
 import sys
+import time
 import subprocess
 import psutil
 import shutil
@@ -8,6 +10,9 @@ import socket
 import pathlib
 import season
 import dizest
+import multiprocessing as mp
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 def portchecker(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,28 +65,55 @@ def install():
 
     print("installed!")
 
-def run():
+def update():
+    fs = dizest.util.os.storage(PATH_WORKINGDIR)
+    fs.remove("websrc")
+    
+    PATH_PUBLIC_SRC = os.path.join(PATH_WIZ, 'data', 'wizbase')
+    shutil.copytree(PATH_PUBLIC_SRC, PATH_WEBSRC)
+
+    print("install wiz...")
+    Repo.clone_from('https://github.com/season-framework/wiz-plugin-setting', os.path.join(PATH_WEBSRC, 'plugin', 'core.setting'))
+    Repo.clone_from('https://github.com/season-framework/wiz-plugin-branch', os.path.join(PATH_WEBSRC, 'plugin', 'core.branch'))
+    Repo.clone_from('https://github.com/season-framework/wiz-plugin-workspace', os.path.join(PATH_WEBSRC, 'plugin', 'core.workspace'))
+    Repo.clone_from('https://github.com/season-framework/wiz-plugin-theme', os.path.join(PATH_WEBSRC, 'plugin', 'theme'))
+
+    print("install dizest...")
+    shutil.copytree(os.path.join(PATH_DIZEST, 'res', 'websrc'), os.path.join(PATH_WEBSRC, 'branch', 'master'))
+    
+    fs.makedirs("storage")
+    fs.makedirs("cache")
+
+    if fs.exists(PATH_DIZEST_CONFIG) == False:
+        fs.write.json(PATH_DIZEST_CONFIG, {"db": {"type": "sqlite"}})
+
+    # TODO: db migration
+    print("installed!")
+
+@arg('--host', default=None, help='0.0.0.0')
+@arg('--port', default=0, help='3000')
+def run(host="0.0.0.0", port=3000):
     fs = dizest.util.os.storage(PATH_WEBSRC)    
     if fs.exists() is False:
         install()
     config = fs.read.json(PATH_DIZEST_CONFIG, dict())
 
     # port finder
-    startport = 3000
-    if 'port' in config:
+    startport = port
+    if 'port' in config and port <= 0:
         startport = int(config['port'])
-
+    if startport <= 0:
+        startport = 3000
     while portchecker(startport):
         startport = startport + 1
-    
     config['port'] = startport
     
     # host finder
-    host = '0.0.0.0'
-    if 'host' in config:
+    if 'host' in config and host is None:
         host = config['host']
+    if host is None:
+        host = '0.0.0.0'
     config['host'] = host
-
     config['path'] = PATH_WORKINGDIR
 
     # save dizest config
@@ -90,7 +122,6 @@ def run():
     # build config
     PATH_CONFIG_BASE = os.path.join(PATH_DIZEST, 'res', 'config', 'config.py')
     PATH_CONFIG = os.path.join(PATH_WEBSRC, 'config', 'config.py')
-
 
     data = fs.read.text(PATH_CONFIG_BASE)
     data = data.replace("__PORT__", str(startport))
@@ -109,6 +140,18 @@ def run():
         print("Invalid Project path: dizest structure not found in this folder.")
         return
 
-    executable = sys.executable
-    cmd = f"{executable} {apppath}"
-    subprocess.call(cmd, shell=True)
+    def run_ctrl():
+        cmd = "python {}".format(apppath)
+        subprocess.call(cmd, shell=True)
+
+    while True:
+        try:
+            proc = mp.Process(target=run_ctrl)
+            proc.start()
+            proc.join()
+        except KeyboardInterrupt:
+            for child in psutil.Process(proc.pid).children(recursive=True):
+                child.kill()
+            return
+        except:
+            pass

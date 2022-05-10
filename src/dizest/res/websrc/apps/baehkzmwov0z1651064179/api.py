@@ -29,6 +29,7 @@ def checkdb(wiz):
         model = wiz.model("dizest/db").use("user")
         count = model.count()
     except Exception as e:
+        print(e)
         count = -1
 
     config.update(prev)

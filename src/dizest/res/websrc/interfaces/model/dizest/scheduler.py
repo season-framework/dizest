@@ -3,8 +3,9 @@ import os
 import sys
 import datetime
 import time
-import dizest
 import urllib
+# sys.path.insert(0, '/opt/workspace/dizest/src')
+import dizest
 
 class Model:
     def __init__(self, wpid, package=None, develop=False, logger=None):

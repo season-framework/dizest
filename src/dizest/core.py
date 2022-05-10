@@ -156,10 +156,9 @@ class Flow:
         workflow = self.workflow
 
         cwd = workflow.cwd
-        
-        # TODO: if not main process
-        # if workflow.user is not None:
-        #     os.chdir(os.path.join(cwd, 'local', workflow.user))
+        if os.getpid() != os.getppid():
+            if workflow.user is not None:
+                os.chdir(os.path.join(cwd, 'local', workflow.user))
         
         index = workflow.get_status('index', 0)
         index = index + 1
