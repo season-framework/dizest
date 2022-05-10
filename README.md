@@ -23,6 +23,33 @@ cd <your-workspace>
 dizest update
 ```
 
+## Roadmap
+
+- Core
+    - run entire workflow
+    - kernel for k8s
+    - cache controller
+    - command line tools (run workflow on terminal)
+- General
+    - User's mypage (for password change)
+    - SAML Authentication
+- Apps
+    - copy apps from hub to myapps
+    - export/import app
+- Workflow
+    - display error status
+    - auto process (auto ordering flows)
+    - export/import app
+- Explore
+    - explore workflow on hub
+    - comment or review functions
+    - copy workflow to my workflow
+- Drive
+    - connect with Google Drive, Dropbox, etc.
+- Dizest Cloud
+    - manage apps & workflow on cloud
+    - connect with hub by API
+
 ## Release Note
 
 ### 2.0.4
