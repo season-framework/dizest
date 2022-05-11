@@ -52,6 +52,9 @@ dizest update
 
 ## Release Note
 
+### 2.0.6
+- bug fixed
+
 ### 2.0.5
 - app ui api bug fixed
 - display workflow error message
