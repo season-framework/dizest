@@ -13,6 +13,7 @@ class Dizest(util.std.stdClass):
     def __init__(self):
         self.data = dict()
         self._output = dict()
+        self.response = util.response.response()
 
     def storage(self, mode='local'):
         auth = self.get("auth")
@@ -170,6 +171,7 @@ class Flow:
         self.set_status('code', 0)
         self.set_status('status', 'running')
         self.set_status('message', "")
+        self.send_status()
         
         fullfill, dizest = self.dizest()
 
@@ -177,6 +179,7 @@ class Flow:
             self.set_status('status', 'error')
             self.set_status('code', 1)
             self.set_status('message', dizest)
+            self.send_status()
             return
 
         # run process
@@ -198,7 +201,8 @@ class Flow:
             stderr = traceback.format_exc()
             if workflow.develop and workflow.logger is not None:
                 workflow.logger(stderr, color=91)
-            self.set_status('message', stderr)
+            self.set_status('message', str(e))
+            self.send_status()
             return
         
         output = dizest._output
@@ -207,6 +211,7 @@ class Flow:
 
         self.set_status('code', 0)
         self.set_status('status', 'finish')
+        self.send_status()
 
     def render(self):
         app = self.app()
@@ -242,10 +247,15 @@ class Flow:
         try: return dict(self.workflow._status)[f"{flow_id}::{name}"]
         except: return default
     
-    def set_status(self, name, value):
+    def set_status(self, name, value, apply=False):
         try:
             flow_id = self.id()
             self.workflow._status[f"{flow_id}::{name}"] = value
+        except Exception as e:
+            pass
+
+    def send_status(self):
+        try:
             if self.workflow.status_changed_api is not None:
                 wpid = self.workflow.id()
                 fid = self.id()
@@ -437,6 +447,7 @@ class Workflow(util.std.stdClass):
             flow.set_status('status', 'error')
             flow.set_status('code', 3)
             flow.set_status('message', "stopped")
+            flow.send_status()
 
             flows = self.flows()
             for fid in flows:
@@ -446,6 +457,7 @@ class Workflow(util.std.stdClass):
                     flow.set_status('status', 'ready')
                     flow.set_status('code', 0)
                     flow.set_status('message', "")
+                    flow.send_status()
 
         self.kernel._stop()
         
@@ -454,6 +466,7 @@ class Workflow(util.std.stdClass):
         flow.set_status('code', 0)
         flow.set_status('status', 'pending')
         flow.set_status('message', "")
+        flow.send_status()
         self.kernel.action('run', flow_id)
         return self.flow(flow_id)
         

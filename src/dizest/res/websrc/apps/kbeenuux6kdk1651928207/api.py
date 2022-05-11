@@ -1,4 +1,5 @@
 import os
+import dizest as dizest_core
 import season
 import time
 import builtins
@@ -53,8 +54,9 @@ def dizest_api(wiz):
             exec(code, env, local_env)
             local_env[fnname]()
             q.put(None)
-        except season.core.CLASS.RESPONSE.STATUS as e:
-            q.put(e)
+        except dizest_core.util.response.ResponseException as e:
+            data = e.get()
+            q.put(data)
         except Exception as e:
             stderr = traceback.format_exc()
             logger(f"Dizest API Error: {type(e)} \n{stderr}", color=91)
@@ -69,9 +71,7 @@ def dizest_api(wiz):
         wiz.response.status(500)
 
     dizest.output = None
-    dizest.response = wiz.response
     dizest.request = wiz.request
-
     logger = logger_fn(host, flow.id())
 
     q = mp.Queue()
@@ -79,6 +79,13 @@ def dizest_api(wiz):
     p.start()
     p.join()
     res = q.get()
+
+    if type(res) == tuple:
+        name, code, resp = res
+        wiz.response.headers.load(resp['headers'])
+        wiz.response.cookies.load(resp['cookies'])
+        wiz.response.set_mimetype(resp['mimetype'])
+        fn = getattr(wiz.response, name)
+        fn(*resp['args'], **resp['kwargs'])
     
-    if res is not None:
-        raise res
+    wiz.response.status(404)

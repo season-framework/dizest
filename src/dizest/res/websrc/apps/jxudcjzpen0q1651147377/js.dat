@@ -29,7 +29,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     $scope.apps = {};
     $scope.apps.list = [];
     $scope.apps.loading = false;
-    $scope.apps.tab = 'private';
+    $scope.apps.tab = 'installed';
 
     $scope.apps.lastpage = 0;
     $scope.apps.query = angular.copy(DEFAULT_QUERY);
@@ -50,10 +50,10 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         if (init) {
             $scope.apps.query.page = 1;
         }
-        if ($scope.apps.tab == 'hub') {
-            await $scope.apps.load.hub();
-        } else {
+        if ($scope.apps.tab == 'private') {
             await $scope.apps.load.private();
+        } else {
+            await $scope.apps.load.installed();
         }
     }
 
@@ -125,7 +125,14 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             if (!$scope.workflow.data.flow[key].order) {
                 $scope.workflow.data.flow[key].order = 999999;
             }
-            $scope.workflow.floworder.push($scope.workflow.data.flow[key]);
+
+            if (!$scope.apps.query.text) {
+                $scope.workflow.floworder.push($scope.workflow.data.flow[key]);
+            }
+
+            if ($scope.apps.query.text && $scope.workflow.data.flow[key].name.toLowerCase().includes($scope.apps.query.text.toLowerCase())) {
+                $scope.workflow.floworder.push($scope.workflow.data.flow[key]);
+            }
         }
 
         $scope.workflow.floworder.sort((a, b) => {
@@ -148,22 +155,6 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         $scope.apps.list = res.data.result;
         $scope.apps.lastpage = res.data.lastpage;
         $scope.apps.tab = 'private';
-        $scope.apps.loading = true;
-
-        await $scope.apps.pagination();
-        await $timeout();
-    }
-
-    $scope.apps.load.hub = async (init) => {
-        if (init) {
-            $scope.apps.query = angular.copy(DEFAULT_QUERY);
-        }
-
-        let q = angular.copy($scope.apps.query);
-        let res = await wiz.API.async("hubapps", q);
-        $scope.apps.list = res.data.result;
-        $scope.apps.lastpage = res.data.lastpage;
-        $scope.apps.tab = 'hub';
         $scope.apps.loading = true;
 
         await $scope.apps.pagination();
@@ -221,7 +212,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         for (let flow_id in flows) {
             delete flows[flow_id].html;
             let app_id = flow_id.split("-")[0];
-            apps[app_id] = await appLoader(app_id);
+            apps[app_id] = await appLoader(app_id, false);
             flows[flow_id]['app_id'] = app_id;
             let outputs = {};
             for (let key in flows[flow_id].outputs) {
@@ -283,6 +274,8 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                 toastr.error("Error");
             }
         }
+
+        await $scope.apps.load.current();
     }
 
     $scope.workflow.tab = async () => {
@@ -322,8 +315,6 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     }
 
     // init
-    await $scope.apps.load.current(true);
-    await $timeout();
 
     // ckeditor
     const EDITOR_ID = '#description-editor';
@@ -416,6 +407,9 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     }
 
     let appLoader = async (app_id, update) => {
+        if (update === false)
+            if (apps[app_id])
+                return angular.copy(apps[app_id]);
         if ($scope.workflow.data.updatepolicy != 'auto')
             if (!update && apps[app_id]) return angular.copy(apps[app_id]);
         let res = await wiz.API.async("get", { id: app_id, isfull: true });
@@ -444,14 +438,20 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         });
 
         socket.on("status", async (data) => {
+            let node_id = '#node-' + data.flow_id;
+            $(node_id + " .error-message").remove();
+            if (data.code == 2)
+                $(node_id).append('<div class="error-message p-3 pt-2 pb-2 bg-red-lt">' + data.message + '</div>')
+            if (data.code == 1)
+                $(node_id).append('<div class="error-message p-3 pt-2 pb-2 bg-red-lt">Run the previous app first</div>')
             $scope.workflow.status[data.flow_id] = data;
             $('.' + data.flow_id + ' .finish-indicator').text('[' + data.index + ']');
-
             await $timeout();
         });
 
         socket.on("stop", async () => {
             $scope.workflow.status = {};
+            $("#drawflow .error-message").remove();
             await $timeout();
         });
     }
@@ -622,6 +622,10 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             }
         }
     }
+
+    await $scope.apps.load.installed(true);
+    if ($scope.workflow.floworder.length == 0)
+        await $scope.apps.load.private(true);
 
     $scope.workflow.loaded = true;
     await $timeout();

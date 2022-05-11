@@ -3,11 +3,9 @@
         .top-menu
             .action-btns
                 .action-btn(ng-click="apps.load.installed()" class="{{ apps.tab == 'installed' ? 'active' : '' }}")
-                    span Flow
+                    span Used Apps
                 .action-btn(ng-click="apps.load.private(true)" class="{{ apps.tab == 'private' ? 'active' : '' }}")
                     span My Apps
-                .action-btn(ng-click="apps.load.hub(true)" class="{{ apps.tab == 'hub' ? 'active' : '' }}")
-                    span Hub Apps
 
         .top-submenu
             input.form-control.form-control-sm.search-form(placeholder="enter for search" ng-model="apps.query.text" ng-enter="apps.load.current(true)")
@@ -15,7 +13,7 @@
         .app-list(ng-if="apps.tab == 'installed'" ui-sortable='sortableOptions' ng-model="workflow.floworder")
             .no-items.text-center.p-6(ng-if="workflow.floworder.length == 0")
                 i.fa-solid.fa-cube
-                .mt-2 No Apps
+                .mt-2 No apps in workflow
 
             .app-info(ng-repeat="(i, item) in workflow.floworder" ng-mouseover="workflow.active_flow(item.id)" ng-mouseleave="workflow.active_flow()")
                 .avatar-area.avatar-area-sm.mr-3

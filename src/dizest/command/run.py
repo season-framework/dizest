@@ -61,7 +61,7 @@ def install():
     fs.makedirs("cache")
 
     if fs.exists(PATH_DIZEST_CONFIG) == False:
-        fs.write.json(PATH_DIZEST_CONFIG, {"db": {"type": "sqlite"}})
+        fs.write.json(PATH_DIZEST_CONFIG, {"db": {"type": "sqlite"}, "version": dizest.version})
 
     print("installed!")
 
@@ -87,16 +87,18 @@ def update():
     if fs.exists(PATH_DIZEST_CONFIG) == False:
         fs.write.json(PATH_DIZEST_CONFIG, {"db": {"type": "sqlite"}})
 
-    # TODO: db migration
-    print("installed!")
+    print("updated!")
 
 @arg('--host', default=None, help='0.0.0.0')
 @arg('--port', default=0, help='3000')
 def run(host="0.0.0.0", port=3000):
-    fs = dizest.util.os.storage(PATH_WEBSRC)    
+    fs = dizest.util.os.storage(PATH_WEBSRC)
     if fs.exists() is False:
         install()
     config = fs.read.json(PATH_DIZEST_CONFIG, dict())
+
+    if 'version' not in config:
+        config['version'] = dizest.version
 
     # port finder
     startport = port

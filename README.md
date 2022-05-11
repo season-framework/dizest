@@ -52,6 +52,11 @@ dizest update
 
 ## Release Note
 
+### 2.0.5
+- app ui api bug fixed
+- display workflow error message
+- workflow running status logic changed
+
 ### 2.0.4
 - dizest runner update (--host, --port option)
 - change dizest app process cwd (to local drive)

@@ -1,5 +1,6 @@
 import os
 import season
+import dizest
 
 BASEPATH = os.path.realpath(season.core.PATH.PROJECT + "/..")
 
@@ -27,6 +28,26 @@ class Model:
         except:
             return False
         return True
+
+    @staticmethod
+    def version():
+        config = Model.load()
+        if config is None:
+            return False
+
+        current = config['version']
+        current_index = dizest.versions.index(current)
+        
+        target = dizest.version
+        target_index = dizest.versions.index(target)
+        for i in range(target_index - current_index):
+            pos = current_index + i + 1
+            vcheck = dizest.versions[pos]
+        
+        return True
+        # if dizest.version == config['version']:
+        #     return True
+        # return False
 
     def update(config):
         fs = wiz.model("dizest/storage").use(BASEPATH)

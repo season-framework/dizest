@@ -119,7 +119,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     $scope.layout.viewstate.vertical_1_1 = {};
     $scope.layout.viewstate.vertical_1_2 = {};
 
-    if ($(window).width() > 1920)
+    if ($(window).width() > 2560)
         $scope.layout.active_layout = 6;
     else
         $scope.layout.active_layout = 5;

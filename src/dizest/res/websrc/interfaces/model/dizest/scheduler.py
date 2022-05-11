@@ -4,7 +4,7 @@ import sys
 import datetime
 import time
 import urllib
-# sys.path.insert(0, '/opt/workspace/dizest/src')
+sys.path.insert(0, '/opt/workspace/dizest/src')
 import dizest
 
 class Model:
