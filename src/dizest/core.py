@@ -461,14 +461,18 @@ class Workflow(util.std.stdClass):
 
         self.kernel._stop()
         
-    def run(self, flow_id):
-        flow = self.flow(flow_id)
-        flow.set_status('code', 0)
-        flow.set_status('status', 'pending')
-        flow.set_status('message', "")
-        flow.send_status()
-        self.kernel.action('run', flow_id)
-        return self.flow(flow_id)
+    def run(self, flow_id=None):
+        if flow_id is None:
+            # TODO: run all apps
+            pass
+        else:
+            flow = self.flow(flow_id)
+            flow.set_status('code', 0)
+            flow.set_status('status', 'pending')
+            flow.set_status('message', "")
+            flow.send_status()
+            self.kernel.action('run', flow_id)
+            return self.flow(flow_id)
         
     def get_status(self, name, default=None):
         try: 
