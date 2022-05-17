@@ -37,7 +37,6 @@ dizest update
     - copy apps from hub to myapps
     - export/import app
 - Workflow
-    - display error status
     - auto process (auto ordering flows)
     - export/import app
 - Explore
@@ -51,6 +50,10 @@ dizest update
     - connect with hub by API
 
 ## Release Note
+
+### 2.0.7
+- display error status on workflow
+- code edit on workflow
 
 ### 2.0.6
 - bug fixed

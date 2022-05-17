@@ -9,5 +9,4 @@ class Controller(wiz.controller("base")):
 
         status = wiz.model("dizest/config").status()
         if status == False: wiz.response.redirect("/")
-
         versioncheck = wiz.model("dizest/config").version()

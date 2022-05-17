@@ -72,6 +72,10 @@ def dizest_api(wiz):
 
     dizest.output = None
     dizest.request = wiz.request
+    segpath = dizest.request.segment.framework.segmentpath
+    segpath = segpath.split("/")[3:]
+    segpath = "/".join(segpath)
+    dizest.request.segment.framework.segmentpath = segpath
     logger = logger_fn(host, flow.id())
 
     q = mp.Queue()

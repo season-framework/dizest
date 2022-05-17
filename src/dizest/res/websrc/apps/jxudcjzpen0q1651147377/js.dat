@@ -2,6 +2,8 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     let _$timeout = $timeout;
     $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
 
+    let ansi_up = new AnsiUp();
+
     let alert = async (message) => {
         await wiz.connect("modal.message")
             .data({
@@ -370,6 +372,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         actions.append('<span class="pending-indicator status-indicator status-yellow status-indicator-animated"><span class="status-indicator-circle"><span class="status-indicator-circle"></span><span class="status-indicator-circle"></span><span class="status-indicator-circle"></span></span>')
         if (item.mode == 'ui') actions.append('<div class="action-btn" onclick="appDisplay(\'' + nodeid + '\')"><i class="fa-solid fa-display"></i></div>');
         actions.append('<div class="action-btn" onclick="appInfo(\'' + item.id + '\')"><i class="fa-solid fa-info"></i></div>');
+        actions.append('<div class="action-btn" onclick="appCode(\'' + nodeid + '\')"><i class="fa-solid fa-code"></i></div>');
         actions.append('<div class="action-btn action-btn-play" onclick="appRun(\'' + nodeid + '\')"><i class="fa-solid fa-play"></i></div>');
         actions.append('<div class="action-btn action-btn-stop" onclick="appStop(\'' + nodeid + '\')"><i class="fa-solid fa-stop"></i></div>');
         html = html + actions.prop('outerHTML');
@@ -433,11 +436,30 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     let socket = wiz.socket.get();
     if ($scope.workflow.data.id) {
         let wpid = $scope.workflow.data.id;
+        $scope.socket = {};
+        $scope.socket.running_status = {};
+        $scope.socket.log = "";
+        $scope.socket.clear = async () => {
+            $scope.socket.log = "";
+            await $timeout();
+        }
+
+        socket.on("log", async (data) => {
+            data = data.replace(/ /gim, "__SEASONWIZPADDING__");
+            data = ansi_up.ansi_to_html(data).replace(/\n/gim, '<br>').replace(/__SEASONWIZPADDING__/gim, '&nbsp;');
+            $scope.socket.log = $scope.socket.log + data;
+            await $timeout();
+            let element = $('.dizest-debug-messages')[0];
+            if (!element) return;
+            element.scrollTop = element.scrollHeight - element.clientHeight;
+        });
+
         socket.on("connect", function (data) {
             socket.emit("join", wpid);
         });
 
         socket.on("status", async (data) => {
+            $scope.socket.running_status = data;
             let node_id = '#node-' + data.flow_id;
             $(node_id + " .error-message").remove();
             if (data.code == 2)
@@ -450,6 +472,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         });
 
         socket.on("stop", async () => {
+            $scope.socket.running_status = {};
             $scope.workflow.status = {};
             $("#drawflow .error-message").remove();
             await $timeout();
@@ -501,6 +524,45 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             $scope.workflow.display = true;
             await $timeout();
         });
+    }
+
+    let counter = 0;
+    window.appCode = $scope.app.code = async (flow_id) => {
+        counter++;
+        if (flow_id != 'new') {
+            await $scope.workflow.save(true);
+            let connected = wiz.connect("page.hub.app.editor");
+            await connected.data({
+                workflow_id: $scope.workflow.data.id,
+                flow_id: flow_id,
+                layout: counter == 1 ? 4 : null,
+                socket: $scope.socket,
+                view: "editor",
+                save: async () => {
+                    let appid = flow_id.split("-")[0];
+                    await appLoader(appid, true);
+                },
+                run: async () => {
+                    await window.appRun(flow_id);
+                },
+                stop: async () => {
+                    await window.appStop(flow_id);
+                }
+            }).event("load");
+            await $timeout();
+            $('#offcanvas-app-code').offcanvas('show');
+        } else {
+            $('#offcanvas-app-code').offcanvas('show');
+            let connected = wiz.connect("page.hub.app.editor");
+            await connected.data({
+                workflow_id: 'develop',
+                flow_id: "new",
+                layout: counter == 1 ? 4 : null,
+                view: "editor"
+            }).event("load");
+
+            await $scope.apps.load.current();
+        }
     }
 
     window.appInfo = $scope.app.info = async (appid) => {
@@ -621,6 +683,12 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                 }
             }
         }
+    }
+
+    $scope.fullsize = async (stat) => {
+        if (stat) $scope.appcodewidth = '100vw';
+        else $scope.appcodewidth = '860px';
+        await $timeout();
     }
 
     await $scope.apps.load.installed(true);

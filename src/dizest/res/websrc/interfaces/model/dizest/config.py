@@ -35,20 +35,37 @@ class Model:
         if config is None:
             return False
 
-        current = config['version']
-        current_index = dizest.versions.index(current)
-        
-        target = dizest.version
-        target_index = dizest.versions.index(target)
-        for i in range(target_index - current_index):
-            pos = current_index + i + 1
-            vcheck = dizest.versions[pos]
-        
-        return True
-        # if dizest.version == config['version']:
-        #     return True
-        # return False
+        try:
+            current = config['version']
+            current_index = dizest.versions.index(current)
+            target = dizest.version
+            target_index = dizest.versions.index(target)
 
+            if current == target:
+                return True
+
+            dbchanges = []
+            for i in range(target_index - current_index):
+                pos = current_index + i + 1
+                vcheck = dizest.versions[pos]
+                try:
+                    wiz.model(f"dizest/orm/{vcheck}/base")
+                    dbchanges.append(vcheck)
+                except:
+                    pass
+            
+            config = Model.load()
+            if len(dbchanges) == 0:
+                config['version'] = dizest.version
+                Model.update(config)
+                return True
+        except:
+            pass
+
+        # TODO: db update page        
+        return True
+
+    @staticmethod
     def update(config):
         fs = wiz.model("dizest/storage").use(BASEPATH)
         config = fs.write.json("dizest.json", config)

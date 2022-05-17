@@ -1,0 +1,13 @@
+doctype 5
+
+html(ng-app="app")
+    head
+        {$ wiz.theme('dizest', 'base', 'header.pug') $}
+        
+    body.antialiased
+        script(src='/resources/themes/dizest/libs/tabler/dist/js/tabler.min.js')
+        script(src='/resources/themes/dizest/libs/monaco/min/vs/loader.js')
+        script.
+            require.config({ paths: { vs: '/resources/themes/dizest/libs/monaco/min/vs' } });
+        
+        {$ view $}

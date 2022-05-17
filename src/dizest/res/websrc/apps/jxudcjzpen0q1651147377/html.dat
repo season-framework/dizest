@@ -7,8 +7,10 @@
                 .action-btn(ng-click="apps.load.private(true)" class="{{ apps.tab == 'private' ? 'active' : '' }}")
                     span My Apps
 
-        .top-submenu
+        .top-submenu.d-flex
             input.form-control.form-control-sm.search-form(placeholder="enter for search" ng-model="apps.query.text" ng-enter="apps.load.current(true)")
+            .btn.btn-sm.btn-primary(ng-click="app.code('new')" style="border-radius: 12px; margin-left: 6px;")
+                i.fa-solid.fa-plus
 
         .app-list(ng-if="apps.tab == 'installed'" ui-sortable='sortableOptions' ng-model="workflow.floworder")
             .no-items.text-center.p-6(ng-if="workflow.floworder.length == 0")
@@ -225,6 +227,19 @@
                 .w-100(style="width: 100%; text-align: center;")
                     .spinner-border.text-primary(style="width: 64px; height: 64px;")
 
+    #offcanvas-app-code.offcanvas.offcanvas-end(tabindex="-1" style="z-index: 1090; max-width: {{appcodewidth ? appcodewidth : '860px'}}; visibility: visible;")
+        .offcanvas-header
+            h3.p-0.m-0 Code Editor
+            .btns
+                .btn.btn-primary.btn-round(ng-if="appcodewidth != '100vw'" ng-click="fullsize(true)")
+                    i.fa-solid.fa-up-right-and-down-left-from-center
+                .btn.btn-primary.btn-round(ng-if="appcodewidth == '100vw'" ng-click="fullsize(false)")
+                    i.fa-solid.fa-down-left-and-up-right-to-center
+                .btn.btn-primary.btn-round(type="button" data-bs-dismiss="offcanvas" aria-label="Close")
+                    i.fa-solid.fa-xmark
+        
+        .p-0(style="overflow: hidden; height: calc(100% - 52px);")
+            {$ wiz.render("page.hub.app.editor") $}
 
     div(ng-repeat="(key, value) in workflow.status")
         div(ng-if="value.status == 'error'")

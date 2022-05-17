@@ -555,3 +555,8 @@ $color-secondary: rgba(116, 108, 112, .1);
         display: none;
     }
 }
+
+.btn-round {
+    border-radius: 18px;
+    height: 36px;
+}

@@ -7,6 +7,12 @@ if action == 'changed':
     wiz.socketio.emit("status", dizest.status(fid), to=wpid, namespace="/wiz/api/page.hub.workflow.item", broadcast=True)
     wiz.response.status(200)
 
+if action == 'workflow':
+    wpid = wiz.request.query("id", True)
+    data = wiz.request.query("data", True)
+    wiz.socketio.emit("log", data + "\n", to=wpid, namespace="/wiz/api/page.hub.workflow.item", broadcast=True)
+    wiz.response.status(200)
+
 if action == 'dev':
     fid = wiz.request.query("id", True)
     data = wiz.request.query("data", True)
