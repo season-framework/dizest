@@ -149,10 +149,6 @@
                                             input.form-selectgroup-input(type="radio" name="vartype-{{item.name}}" value="output" ng-model="item.type")
                                             span.form-selectgroup-label.w-96
                                                 span App Output
-                                        // select.form-select(ng-model="item.type" style="width: 140px;")
-                                        //     option(value="variable") Variable
-                                        //     option(value="output") App Output
-                                        //     option(value="dataset") Dataset
                                         
                                     td.w-1
                                         input.form-control(style="width: 160px;" placeholder="Input Name" ng-model="item.name")

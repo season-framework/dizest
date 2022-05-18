@@ -38,7 +38,6 @@ dizest update
     - export/import app
 - Workflow
     - auto process (auto ordering flows)
-    - export/import app
 - Explore
     - explore workflow on hub
     - comment or review functions
@@ -50,6 +49,11 @@ dizest update
     - connect with hub by API
 
 ## Release Note
+
+### 2.0.8
+- workflow import/export
+- kill processes on admin dashboard
+- ui bug fixed on workflow
 
 ### 2.0.7
 - display error status on workflow

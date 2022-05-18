@@ -12,5 +12,10 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         return hour + " hr"
     }
 
+    $scope.kill = async()=> {
+        await wiz.API.async("kill");
+        location.reload();
+    }
+
     await $timeout();
 }

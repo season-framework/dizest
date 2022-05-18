@@ -70,7 +70,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         let q = angular.copy($scope.workflow.query);
         let res = await wiz.API.async("myworkflow", q);
         $scope.workflow.list = res.data.result;
-        
+
         $scope.workflow.lastpage = res.data.lastpage;
         $scope.workflow.tab = 'private';
         $scope.workflow.loading = true;
@@ -94,6 +94,50 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         await $scope.workflow.pagination();
         await $timeout();
     }
+
+    $scope.workflow.gen = async () => {
+        let wpdata = angular.copy($scope.workflow.data);
+        let transform = angular.copy($scope.workflow.transform);
+        await wiz.API.async('create', {data: JSON.stringify(wpdata), transform: JSON.stringify(transform)})
+        await $scope.workflow.load.current();
+        $('#import-modal').modal("hide");
+    }
+
+    $scope.workflow.import = function () {
+        $('#import-file').click();
+    }
+
+    $scope.apps = await wiz.API.async("myapps");
+    $scope.apps = $scope.apps.data;
+    $scope.appsmap = {};
+    for (let i = 0; i < $scope.apps.length; i++) {
+        $scope.appsmap[$scope.apps[i].id] = $scope.apps[i];
+    }
+
+    $('#import-file').change(async () => {
+        let fr = new FileReader();
+        fr.onload = async () => {
+            let data = fr.result;
+            data = JSON.parse(data);
+            delete data.id;
+            data.visibility = 'private';
+            data.updatepolicy = 'auto';
+
+            $scope.workflow.transform = {};
+            for (let key in data.apps) {
+                $scope.workflow.transform[key] = { mode: 'new' };
+                if ($scope.appsmap[key]) {
+                    $scope.workflow.transform[key].mode = 'link';
+                    $scope.workflow.transform[key].id = key;
+                }
+            }
+
+            $scope.workflow.data = data;
+            await $timeout();
+            $('#import-modal').modal("show");
+        };
+        fr.readAsText($('#import-file').prop('files')[0]);
+    });
 
     await $scope.workflow.load.private();
 }

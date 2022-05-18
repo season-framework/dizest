@@ -180,6 +180,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
     if (wiz.data.workflow) {
         $scope.workflow.data = wiz.data.workflow;
+        $scope.workflow.url = wiz.API.url("download/" + wiz.data.workflow.id);
     }
 
     $scope.workflow.active_flow = async (item) => {
@@ -352,12 +353,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     $scope.app.description.enableReadOnlyMode('app-description');
 
     // drawflow
-    let id = document.getElementById("drawflow");
-
-    const editor = $scope.drawflow = new Drawflow(id);
-    editor.reroute = true;
-    editor.reroute_fix_curvature = true;
-    editor.force_first_input = false;
+    let editor = $scope.drawflow = null;
 
     let create_html = (nodeid, item) => {
         let container = $("<div class='card-header'></div>");
@@ -398,8 +394,6 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
         return html;
     }
-
-    editor.start();
 
     let mobile_item_selec = '';
     let mobile_last_move = null;
@@ -541,6 +535,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                 save: async () => {
                     let appid = flow_id.split("-")[0];
                     await appLoader(appid, true);
+                    await $scope.drawflow_init();
                 },
                 run: async () => {
                     await window.appRun(flow_id);
@@ -619,7 +614,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             pos_y = pos_y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
         }
 
-        let item = await appLoader(name);
+        let item = await appLoader(name, false);
         if (!item) return;
 
         if (!nodeid)
@@ -642,47 +637,65 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     }
 
     // init
-    if ($scope.workflow.data.flow) {
-        let flowdata = $scope.workflow.data.flow;
+    $scope.drawflow_init = async () => {
+        $scope.drawflow_clear = true;
+        await $timeout();
 
-        for (let key in flowdata) {
-            let item = flowdata[key];
-            let inputs = [];
-            for (let inputkey in item.inputs) inputs.push(inputkey);
-            let outputs = [];
-            for (let outputkey in item.outputs) outputs.push(outputkey);
-            let app_id = item.id.split("-")[0];
-            await addNodeToDrawFlow(app_id, item.pos_x, item.pos_y, item.id, item.data);
-        }
+        $scope.drawflow_clear = false;
+        await $timeout();
 
-        for (let key in flowdata) {
-            let item = flowdata[key];
-            let id_input = item.id;
-            for (let input_class in item.inputs) {
-                let conn = item.inputs[input_class].connections;
-                for (let i = 0; i < conn.length; i++) {
-                    let id_output = conn[i].node;
-                    let output_class = conn[i].input;
-                    try {
-                        editor.addConnection(id_output, id_input, "output-" + output_class, "input-" + input_class);
-                    } catch (e) {
+        let id = document.getElementById("drawflow");
+        editor = $scope.drawflow = new Drawflow(id);
+        editor.reroute = true;
+        editor.reroute_fix_curvature = true;
+        editor.force_first_input = false;
+        editor.start();
+
+        if ($scope.workflow.data.flow) {
+            let flowdata = $scope.workflow.data.flow;
+
+            for (let key in flowdata) {
+                let item = flowdata[key];
+                let inputs = [];
+                for (let inputkey in item.inputs) inputs.push(inputkey);
+                let outputs = [];
+                for (let outputkey in item.outputs) outputs.push(outputkey);
+                let app_id = item.id.split("-")[0];
+                await addNodeToDrawFlow(app_id, item.pos_x, item.pos_y, item.id, item.data);
+            }
+
+            for (let key in flowdata) {
+                let item = flowdata[key];
+                let id_input = item.id;
+                for (let input_class in item.inputs) {
+                    let conn = item.inputs[input_class].connections;
+                    for (let i = 0; i < conn.length; i++) {
+                        let id_output = conn[i].node;
+                        let output_class = conn[i].input;
+                        try {
+                            editor.addConnection(id_output, id_input, "output-" + output_class, "input-" + input_class);
+                        } catch (e) {
+                        }
+                    }
+                }
+
+                let id_output = item.id;
+                for (let output_class in item.outputs) {
+                    let conn = item.outputs[output_class].connections;
+                    for (let i = 0; i < conn.length; i++) {
+                        id_input = conn[i].node;
+                        let input_class = conn[i].output;
+                        try {
+                            editor.addConnection(id_output, id_input, "output-" + output_class, "input-" + input_class);
+                        } catch (e) {
+                        }
                     }
                 }
             }
-
-            let id_output = item.id;
-            for (let output_class in item.outputs) {
-                let conn = item.outputs[output_class].connections;
-                for (let i = 0; i < conn.length; i++) {
-                    id_input = conn[i].node;
-                    let input_class = conn[i].output;
-                    try {
-                        editor.addConnection(id_output, id_input, "output-" + output_class, "input-" + input_class);
-                    } catch (e) {
-                    }
-                }
-            }
         }
+
+        for (let flow_id in $scope.workflow.data.flow)
+            socket.emit("status", { workflow_id: $scope.workflow.data.id, flow_id: flow_id });
     }
 
     $scope.fullsize = async (stat) => {
@@ -691,13 +704,11 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         await $timeout();
     }
 
+    await $scope.drawflow_init();
     await $scope.apps.load.installed(true);
     if ($scope.workflow.floworder.length == 0)
         await $scope.apps.load.private(true);
 
     $scope.workflow.loaded = true;
     await $timeout();
-
-    for (let flow_id in $scope.workflow.data.flow)
-        socket.emit("status", { workflow_id: $scope.workflow.data.id, flow_id: flow_id });
 }

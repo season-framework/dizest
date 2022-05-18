@@ -524,7 +524,7 @@ $color-secondary: rgba(116, 108, 112, .1);
     }
 
     .appinfo-context {
-        height: calc(100vh - 34px);
+        height: calc(100% - 31px);
         overflow: auto;
 
         .container {

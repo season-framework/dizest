@@ -79,10 +79,14 @@
                 .header-title {{workflow.data.id ? workflow.data.title : 'New Workflow'}}
                 .ml-auto
                 .btns
-                    .btn.btn-orange.mr-2(type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-workflow-info" aria-controls="offcanvas-workflow-info") Workflow Info
-                    a.btn.btn-orange(href="/hub/workflow/list") List
+                    button.btn.btn-orange.mr-2(type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-workflow-info" aria-controls="offcanvas-workflow-info")
+                        i.fa-solid.fa-info
+                    a.btn.btn-orange.mr-2(ng-if="workflow.url" ng-href="{{workflow.url}}" target="_blank")
+                        i.fa-solid.fa-cloud-arrow-down
+                    a.btn.btn-orange(href="/hub/workflow/list")
+                        i.fa-solid.fa-bars-staggered
 
-        .drawflow-area
+        .drawflow-area(ng-if="!drawflow_clear")
             .workflow-loading(ng-if="!workflow.loaded")
                 table
                     tr

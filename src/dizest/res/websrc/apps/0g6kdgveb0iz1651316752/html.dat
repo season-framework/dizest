@@ -14,9 +14,10 @@
                             li.list-inline-item My workflow
                 
                 .col-auto.actions
+                    a.btn.btn-primary.mr-1(ng-click="workflow.import()")
+                        i.fa-solid.fa-cloud-arrow-up
                     a.btn.btn-primary(href="/hub/workflow/item/new")
-                        i.fa-solid.fa-plus.mr-2
-                        span Create Workflow
+                        i.fa-solid.fa-plus
 
     .workflow-list-item
         .container.pt-4
@@ -44,3 +45,68 @@
             button.btn.btn-sm(ng-repeat="page in workflow.pages" ng-class="page == workflow.query.page ? 'btn-primary' : 'btn-link'" ng-click="workflow.load.page(page)") {{page}}
             button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="workflow.load.page(workflow.query.page*1+1)")
                 i.fas.fa-angle-double-right
+
+    .display-none(style="display: none;")
+        input#import-file(type="file" accept=".dzw")
+
+    .modal.fade#import-modal(tabindex="-1")
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5.modal-title Workflow Import
+                    button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+                .modal-body.bg-white
+                    .form-group.row.mb-3
+                        label.form-label.col-3.col-form-label Title
+                        .col
+                            input.form-control(type="text" placeholder="Workflow Title" ng-model="workflow.data.title")
+                    
+                    .form-group.row.mb-3
+                        label.form-label.col-3.col-form-label Version
+                        .col
+                            input.form-control(type="text" placeholder="1.0.0" ng-model="workflow.data.version")
+
+                    .form-group.row
+                        label.form-label.col-3.col-form-label Update Policy
+                        .col
+                            .form-selectgroup
+                                label.form-selectgroup-item
+                                    input.form-selectgroup-input(type="radio" name="updatepolicy" value="auto" ng-model="workflow.data.updatepolicy")
+                                    span.form-selectgroup-label
+                                        i.fa-solid.fa-wand-magic-sparkles.mr-2
+                                        span Auto
+                                label.form-selectgroup-item
+                                    input.form-selectgroup-input(type="radio" name="updatepolicy" value="manual" ng-model="workflow.data.updatepolicy")
+                                    span.form-selectgroup-label
+                                        i.fa-solid.fa-repeat.mr-2
+                                        span Manual
+                
+                .modal-body.bg-white.p-0
+                    table.table.card-table.table-vcenter
+                        thead
+                            tr
+                                th App ID
+                                th Import As
+                                th Link To
+                        tbody(ng-repeat="(key, item) in workflow.data.apps")
+                            tr
+                                td.text-left {{item.title}}
+                                td.nowrap
+                                    label.form-selectgroup-item(style="display: inline-block;")
+                                        input.form-selectgroup-input(type="radio" name="vartype-{{item.id}}" value="new" ng-model="workflow.transform[item.id].mode")
+                                        span.form-selectgroup-label.w-96
+                                            span New
+                                    label.form-selectgroup-item(style="display: inline-block;")
+                                        input.form-selectgroup-input(type="radio" name="vartype-{{item.id}}" value="link" ng-model="workflow.transform[item.id].mode")
+                                        span.form-selectgroup-label.w-96
+                                            span Link
+                                td
+                                    select.form-select(ng-model="workflow.transform[item.id].id" ng-if="workflow.transform[item.id].mode != 'new'")
+                                        option(ng-repeat="target in apps" value="{{target.id}}") {{target.title}}
+
+                .modal-body.bg-white.p-1
+
+                .modal-footer.d-flex.bg-white
+                    button.btn.btn-white(style="border-radius: 16px;" type="button" data-bs-dismiss="modal") Cancel
+                    .mr-auto
+                    button.btn.btn-primary(style="border-radius: 16px;" type="button" ng-click="workflow.gen()") Import

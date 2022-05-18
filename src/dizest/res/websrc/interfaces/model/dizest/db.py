@@ -57,7 +57,7 @@ class Model:
             pass
         return 0
 
-    def rows(self, order='ASC', orderby=None, page=1, dump=10, fields=None, like=None, **where):
+    def rows(self, order='ASC', orderby=None, page=None, dump=10, fields=None, like=None, **where):
         db = orm[self.tablename]
         query = db.select()
 
@@ -88,7 +88,8 @@ class Model:
                     pass
             query = query.order_by(*orderby)
 
-        query = query.paginate(page, dump)
+        if page is not None:
+            query = query.paginate(page, dump)
         rows = []
 
         if fields is not None:

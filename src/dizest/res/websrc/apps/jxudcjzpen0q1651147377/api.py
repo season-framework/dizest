@@ -2,6 +2,7 @@ import season
 import json
 import math
 import datetime
+import re
 
 db = season.stdClass()
 db.apps = wiz.model("dizest/db").use("app")
@@ -106,3 +107,11 @@ def stop(wiz):
     except:
         pass
     wiz.response.status(200)
+
+def download(wiz):
+    wpid = wiz.request.segment.get(0)
+    wp = db.workflow.get(id=wpid)
+    name = wp['title']
+    name = str(re.sub(r'[^\w\d-]', '_', name)) + ".dzw"
+    wiz.response.headers.set("Content-Disposition", f"attachment; filename={name}")
+    wiz.response.send(json.dumps(wp, default=season.json_default), content_type="application/json")

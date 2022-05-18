@@ -290,7 +290,12 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                 return;
             }
 
-            if (data.inputs[i].name.match(/[^a-z0-9]/gi)) {
+            if (data.inputs[i].name.includes(" ")) {
+                await alert("Input name only allow alphabet and digits.");
+                return;
+            }
+
+            if (data.inputs[i].name.match(/[^a-z0-9_]/gi)) {
                 await alert("Input name only allow alphabet and digits.");
                 return;
             }
@@ -301,6 +306,31 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             }
 
             checker[data.inputs[i].name] = true;
+        }
+
+        checker = {};
+        for (let i = 0; i < data.outputs.length; i++) {
+            if (!data.outputs[i].name || data.outputs[i].name.length == 0) {
+                await alert("Output name must be filled");
+                return;
+            }
+
+            if (data.outputs[i].name.includes(" ")) {
+                await alert("Output name only allow alphabet and digits.");
+                return;
+            }
+
+            if (data.outputs[i].name.match(/[^a-z0-9_]/gi)) {
+                await alert("Output name only allow alphabet and digits.");
+                return;
+            }
+
+            if (checker[data.outputs[i].name]) {
+                await alert("Output name must be unique.");
+                return;
+            }
+
+            checker[data.outputs[i].name] = true;
         }
 
         let res = null;
@@ -341,13 +371,13 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     }
 
     $scope.app.add_input = async () => {
+        if (!$scope.app.data.inputs) $scope.app.data.inputs = [];
         $scope.app.data.inputs.push({ type: 'output' });
         await $timeout();
     }
 
     $scope.app.add_output = async () => {
-        if (!$scope.app.data.outputs)
-            $scope.app.data.outputs = []
+        if (!$scope.app.data.outputs) $scope.app.data.outputs = [];
         $scope.app.data.outputs.push({});
         await $timeout();
     }
