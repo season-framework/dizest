@@ -159,8 +159,13 @@ class Flow:
         cwd = workflow.cwd
         if os.getpid() != os.getppid():
             if workflow.user is not None:
-                os.chdir(os.path.join(cwd, 'local', workflow.user))
-        
+                path = os.path.join(cwd, 'local', workflow.user)
+                try:
+                    os.makedirs(path)
+                except:
+                    pass
+                os.chdir(path)
+
         index = workflow.get_status('index', 0)
         index = index + 1
 
