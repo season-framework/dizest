@@ -50,6 +50,9 @@ dizest update
 
 ## Release Note
 
+### 2.1.1
+- bug fixed
+
 ### 2.1.0
 - pip package installer on admin page
 - change main page: apps -> workflow
