@@ -46,7 +46,7 @@ setup(
         'Pillow',
         'numpy',
         'pandas',
-        'season==0.5.32',
+        'season>=0.5.33',
         'peewee',
         'bcrypt'
     ],

@@ -50,7 +50,12 @@ dizest update
 
 ## Release Note
 
+### 2.1.3
+
+- socketio bug fixed
+
 ### 2.1.2
+
 - class bug fixed in workflow
 
 ### 2.1.1
