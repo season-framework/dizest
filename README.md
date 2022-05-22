@@ -50,6 +50,9 @@ dizest update
 
 ## Release Note
 
+### 2.1.2
+- class bug fixed in workflow
+
 ### 2.1.1
 - bug fixed
 
