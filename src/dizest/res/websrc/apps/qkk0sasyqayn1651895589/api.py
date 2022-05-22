@@ -11,6 +11,11 @@ def kill(wiz):
     process = psutil.Process(os.getpid())
     children = process.children(recursive=True)
     for child in children:
-        childp = psutil.Process(child.pid)
-        childp.terminate()
+        try:
+            child.terminate()
+            child.kill()
+            child.wait()
+        except Exception as e:
+            pass
+        
     wiz.response.status(200)

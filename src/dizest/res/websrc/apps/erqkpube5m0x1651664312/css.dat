@@ -20,3 +20,14 @@
         text-align: center;
     }
 }
+
+pre {
+    border: none;
+    min-height: 100%;
+}
+
+.row.packages {
+    > div {
+        padding: 2px 0;
+    }
+}

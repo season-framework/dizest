@@ -15,18 +15,29 @@
 
                 .col-auto
                     .actions
-                        .btn.btn-primary
-                            span Install
+                        input.form-control.mr-1(placeholder="scikit-learn" ng-model="packages" ng-enter="pip.install(packages)" ng-disabled="pip.install_status")
+                        .btn.btn-primary(ng-click="pip.install(packages)")
+                            span(ng-if="!pip.install_status") Install
+                            span.spinner-border.spinner-border-sm.text-white(ng-if="pip.install_status")
 
     .workspace-container
         .container.pt-4(style="max-width: 860px;")
-            .overflow-x
-                table.table.table-hover.board-table.table-vcenter
-                    tbody
-                        tr(ng-repeat="item in pip.data")
-                            td.text-left {{item.name}}={{item.version}}
+            .row.packages
+                .col-md-4.text-left(ng-repeat="item in pip.data")
+                    b {{item.name}}
+                    span {{"=" + item.version}}
         
             .search-loading.text-center(style="padding: 10vh 0;" ng-if="!pip.data")
                 .spinner-grow.text-azure(style="width: 120px; height: 120px;")
     
     .workspace-footer
+
+    #offcanvas-result.offcanvas.offcanvas-end(tabindex="-1" style="z-index: 1090;")
+        .offcanvas-header
+            h3.p-0.m-0 Output
+            .close(type="button" data-bs-dismiss="offcanvas" aria-label="Close")
+                i.fa-solid.fa-xmark
+        
+        .offcanvas-body.p-0
+            pre {{pip.install_message}}
+            

@@ -59,6 +59,8 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     let ansi_up = new AnsiUp();
     let socket = wiz.socket.get();
 
+    $scope.socket = {};
+
     $scope.apps = {};
     $scope.apps.list = [];
     $scope.apps.loading = false;
@@ -180,11 +182,11 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             },
             run: async () => {
                 if (app_id != 'new')
-                    socket.emit("run", { id: app_id });
+                    await wiz.API.async("run", { id: app_id })
             },
             stop: async () => {
                 if (app_id != 'new')
-                    socket.emit("stop", { id: app_id });
+                    await wiz.API.async("stop", { id: app_id })
             }
         }).event("load");
 
@@ -203,7 +205,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
     await $timeout();
 
-    $scope.socket = {};
+    
     $scope.socket.running_status = {};
     $scope.socket.log = "";
     $scope.socket.clear = async () => {

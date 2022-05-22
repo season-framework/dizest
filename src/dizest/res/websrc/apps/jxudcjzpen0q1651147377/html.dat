@@ -67,9 +67,9 @@
                     i.fa-solid.fa-magnifying-glass-plus
 
         .floating-menu
-            .btn.btn-primary.btn-circle.mr-2(ng-click="workflow.stop()")
+            .btn.btn-primary.btn-circle.mr-2(ng-click="workflow.stop()" ng-if="workflow.running == 'running'")
                 i.fa-solid.fa-stop
-            .btn.btn-primary.btn-circle.mr-2(ng-click="workflow.run()")
+            .btn.btn-primary.btn-circle.mr-2(ng-click="workflow.run()" ng-if="workflow.running != 'running'")
                 i.fa-solid.fa-play
             .btn.btn-primary.btn-circle(ng-click="workflow.save()")
                 i.fa-solid.fa-save
@@ -79,6 +79,17 @@
                 .header-title {{workflow.data.id ? workflow.data.title : 'New Workflow'}}
                 .ml-auto
                 .btns
+                    .dropdown.mr-1
+                        button.btn.btn-orange.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
+                            | Kernel
+                        ul.dropdown-menu
+                            li
+                                a.dropdown-item(ng-click="workflow.stop()") Stop
+                            li
+                                a.dropdown-item(ng-click="workflow.kill()") Kill
+                            li
+                                a.dropdown-item(ng-click="workflow.restart()") Restart
+
                     button.btn.btn-orange.mr-2(type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-workflow-info" aria-controls="offcanvas-workflow-info")
                         i.fa-solid.fa-info
                     a.btn.btn-orange.mr-2(ng-if="workflow.url" ng-href="{{workflow.url}}" target="_blank")

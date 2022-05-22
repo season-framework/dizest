@@ -109,10 +109,12 @@
                             th.w-1 PID
                             th.w-1 Parent
                             th CMD
+                            th.w-1 Status
                             th.w-1 Uptime
                     tbody
                         tr(ng-repeat="item in data.process.children")
                             td.w-1.text-center.pr-2.pl-2.pt-1.pb-1 {{item.pid}} 
                             td.w-1.text-center.pr-2.pl-2.pt-1.pb-1 {{item.parent}}
                             td.text-left.pr-2.pl-2.pt-1.pb-1 {{item.cmd}}
+                            td.w-1.text-left.pr-2.pl-2.pt-1.pb-1 {{item.status}}
                             td.w-1.text-right.pr-2.pl-2.pt-1.pb-1 {{timer(item.time)}}

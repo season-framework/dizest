@@ -1,30 +1,32 @@
-action = wiz.request.segment.action
+action = wiz.request.query("mode")
 
-if action == 'changed':
+if action == 'wpstat':
+    wpid = wiz.request.query("workflow_id", True)
+    if wpid[:7] != 'develop':
+        dizest = wiz.model("dizest/scheduler")(wpid)
+        wiz.socketio.emit("wpstatus", dizest.kernel.workflow.status.get("status"), to=wpid, namespace="/wiz/api/page.hub.workflow.item", broadcast=True)
+    wiz.response.status(200)
+
+if action == 'flowstat':
     wpid = wiz.request.query("workflow_id", True)
     fid = wiz.request.query("flow_id", True)
-    dizest = wiz.model("dizest/scheduler")(wpid)
-    wiz.socketio.emit("status", dizest.status(fid), to=wpid, namespace="/wiz/api/page.hub.workflow.item", broadcast=True)
+    if wpid[:7] == 'develop':
+        dizest = wiz.model("dizest/scheduler").test(fid)
+        wiz.socketio.emit("status", dict(dizest.status(fid)), to=fid, namespace="/wiz/api/page.hub.apps", broadcast=True)
+    else:
+        dizest = wiz.model("dizest/scheduler")(wpid)
+        wiz.socketio.emit("status", dict(dizest.status(fid)), to=wpid, namespace="/wiz/api/page.hub.workflow.item", broadcast=True)
     wiz.response.status(200)
 
-if action == 'workflow':
-    wpid = wiz.request.query("id", True)
-    data = wiz.request.query("data", True)
-    wiz.socketio.emit("log", data + "\n", to=wpid, namespace="/wiz/api/page.hub.workflow.item", broadcast=True)
-    wiz.response.status(200)
-
-if action == 'dev':
-    fid = wiz.request.query("id", True)
-    data = wiz.request.query("data", True)
-    wiz.socketio.emit("log", data + "\n", to=fid, namespace="/wiz/api/page.hub.apps", broadcast=True)
-    wiz.response.status(200)
-    
-if action == 'dev_status':
+if action == 'stdout':
     wpid = wiz.request.query("workflow_id", True)
     fid = wiz.request.query("flow_id", True)
-    dizest = wiz.model("dizest/scheduler").test(fid)
-    status = dizest.status(fid)
-    wiz.socketio.emit("status", status, to=fid, namespace="/wiz/api/page.hub.apps", broadcast=True)
+    data = wiz.request.query("data", True)
+
+    if wpid[:7] == 'develop':
+        wiz.socketio.emit("log", data + "\n", to=fid, namespace="/wiz/api/page.hub.apps", broadcast=True)
+    else:
+        wiz.socketio.emit("log", data + "\n", to=wpid, namespace="/wiz/api/page.hub.workflow.item", broadcast=True)
     wiz.response.status(200)
 
 wiz.response.status(200)

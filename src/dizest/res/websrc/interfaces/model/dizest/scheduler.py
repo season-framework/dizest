@@ -4,50 +4,55 @@ import sys
 import datetime
 import time
 import urllib
-# sys.path.insert(0, '/opt/workspace/dizest/src')
+sys.path.insert(0, '/opt/workspace/dizest/src')
 import dizest
 
 class Model:
-    def __init__(self, wpid, package=None, develop=False, logger=None):
+    def __init__(self, wpid, package=None, develop=False):
         host = urllib.parse.urlparse(wiz.flask.request.base_url)
+        host = f"{host.scheme}://{host.netloc}/dizest/api/kernel"
         session = wiz.model("session").use()
         
         # development not use cache
         if develop:
-            host = f"{host.scheme}://{host.netloc}/dizest/api/kernel/dev_status"
             cache = self.cache = wiz.model("dizest/cache").use("dizest.apps.cache")
-            wp = cache.get(wpid)
-            if wp is None:
+            kernel = cache.get(wpid)
+            if kernel is None:
                 if package is not None:
-                    BASEPATH = os.path.realpath(season.core.PATH.PROJECT + "/../storage")
-                    wp = dizest.Workflow(package, status_changed_api=host, cwd=BASEPATH, user=session.get("id"), auth=session.get("role"), logger=logger, develop=develop)
-                    wp.set_status("user_id", session.get("id"))
-                    wp.set_status("craeted", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                    wp.instance_id = int(time.time())
-                    cache.set(wp.id(), wp)
+                    cwd = os.path.realpath(season.core.PATH.PROJECT + "/../storage/local/" + session.get("id"))
+                    workflow = dizest.Workflow(package, api=host, cwd=cwd, isdev=True, cache="/dev/shm/dizest")
+                    workflow.user_id = session.get("id")
+                    workflow.created = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    kernel = workflow.kernel()
+                    cache.set(workflow.id(), kernel)
                 else:
-                    wp = None
+                    kernel = None
 
         # workflow use cache
         else:
-            host = f"{host.scheme}://{host.netloc}/dizest/api/kernel/changed"
             cache = self.cache = wiz.model("dizest/cache").use("dizest.workflow.cache")
-            wp = cache.get(wpid)
-            if wp is None:
+            kernel = cache.get(wpid)
+            if kernel is None:
                 if package is not None:
-                    BASEPATH = os.path.realpath(season.core.PATH.PROJECT + "/../storage")
-                    wp = dizest.Workflow(package, status_changed_api=host, cwd=BASEPATH, user=session.get("id"), auth=session.get("role"), logger=logger, develop=develop)
-                    wp.set_status("user_id", session.get("id"))
-                    wp.set_status("craeted", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                    wp.instance_id = int(time.time())
-                    cache.set(wp.id(), wp)
+                    cwd = os.path.realpath(season.core.PATH.PROJECT + "/../storage/local/" + session.get("id"))
+                    workflow = dizest.Workflow(package, api=host, cwd=cwd, cache="/dev/shm/dizest")
+                    workflow.user_id = session.get("id")
+                    workflow.created = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    workflow.instance_id = int(time.time())
+                    kernel = workflow.kernel()
+                    cache.set(workflow.id(), kernel)
                 else:
-                    wp = None
+                    kernel = None
 
-        self.workflow = wp
-        
+        self.kernel = kernel
+
         if package is not None:
-            self.workflow.update(package)
+            self.kernel.workflow.update(package)
+            self.kernel.update()
+
+    @staticmethod
+    def dizest():
+        return dizest
 
     @staticmethod
     def running():
@@ -55,9 +60,11 @@ class Model:
         return cache.keys()
 
     @staticmethod
-    def test(fid, logger=None):
+    def test(fid):
+        cache = wiz.model("dizest/cache").use("dizest.apps.cache")
         db = wiz.model("dizest/db").use("app")
         app = db.get(id=fid)
+
         workflow = dict()
         workflow['id'] = 'develop-' + fid
         
@@ -88,61 +95,60 @@ class Model:
         workflow['apps'] = dict()
         workflow['apps'][fid] = app
 
-        return Model('develop-' + fid, workflow, develop=True, logger=logger)
+        return Model('develop-' + fid, workflow, develop=True)
 
     def instance_id(self):
-        return self.workflow.instance_id
+        return self.kernel.workflow.instance_id
 
     def start(self):
-        self.workflow.start()
+        self.kernel.start()
 
     def restart(self):
-        self.workflow.restart()
+        try:
+            self.kernel.kill()
+        except:
+            pass
+        try:
+            self.kernel.start()
+        except:
+            pass
 
-    def stop(self, flow_id=None):
+    def stop(self):
+        if self.kernel is None:
+            return
+        self.kernel.stop()
+    
+    def kill(self):
         cache = self.cache
-
-        if self.workflow is None:
-            return None
-
-        self.workflow.stop(flow_id)
-        
-        if flow_id is None:
-            cache.delete(self.workflow.id())
-        else:
-            current = self.workflow.flow(flow_id)
-            res = season.stdClass()
-            res.flow_id = current.id()
-            res.status = current.get_status("status", "ready")
-            res.index = current.get_status("index", 1)
-            res.code = current.get_status("code", 0)
-            res.message = current.get_status("message", "")
-            return res
-        return None
+        if self.kernel is None:
+            return
+        self.kernel.kill()
+        cache.delete(self.kernel.workflow.id())
 
     def run(self, flow_id):
         try:
-            self.workflow.run(flow_id)
+            self.kernel.run(flow_id)
         except:
             self.start()
-            self.workflow.run(flow_id)
+            self.kernel.run(flow_id)
 
     def update(self, package):
-        self.workflow.update(package)
+        self.kernel.workflow.update(package)
+        self.kernel.update()
 
     def status(self, flow_id=None):
         res = season.stdClass()
-        if self.workflow is None:
+        if self.kernel is None:
             return res
-        current = self.workflow.flow(flow_id)
-        if current is None: 
-            return res
-        res.flow_id = current.id()
-        res.status = current.get_status("status", "ready")
-        res.index = current.get_status("index", 1)
-        res.code = current.get_status("code", 0)
-        res.message = current.get_status("message", "")
+        
+        flow = self.kernel.workflow.flow(flow_id)
+        if flow is None: return res
+        res.flow_id = flow.id()
+        res.status = flow.status.get("status", "ready")
+        res.index = flow.status.get("index", 1)
+        res.code = flow.status.get("code", 0)
+        res.message = flow.status.get("message", "")
         return res
 
     def flow(self, flow_id):
-        return self.workflow.flow(flow_id)
+        return self.kernel.workflow.flow(flow_id)

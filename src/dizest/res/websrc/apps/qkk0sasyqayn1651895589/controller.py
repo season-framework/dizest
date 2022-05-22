@@ -47,6 +47,7 @@ children = process.children(recursive=True)
 processes = []
 for child in children:
     obj = dict()
+    obj['status'] = child.status()
     obj['pid'] = child.pid
     obj['parent'] = child.parent().pid
     obj['cmd'] = child.name()

@@ -3,6 +3,8 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
 
     $scope.pip = {};
+    $scope.pip.install_status = false;
+
     $scope.pip.load = async () => {
         let res = await wiz.API.async("installed");
         $scope.pip.data = res.data;
@@ -11,11 +13,17 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     }
 
     $scope.pip.install = async (packages) => {
+        if(!packages) return;
+        if ($scope.pip.install_status) return;
         $scope.pip.install_message = null;
+        $scope.pip.install_status = true;
         await $timeout();
-        let res = await wiz.API.async("install", {package: packages});
+        let res = await wiz.API.async("install", { package: packages });
         $scope.pip.install_message = res.data;
+        $scope.pip.install_status = false;
+        $scope.packages = "";
         await $timeout();
+        $('#offcanvas-result').offcanvas('show');
         await $scope.pip.load();
     }
 

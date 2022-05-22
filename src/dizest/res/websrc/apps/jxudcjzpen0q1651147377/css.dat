@@ -336,6 +336,14 @@ $color-secondary: rgba(116, 108, 112, .1);
         padding-right: 12px;
         padding-left: 12px;
         height: 34px;
+
+        .dropdown {
+            display: inline-block;
+        }
+
+        .dropdown-menu {
+            z-index: 1090;
+        }
     }
 
     .action-btns {

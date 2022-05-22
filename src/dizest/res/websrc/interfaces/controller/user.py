@@ -18,10 +18,8 @@ class Controller(wiz.controller("view")):
         self.set_menu(profile=menu)
 
         menu = []
-        menu.append({ 'title': 'Apps', 'url': '/hub/apps', 'icon': 'fa-solid fa-cube' })
         menu.append({ 'title': 'Workflow', 'url': '/hub/workflow', 'icon': 'fa-solid fa-cubes' })
-        # menu.append({ 'title': 'Explore', 'url': '/hub/explore', 'icon': 'fa-solid fa-magnifying-glass' })
-        # menu.append({ 'title': 'Dataset', 'url': '/hub/dataset', 'icon': 'fa-solid fa-database' })
+        menu.append({ 'title': 'Apps', 'url': '/hub/apps', 'icon': 'fa-solid fa-cube' })
         menu.append({ 'title': 'Drive', 'url': '/hub/drive', 'icon': 'fa-solid fa-folder-tree' })
         self.set_menu(main=menu)
         

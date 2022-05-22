@@ -2,6 +2,8 @@ import season
 import json
 import math
 
+Dizest = wiz.model("dizest/scheduler")
+
 db = season.stdClass()
 db.apps = wiz.model("dizest/db").use("app")
 
@@ -84,3 +86,23 @@ def delete(wiz):
     except:
         wiz.response.status(500)
     wiz.response.status(200)
+
+def run(wiz):
+    try:
+        fid = wiz.request.query("id", True)
+        dizest = Dizest.test(fid)
+        if dizest.status(fid)['status'] in ['running', 'pending']:
+            return
+        dizest.run(fid)
+        wiz.response.status(200)
+    except Exception as e:
+        wiz.response.status(500)
+
+def stop(wiz):
+    try:
+        fid = wiz.request.query("id", True)
+        dizest = Dizest.test(fid)
+        dizest.kill()
+        wiz.response.status(200)
+    except Exception as e:
+        wiz.response.status(500)

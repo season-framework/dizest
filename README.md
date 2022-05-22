@@ -50,6 +50,14 @@ dizest update
 
 ## Release Note
 
+### 2.1.0
+- pip package installer on admin page
+- change main page: apps -> workflow
+- bug fixed on process management
+- code refactoring
+- kernel upgrade (fork -> spawn)
+- add socketio config (config/socketio.py)
+
 ### 2.0.8
 - workflow import/export
 - kill processes on admin dashboard

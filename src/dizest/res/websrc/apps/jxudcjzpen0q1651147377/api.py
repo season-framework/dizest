@@ -97,13 +97,50 @@ def delete(wiz):
     except:
         wiz.response.status(500)
     wiz.response.status(200)
-    
+
+def run(wiz):
+    try:
+        wpid = wiz.request.query("workflow_id", True)
+        fids = wiz.request.query("flow_id", None)
+        if fids is None: return
+
+        workflow = db.workflow.get(id=wpid)
+        dizest = wiz.model("dizest/scheduler")(wpid, package=workflow)
+        fids = fids.split(",")
+        for fid in fids:
+            status = dizest.status(fid)
+            if status['status'] == 'pending' or status['status'] == 'running':
+                continue
+            dizest.run(fid)
+        wiz.response.status(200)
+    except Exception as e:
+        wiz.response.status(500)
+
+def restart(wiz):
+    try:
+        wpid = wiz.request.query("workflow_id", True)
+        workflow = db.workflow.get(id=wpid)
+        dizest = wiz.model("dizest/scheduler")(wpid, package=workflow)
+        dizest.restart()
+    except:
+        pass
+    wiz.response.status(200)
+
 def stop(wiz):
     try:
         wpid = wiz.request.query("workflow_id", True)
         fid = wiz.request.query("flow_id", None)
         dizest = wiz.model("dizest/scheduler")(wpid)
         dizest.stop()
+    except:
+        pass
+    wiz.response.status(200)
+
+def kill(wiz):
+    try:
+        wpid = wiz.request.query("workflow_id", True)
+        dizest = wiz.model("dizest/scheduler")(wpid)
+        dizest.kill()
     except:
         pass
     wiz.response.status(200)

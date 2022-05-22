@@ -89,9 +89,30 @@ def update():
 
     print("updated!")
 
+@arg('-f', default=None, help='workflow.dzw')
+def flow(f=None):
+    if f is None:
+        print("dizest run -f workflow.dzw")
+        return
+    
+    fs = dizest.util.os.storage(PATH_WORKINGDIR)
+    package = fs.read.json(f)
+    workflow = dizest.Workflow(package, cwd=PATH_WORKINGDIR, user="daemon", auth="admin", develop=False, logger=print, command=True)
+    flows = workflow.flows()
+    for flow in flows:
+        print(flow)
+
 @arg('--host', default=None, help='0.0.0.0')
 @arg('--port', default=0, help='3000')
-def run(host="0.0.0.0", port=3000):
+@arg('-f', default=None, help='workflow.dzw')
+def run(f=None, host="0.0.0.0", port=3000):
+    if f is not None:
+        fs = dizest.util.os.storage(PATH_WORKINGDIR)
+        package = fs.read.json(f)
+        workflow = dizest.Workflow(package, cwd=PATH_WORKINGDIR, user="daemon", auth="admin", develop=False, logger=print, command=True)
+        workflow.run("zrjzackezlufnrr2-1651384139666")
+        return
+
     fs = dizest.util.os.storage(PATH_WEBSRC)
     if fs.exists() is False:
         install()

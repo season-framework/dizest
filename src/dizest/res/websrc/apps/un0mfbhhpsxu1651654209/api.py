@@ -10,8 +10,9 @@ def running(wiz):
         dizest = Dizest(wpid)
         if workflow is None:
             dizest.stop()
-        workflow['user_id'] = dizest.workflow.get_status("user_id")
-        workflow['created'] = dizest.workflow.get_status("craeted")
+        
+        workflow['user_id'] = dizest.kernel.workflow.user_id
+        workflow['created'] = dizest.kernel.workflow.created
         running[i] = workflow
     wiz.response.status(200, running)
 
@@ -22,8 +23,8 @@ def stop(wiz):
         for i in range(len(running)):
             wpid = running[i]
             dizest = Dizest(wpid)
-            dizest.stop()
+            dizest.kill()
     else:
         dizest = Dizest(wpid)
-        dizest.stop()
+        dizest.kill()
     wiz.response.status(200)

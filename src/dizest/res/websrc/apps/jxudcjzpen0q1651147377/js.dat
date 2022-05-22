@@ -452,6 +452,11 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             socket.emit("join", wpid);
         });
 
+        socket.on("wpstatus", async (data) => {
+            $scope.workflow.running = data;
+            await $timeout();
+        });
+
         socket.on("status", async (data) => {
             $scope.socket.running_status = data;
             let node_id = '#node-' + data.flow_id;
@@ -496,16 +501,24 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             let fid = floworder[i].id;
             fids.push(fid);
         }
-        socket.emit("run", { workflow_id: $scope.workflow.data.id, flow_id: fids.join(",") });
+        await wiz.API.async("run", { workflow_id: $scope.workflow.data.id, flow_id: fids.join(",") });
     }
 
     window.appRun = async (flow_id) => {
         await $scope.workflow.save(true);
-        socket.emit("run", { workflow_id: $scope.workflow.data.id, flow_id: flow_id });
+        await wiz.API.async("run", { workflow_id: $scope.workflow.data.id, flow_id: flow_id });
     }
 
     window.appStop = $scope.workflow.stop = async (flow_id) => {
-        socket.emit("stop", { workflow_id: $scope.workflow.data.id, flow_id: flow_id });
+        await wiz.API.async("stop", { workflow_id: $scope.workflow.data.id, flow_id: flow_id });
+    }
+
+    $scope.workflow.kill = async () => {
+        await wiz.API.async("kill", { workflow_id: $scope.workflow.data.id });
+    }
+
+    $scope.workflow.restart = async () => {
+        await wiz.API.async("restart", { workflow_id: $scope.workflow.data.id });
     }
 
     window.appDisplay = async (flow_id) => {

@@ -19,12 +19,10 @@ config.filter = ['indexfilter']
 
 def build(app, socketio):
     try:
-        
-        
         pass
     except:
         pass
-    app.secret_key = 'season-wiz-datacenter'
+    app.secret_key = 'dizest.net'
 config.build = build
 
 def on_error(framework, err):

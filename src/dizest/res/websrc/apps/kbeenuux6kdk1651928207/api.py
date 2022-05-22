@@ -25,24 +25,11 @@ else:
     dizest = Dizest(wpid, workflow)
     flow = dizest.flow(fid)
 
-wp = dizest.workflow
-
-def logger_fn(host, fid):
-    def logger(*args, color=94):
-        tag = f"[dizest][{fid}]"
-        log_color = color
-        args = list(args)
-        for i in range(len(args)): 
-            args[i] = str(args[i])
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-        logdata = f"\033[{log_color}m[{timestamp}]{tag}\033[0m " + " ".join(args)
-        res = requests.post(host, {"data": logdata, "id": fid})
-    return logger
+kernel = dizest.kernel
 
 def dizest_api(wiz):
     def run(q, logger, dizest, flow, fnname, cwd, user):
-        os.chdir(os.path.join(cwd, 'local', user))
-
+        os.chdir(cwd)
         env = dict()
         env['print'] = logger
         env['display'] = logger
@@ -53,7 +40,6 @@ def dizest_api(wiz):
             local_env = dict()
             exec(code, env, local_env)
             local_env[fnname]()
-            q.put(None)
         except dizest_core.util.response.ResponseException as e:
             data = e.get()
             q.put(data)
@@ -62,27 +48,41 @@ def dizest_api(wiz):
             logger(f"Dizest API Error: {type(e)} \n{stderr}", color=91)
             q.put(e)
 
-    cwd = wp.cwd
+        q.put(None)
+
+    inputs = flow.define.inputs()
+    fids = []
+    for key in inputs:
+        for i in range(len(inputs[key])):
+            fid = inputs[key][i]['flow_id']
+            if fid not in fids:
+                fids.append(fid)
+    
+    for fid in fids:
+        kernel.sync(fid)
+
+    cwd = kernel.workflow.cwd()
     wiz.pid = os.getpid()
     fnname = wiz.request.segment.get(2)
 
-    stat, dizest = flow.dizest()
-    if stat == False:
-        wiz.response.status(500)
-
+    dizest = flow.instance()
     dizest.output = None
     dizest.request = wiz.request
     segpath = dizest.request.segment.framework.segmentpath
     segpath = segpath.split("/")[3:]
     segpath = "/".join(segpath)
     dizest.request.segment.framework.segmentpath = segpath
-    logger = logger_fn(host, flow.id())
-
+    logger = flow.logger
+    
     q = mp.Queue()
     p = mp.Process(target=run, args=[q, logger, dizest, flow, fnname, cwd, wiz.session.get("id")])
     p.start()
-    p.join()
     res = q.get()
+    p.join()
+    try:
+        p.kill()
+    except:
+        pass
 
     if type(res) == tuple:
         name, code, resp = res
