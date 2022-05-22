@@ -466,7 +466,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             if (data.code == 1)
                 $(node_id).append('<div class="error-message p-3 pt-2 pb-2 bg-red-lt">Run the previous app first</div>')
             $scope.workflow.status[data.flow_id] = data;
-            $('.' + data.flow_id + ' .finish-indicator').text('[' + data.index + ']');
+            $('.flow-' + data.flow_id + ' .finish-indicator').text('[' + data.index + ']');
             await $timeout();
         });
 
@@ -646,7 +646,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             outputs.push("output-" + value.name);
         }
 
-        editor.addNode(nodeid, item.title, inputs, outputs, pos_x, pos_y, nodeid + ' ' + item.id + ' ' + item.mode, data, create_html(nodeid, item));
+        editor.addNode(nodeid, item.title, inputs, outputs, pos_x, pos_y, "flow-" + nodeid + ' ' + nodeid + ' ' + item.id + ' ' + item.mode, data, create_html(nodeid, item));
     }
 
     // init

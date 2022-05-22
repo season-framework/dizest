@@ -280,7 +280,7 @@
 
         div(ng-if="value.status == 'finish'")
             style.
-                .{{value.flow_id}} .finish-indicator {
+                .flow-{{value.flow_id}} .finish-indicator {
                     display: block !important;
                     padding-top: 9px;
                     text-align: center;
@@ -325,28 +325,19 @@
                     }
                 }
 
-                .{{value.flow_id}} {
-                    // -webkit-animation-name: heartBeat;
-                    // animation-name: heartBeat;
-                    // -webkit-animation-duration: calc(1s * 1.3);
-                    // animation-duration: calc(1s * 1.3);
-                    // -webkit-animation-duration: calc(var(--animate-duration) * 1.3);
-                    // animation-duration: calc(var(--animate-duration) * 1.3);
-                    // -webkit-animation-timing-function: ease-in-out;
-                    // animation-timing-function: ease-in-out;
-                    // animation-iteration-count: infinite;
+                .flow-{{value.flow_id}} {
                     box-shadow: 0 2px 20px 2px #4ea9ff !important;
                 }
 
-                .{{value.flow_id}} .action-btn-play {
+                .flow-{{value.flow_id}} .action-btn-play {
                     display: none;
                 }
 
-                .{{value.flow_id}} .action-btn-stop {
+                .flow-{{value.flow_id}} .action-btn-stop {
                     display: block !important;
                 }
 
-                .{{value.flow_id}} .progress {
+                .flow-{{value.flow_id}} .progress {
                     display: flex !important;
                 }
 
