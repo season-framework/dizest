@@ -50,6 +50,10 @@ dizest update
 
 ## Release Note
 
+### 2.1.5
+
+- kernel config at dizest.json
+
 ### 2.1.4
 
 - variable type on workflow apps (select, text, textarea, date, number)

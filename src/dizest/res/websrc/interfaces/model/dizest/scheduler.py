@@ -7,8 +7,19 @@ import urllib
 # sys.path.insert(0, '/opt/workspace/dizest/src')
 import dizest
 
+BASEPATH = os.path.realpath(season.core.PATH.PROJECT + "/..")
+
 class Model:
     def __init__(self, wpid, package=None, develop=False):
+        dizestconfig = wiz.model("dizest/config").load()
+        kernel_cache = os.path.join(BASEPATH, "cache")
+        kernel_mode = "spawn"
+        if dizestconfig.kernel is not None:
+            if dizestconfig.kernel.cache is not None:
+                kernel_cache = dizestconfig.kernel.cache
+            if dizestconfig.kernel.mode is not None:
+                kernel_mode = dizestconfig.kernel.mode
+
         host = urllib.parse.urlparse(wiz.flask.request.base_url)
         host = f"{host.scheme}://{host.netloc}/dizest/api/kernel"
         session = wiz.model("session").use()
@@ -20,7 +31,7 @@ class Model:
             if kernel is None:
                 if package is not None:
                     cwd = os.path.realpath(season.core.PATH.PROJECT + "/../storage/local/" + session.get("id"))
-                    workflow = dizest.Workflow(package, api=host, cwd=cwd, isdev=True, cache="/dev/shm/dizest")
+                    workflow = dizest.Workflow(package, api=host, cwd=cwd, isdev=True, cache=kernel_cache, kernel_mode=kernel_mode)
                     workflow.user_id = session.get("id")
                     workflow.created = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     kernel = workflow.kernel()
@@ -35,7 +46,7 @@ class Model:
             if kernel is None:
                 if package is not None:
                     cwd = os.path.realpath(season.core.PATH.PROJECT + "/../storage/local/" + session.get("id"))
-                    workflow = dizest.Workflow(package, api=host, cwd=cwd, cache="/dev/shm/dizest")
+                    workflow = dizest.Workflow(package, api=host, cwd=cwd, cache=kernel_cache, kernel_mode=kernel_mode)
                     workflow.user_id = session.get("id")
                     workflow.created = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     workflow.instance_id = int(time.time())
