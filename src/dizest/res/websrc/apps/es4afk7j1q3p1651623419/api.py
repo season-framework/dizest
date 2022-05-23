@@ -11,7 +11,6 @@ USER_ID = wiz.session.get("id")
 BASEPATH = os.path.realpath(season.core.PATH.PROJECT + "/../storage")
 if MODE == 'public': BASEPATH = os.path.join(BASEPATH, MODE)
 else: BASEPATH = os.path.join(BASEPATH, MODE, USER_ID)
-
 storage = wiz.model("dizest/storage").use(BASEPATH)
 
 def check_role():
@@ -36,7 +35,7 @@ def ls(wiz):
     wiz.response.status(200, res);
 
 def download(wiz):
-    path = "/".join(wiz.request.segment.path().split("/")[3:])
+    path = wiz.request.query("path", "")
     if storage.isdir(path):
         path = storage.abspath(path)
         filename = os.path.splitext(os.path.basename(path))[0] + ".zip"

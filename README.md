@@ -50,6 +50,14 @@ dizest update
 
 ## Release Note
 
+### 2.2.0
+
+- ui changed (app editor/info)
+- cdn config in app editor
+- input/output ordering by drag in app editor
+- drive download url changed (apache bug)
+- db changed
+
 ### 2.1.5
 
 - kernel config at dizest.json

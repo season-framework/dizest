@@ -326,6 +326,21 @@ class Flow:
         pug = pypugjs.Parser(pug)
         pug = pug.parse()
         pug = pypugjs.ext.jinja.Compiler(pug, **pugconfig).compile()
+
+        cdnstr = ""
+        try:
+            cdn = app.get("cdn", {})
+            if 'js' in cdn:
+                for item in cdn['js']:
+                    jssrc = item['src']
+                    cdnstr = f"<script type='text/javascript' src='{jssrc}'></script>"
+            
+            if 'css' in cdn:
+                for item in cdn['css']:
+                    csssrc = item['src']
+                    cdnstr = f"<link href='{csssrc}' rel='stylesheet'>"
+        except:
+            pass
         
         js = app.get("js")
         if js is None or len(js) == 0:
@@ -341,7 +356,7 @@ class Flow:
         except:
             css = ""
 
-        view = f"{pug}{js}{css}"
+        view = f"{cdnstr}{pug}{js}{css}"
         return view
 
 class Workflow(util.std.stdClass):

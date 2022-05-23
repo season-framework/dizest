@@ -96,6 +96,8 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         return opt;
     }
 
+    $scope.sortableOptions = { handle: '.draggable' };
+
     $scope.layout = {};
     $scope.layout.checker = (tab) => {
         if (tab == 'tab1') {
@@ -228,6 +230,16 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         let res = await wiz.API.async("get", { workflow_id: $scope.workflow_id, flow_id: $scope.flow_id });
         if (res.code == 200) {
             $scope.app.data = res.data;
+            if (Array.isArray($scope.app.data.cdn)) 
+                $scope.app.data.cdn = {};
+
+            if (typeof ($scope.app.data.cdn) != 'object')
+                $scope.app.data.cdn = {};
+                
+            if (!$scope.app.data.cdn) $scope.app.data.cdn = {};
+            if (!$scope.app.data.cdn.js) $scope.app.data.cdn.js = [];
+            if (!$scope.app.data.cdn.css) $scope.app.data.cdn.css = [];
+
             if ($scope.app.view == 'editor') {
                 await $scope.app.init.editor();
             } else {
@@ -356,6 +368,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         $scope.app.data = {};
         $scope.app.data.visibility = 'private';
         $scope.app.data.mode = 'ui';
+        $scope.app.data.cdn = { js: [], css: [] };
         $scope.app.data.inputs = [];
         $scope.app.data.outputs = [];
         $scope.app.data.code = '';

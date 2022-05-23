@@ -68,7 +68,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
     let DEFAULT_QUERY = {
         page: 1,
-        dump: 20,
+        dump: 40,
         text: ''
     };
     $scope.apps.query = angular.copy(DEFAULT_QUERY);

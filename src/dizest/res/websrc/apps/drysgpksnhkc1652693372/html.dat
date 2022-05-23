@@ -47,167 +47,228 @@
         
         .appinfo-context
             mixin info(tab)
-                .card.mb-4
-                    .card-header
-                        h4.card-title App Info
-                    .card-body.p-4
-                        .form-group.row.mb-3(ng-if="app.data.id")
-                            label.form-label.col-3.col-form-label App ID
-                            .col
-                                input.form-control(type="text" ng-model="app.data.id" disabled="disabled")
-                        
-                        .form-group.row.mb-3
-                            label.form-label.col-3.col-form-label App Title
-                            .col
-                                input.form-control(type="text" placeholder="App Title" ng-model="app.data.title")
-                        
-                        .form-group.row.mb-3
-                            label.form-label.col-3.col-form-label App Version
-                            .col
-                                input.form-control(type="text" placeholder="1.0.0" ng-model="app.data.version")
-
-                        .form-group.row.mb-3
-                            label.form-label.col-3.col-form-label Visibility
-                            .col
-                                .form-selectgroup
-                                    label.form-selectgroup-item
-                                        input.form-selectgroup-input(type="radio" name="visibility" value="private" ng-model="app.data.visibility")
-                                        span.form-selectgroup-label
-                                            i.fa-solid.fa-lock.mr-2
-                                            span Private
-                                    label.form-selectgroup-item
-                                        input.form-selectgroup-input(type="radio" name="visibility" value="hub" ng-model="app.data.visibility")
-                                        span.form-selectgroup-label
-                                            i.fa-brands.fa-hubspot.mr-2
-                                            span Hub
-                                .mt-2
-                                    span.text-muted(ng-if="app.data.visibility == 'private'") This app is for your own use only.
-                                    span.text-muted(ng-if="app.data.visibility == 'hub'") This app is shared with hub users.
-
-                        .form-group.row.mb-3
-                            label.form-label.col-3.col-form-label Mode
-                            .col
-                                .form-selectgroup
-                                    label.form-selectgroup-item
-                                        input.form-selectgroup-input(type="radio" name="mode" value="ui" ng-model="app.data.mode")
-                                        span.form-selectgroup-label
-                                            i.fa-solid.fa-desktop.mr-2
-                                            span UI Mode
-
-                                    label.form-selectgroup-item
-                                        input.form-selectgroup-input(type="radio" name="mode" value="stream" ng-model="app.data.mode")
-                                        span.form-selectgroup-label
-                                            i.fa-solid.fa-bolt.mr-2
-                                            span Stream Mode
-                                
-                                .mt-2
-                                    span.text-muted(ng-if="app.data.mode == 'ui'") UI mode provides data processing to be possible through the screen. But when the workflow runs, it stops and waits for the user's interaction.
-                                    span.text-muted(ng-if="app.data.mode == 'stream'") Stream mode not provides UI. However, when the workflow runs, it automatically advances the process.
-                        
-                        .form-group.row.mb-3
-                            label.form-label.col-3.col-form-label Logo
-                            .col.text-left
-                                .avatar-area
-                                    .avatar-container
-                                        span.avatar(style="background-image: url({{app.data.logo}})")
-
-                                input.form-control#file-logo(type="file" accept="image/*" style="display: none")
-                            .col-2
-                                .btn.btn-primary.btn-block(ng-click="app.uploader.logo()") Upload
-                                .btn.btn-outline-danger.btn-block.mt-2(ng-if="app.data.logo" ng-click="app.data.logo = ''") Delete
-
-                        .form-group.row.mb-3
-                            label.form-label.col-3.col-form-label Featured Image
-                            .col.text-center
-                                input.form-control#file-featured(type="file" accept="image/*" style="display: none")
-                                img(ng-if="app.data.featured" ng-src="{{app.data.featured}}" style="width: 100%;")
-                            .col-2
-                                .btn.btn-primary.btn-block(ng-click="app.uploader.featured()") Upload
-                                .btn.btn-outline-danger.btn-block.mt-2(ng-if="app.data.featured" ng-click="app.data.featured = ''") Delete
-                        
-                .card.mb-4
-                    .card-header
-                        h4.card-title Input Definition
-
-                    .card-body.p-0.input-definition-table
-                        table.table.card-table
-                            thead
-                                tr
-                                    th.text-left(colspan=2) Type
-                                    th.text-left Input Name
-                                    th.text-left Description
-                                    th.text-left
-                            tbody(ng-repeat="item in app.data.inputs track by $index")
-                                tr
-                                    td.w-1.nowrap.pl-2.text-left(colspan="{{item.type == 'variable' ? 1 : 2}}")
-                                        label.form-selectgroup-item
-                                            input.form-selectgroup-input(type="radio" name="vartype-{{item.name}}" value="variable" ng-model="item.type")
-                                            span.form-selectgroup-label.w-96
-                                                span Variable
-                                        br
-                                        label.form-selectgroup-item
-                                            input.form-selectgroup-input(type="radio" name="vartype-{{item.name}}" value="output" ng-model="item.type")
-                                            span.form-selectgroup-label.w-96
-                                                span App Output
-                                    td.w-1(ng-if="item.type == 'variable'")
-                                        select.form-select(style="width: 120px;" ng-model="item.inputtype")
-                                            option(value="text") Text
-                                            option(value="number") Number
-                                            option(value="date") Date
-                                            option(value="list") List
-                                            option(value="memo") Memo
-                                    td.w-1
-                                        input.form-control(style="width: 160px;" placeholder="Input Name" ng-model="item.name")
-                                    td
-                                        textarea.form-control(placeholder="{{ item.inputtype == 'list' ? 'samsung: 005930,\nkakao: 035720' : 'Description'}}" rows="{{ item.inputtype == 'list' ? 5 : 3}}" ng-model="item.description")
-                                    td.w-1
-                                        button.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 8px;" ng-click="app.data.inputs.remove(item)")
-                                            i.fa-solid.fa-xmark
-                            tbody
-                                tr
-                                    td.p-2(colspan=5 style="background: rgba(116,108,112,.1);")
-                                        button.btn.btn-primary.btn-circle(ng-click="app.add_input()")
-                                            i.fa-solid.fa-plus
-
-                .card.mb-4
-                    .card-header
-                        h4.card-title Output Definition
-
-                    .card-body.p-0.input-definition-table
-                        table.table.card-table
-                            thead
-                                tr
-                                    th.text-left Output Name
-                                    th.text-left Description
-                                    th.text-left
-                            tbody(ng-repeat="item in app.data.outputs track by $index")
-                                tr
-                                    td.w-1
-                                        input.form-control(style="width: 160px;" placeholder="Output Name" ng-model="item.name")
-                                    td
-                                        textarea.form-control(placeholder="Description" rows=3 ng-model="item.description")
-                                    td.w-1
-                                        button.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 8px;" ng-click="app.data.outputs.remove(item)")
-                                            i.fa-solid.fa-xmark
-                            tbody
-                                tr
-                                    td.p-2(colspan=3 style="background: rgba(116,108,112,.1);")
-                                        button.btn.btn-primary.btn-circle(ng-click="app.add_output()")
-                                            i.fa-solid.fa-plus
-
-                .card.mb-4
-                    .card-header
-                        h4.card-title App Description
-
+                .card.no-border.mb-4
+                    ul.nav.nav-tabs.nav-fill(data-bs-toggle="tabs")
+                        li.nav-item
+                            a.nav-link.active(href="#info" data-bs-toggle="tab") Info
+                        li.nav-item
+                            a.nav-link(href="#desc" data-bs-toggle="tab") Desc
+                        li.nav-item
+                            a.nav-link(href="#variables" data-bs-toggle="tab") Variables
+                        li.nav-item(ng-if="app.data.mode == 'ui'")
+                            a.nav-link(href="#cdn" data-bs-toggle="tab") CDNs
+                        li.nav-item
+                            a.nav-link(href="#delete" data-bs-toggle="tab") Delete
                     .card-body.p-0
-                        textarea(id="description-editor-{$tab$}")
+                        .tab-content
+                            #info.tab-pane.show.active.p-4
+                                .form-group.row.mb-3(ng-if="app.data.id")
+                                    label.form-label.col-3.col-form-label App ID
+                                    .col
+                                        input.form-control(type="text" ng-model="app.data.id" disabled="disabled")
+                                
+                                .form-group.row.mb-3
+                                    label.form-label.col-3.col-form-label App Title
+                                    .col
+                                        input.form-control(type="text" placeholder="App Title" ng-model="app.data.title")
+                                
+                                .form-group.row.mb-3
+                                    label.form-label.col-3.col-form-label App Version
+                                    .col
+                                        input.form-control(type="text" placeholder="1.0.0" ng-model="app.data.version")
 
-                .card.mb-4(ng-if="app.data.id && workflow_id == 'develop'")
-                    .card-header
-                        h4.card-title Delete App
+                                .form-group.row.mb-3
+                                    label.form-label.col-3.col-form-label Visibility
+                                    .col
+                                        .form-selectgroup
+                                            label.form-selectgroup-item
+                                                input.form-selectgroup-input(type="radio" name="visibility" value="private" ng-model="app.data.visibility")
+                                                span.form-selectgroup-label
+                                                    i.fa-solid.fa-lock.mr-2
+                                                    span Private
+                                            label.form-selectgroup-item
+                                                input.form-selectgroup-input(type="radio" name="visibility" value="hub" ng-model="app.data.visibility")
+                                                span.form-selectgroup-label
+                                                    i.fa-brands.fa-hubspot.mr-2
+                                                    span Hub
+                                        .mt-2
+                                            span.text-muted(ng-if="app.data.visibility == 'private'") This app is for your own use only.
+                                            span.text-muted(ng-if="app.data.visibility == 'hub'") This app is shared with hub users.
 
-                    .card-body
-                        .btn.btn-block.btn-outline-danger(ng-click="app.delete()") Delete
+                                .form-group.row.mb-3
+                                    label.form-label.col-3.col-form-label Mode
+                                    .col
+                                        .form-selectgroup
+                                            label.form-selectgroup-item
+                                                input.form-selectgroup-input(type="radio" name="mode" value="ui" ng-model="app.data.mode")
+                                                span.form-selectgroup-label
+                                                    i.fa-solid.fa-desktop.mr-2
+                                                    span UI Mode
+
+                                            label.form-selectgroup-item
+                                                input.form-selectgroup-input(type="radio" name="mode" value="stream" ng-model="app.data.mode")
+                                                span.form-selectgroup-label
+                                                    i.fa-solid.fa-bolt.mr-2
+                                                    span Stream Mode
+                                        
+                                        .mt-2
+                                            span.text-muted(ng-if="app.data.mode == 'ui'") UI mode provides data processing to be possible through the screen. But when the workflow runs, it stops and waits for the user's interaction.
+                                            span.text-muted(ng-if="app.data.mode == 'stream'") Stream mode not provides UI. However, when the workflow runs, it automatically advances the process.
+                                
+                                .form-group.row.mb-3
+                                    label.form-label.col-3.col-form-label Logo
+                                    .col.text-left
+                                        .avatar-area
+                                            .avatar-container
+                                                span.avatar(style="background-image: url({{app.data.logo}})")
+
+                                        input.form-control#file-logo(type="file" accept="image/*" style="display: none")
+                                    .col-2
+                                        .btn.btn-primary.btn-block(ng-click="app.uploader.logo()") Upload
+                                        .btn.btn-outline-danger.btn-block.mt-2(ng-if="app.data.logo" ng-click="app.data.logo = ''") Delete
+
+                                .form-group.row.mb-3
+                                    label.form-label.col-3.col-form-label Featured Image
+                                    .col.text-center
+                                        input.form-control#file-featured(type="file" accept="image/*" style="display: none")
+                                        img(ng-if="app.data.featured" ng-src="{{app.data.featured}}" style="width: 100%;")
+                                    .col-2
+                                        .btn.btn-primary.btn-block(ng-click="app.uploader.featured()") Upload
+                                        .btn.btn-outline-danger.btn-block.mt-2(ng-if="app.data.featured" ng-click="app.data.featured = ''") Delete
+                                
+                            #desc.tab-pane.show
+                                textarea(id="description-editor-{$tab$}")
+
+                            #variables.tab-pane.pt-4.pb-4
+                                .card.mb-4
+                                    .card-header
+                                        h4.card-title Input Definition
+
+                                    .card-body.p-0.input-definition-table
+                                        table.table.card-table
+                                            thead
+                                                tr
+                                                    th.text-left(colspan=2) Type
+                                                    th.text-left Input Name
+                                                    th.text-left Description
+                                                    th.text-left
+                                            tbody(ui-sortable='sortableOptions' ng-model="app.data.inputs")
+                                                tr(ng-repeat="item in app.data.inputs")
+                                                    td.w-1.nowrap.pl-2.text-left
+                                                        label.form-selectgroup-item
+                                                            input.form-selectgroup-input(type="radio" name="vartype-{{item.name}}" value="variable" ng-model="item.type")
+                                                            span.form-selectgroup-label.w-96
+                                                                span Variable
+                                                        br
+                                                        label.form-selectgroup-item
+                                                            input.form-selectgroup-input(type="radio" name="vartype-{{item.name}}" value="output" ng-model="item.type")
+                                                            span.form-selectgroup-label.w-96
+                                                                span App Output
+                                                    td.w-1(style="width: 120px !important;")
+                                                        select.form-select(ng-model="item.inputtype" ng-if="item.type == 'variable'")
+                                                            option(value="text") Text
+                                                            option(value="password") Password
+                                                            option(value="number") Number
+                                                            option(value="date") Date
+                                                            option(value="list") List
+                                                            option(value="memo") Memo
+                                                    td.w-1
+                                                        input.form-control(style="width: 160px;" placeholder="Input Name" ng-model="item.name")
+                                                    td
+                                                        textarea.form-control(placeholder="{{ item.inputtype == 'list' ? 'samsung: 005930,\nkakao: 035720' : 'Description'}}" rows="{{ item.inputtype == 'list' ? 5 : 3}}" ng-model="item.description")
+                                                    td.w-1
+                                                        button.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 8px;" ng-click="app.data.inputs.remove(item)")
+                                                            i.fa-solid.fa-xmark
+                                                        br
+                                                        .draggable.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 8px;")
+                                                            i.fa-solid.fa-up-down-left-right
+                                            tbody
+                                                tr
+                                                    td.p-2(colspan=5 style="background: rgba(116,108,112,.1);")
+                                                        button.btn.btn-primary.btn-circle(ng-click="app.add_input()")
+                                                            i.fa-solid.fa-plus
+
+                                .card.mb-4
+                                    .card-header
+                                        h4.card-title Output Definition
+
+                                    .card-body.p-0.input-definition-table
+                                        table.table.card-table
+                                            thead
+                                                tr
+                                                    th.text-left Output Name
+                                                    th.text-left Description
+                                                    th.text-left
+                                            tbody(ui-sortable='sortableOptions' ng-model="app.data.outputs")
+                                                tr(ng-repeat="item in app.data.outputs")
+                                                    td.w-1
+                                                        input.form-control(style="width: 160px;" placeholder="Output Name" ng-model="item.name")
+                                                    td
+                                                        textarea.form-control(placeholder="Description" rows=3 ng-model="item.description")
+                                                    td.w-1
+                                                        button.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 8px;" ng-click="app.data.outputs.remove(item)")
+                                                            i.fa-solid.fa-xmark
+                                                        br
+                                                        .draggable.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 8px;")
+                                                            i.fa-solid.fa-up-down-left-right
+                                            tbody
+                                                tr
+                                                    td.p-2(colspan=3 style="background: rgba(116,108,112,.1);")
+                                                        button.btn.btn-primary.btn-circle(ng-click="app.add_output()")
+                                                            i.fa-solid.fa-plus
+
+                            #delete.tab-pane.pt-4.pb-4
+                                .card.mb-4(ng-if="app.data.id && workflow_id == 'develop'")
+                                    .card-header
+                                        h4.card-title Delete App
+
+                                    .card-body
+                                        .btn.btn-block.btn-outline-danger(ng-click="app.delete()") Delete
+
+                            #cdn.tab-pane.pt-4.pb-4
+                                .card.mb-4
+                                    .card-header
+                                        h4.card-title Javascript
+                                        .mr-auto
+                                        button.btn.btn-primary.btn-circle(ng-click="app.data.cdn.js.push({})")
+                                            i.fa-solid.fa-plus
+
+                                    .card-body.p-0.input-definition-table
+                                        table.table.card-table
+                                            tbody(ui-sortable='sortableOptions' ng-model="app.data.cdn.js")
+                                                tr(ng-repeat="item in app.data.cdn.js")
+                                                    td
+                                                        input.form-control(style="width: 100%;" placeholder="https://cdn.jsdelivr.net/npm/highcharts@10.1.0/highcharts.min.js" ng-model="item.src")
+                                                    td.w-1
+                                                        button.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 4px;" ng-click="app.data.cdn.js.remove(item)")
+                                                            i.fa-solid.fa-xmark
+                                                        .draggable.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 8px;")
+                                                            i.fa-solid.fa-up-down-left-right
+                                            tbody
+                                                tr
+                                                    td.p-2(colspan=5 style="background: rgba(116,108,112,.1);")
+
+                                .card.mb-4
+                                    .card-header
+                                        h4.card-title CSS
+                                        .mr-auto
+                                        button.btn.btn-primary.btn-circle(ng-click="app.data.cdn.css.push({})")
+                                            i.fa-solid.fa-plus
+
+                                    .card-body.p-0.input-definition-table
+                                        table.table.card-table
+                                            tbody(ui-sortable='sortableOptions' ng-model="app.data.cdn.css")
+                                                tr(ng-repeat="item in app.data.cdn.css")
+                                                    td
+                                                        input.form-control(style="width: 100%;" placeholder="https://cdn.jsdelivr.net/npm/highcharts@10.1.0/highcharts.min.css" ng-model="item.src")
+                                                    td.w-1
+                                                        button.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 4px;" ng-click="app.data.cdn.css.remove(item)")
+                                                            i.fa-solid.fa-xmark
+                                                        .draggable.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 8px;")
+                                                            i.fa-solid.fa-up-down-left-right
+                                            tbody
+                                                tr
+                                                    td.p-2(colspan=5 style="background: rgba(116,108,112,.1);")
 
             mixin codearea(tab)
                 .monaco-area(ng-if="layout.checker('{$tab$}')")

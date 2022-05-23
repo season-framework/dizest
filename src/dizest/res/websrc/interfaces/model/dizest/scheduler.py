@@ -14,6 +14,7 @@ class Model:
         dizestconfig = wiz.model("dizest/config").load()
         kernel_cache = os.path.join(BASEPATH, "cache")
         kernel_mode = "spawn"
+
         if dizestconfig.kernel is not None:
             if dizestconfig.kernel.cache is not None:
                 kernel_cache = dizestconfig.kernel.cache

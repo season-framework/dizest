@@ -30,6 +30,19 @@ $color-secondary: rgba(116,108,112,.1);
     border-radius: 24px;
 }
 
+.no-border {
+    border: none;
+    box-shadow: none;
+}
+
+ul.nav.nav-tabs.nav-fill {
+    a {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+}
+
 .card {
     $border-radius: 8px;
     border-radius: $border-radius;
@@ -308,5 +321,17 @@ $color-secondary: rgba(116,108,112,.1);
 
     .ck-editor__top {
         display: none;
+    }
+}
+
+.input-definition-table {
+    td {
+        background-color: #fff;
+    }
+    .ui-sortable-placeholder {
+        td {
+            height: 75px;
+            background: $color-border !important;
+        }
     }
 }

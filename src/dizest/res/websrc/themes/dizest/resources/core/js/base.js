@@ -16,7 +16,7 @@ toastr.options = {
     "hideMethod": "fadeOut"
 };
 
-Function.prototype.proceed = async (fn, obj)=> {
+Function.prototype.proceed = async (fn, obj) => {
     let args = fn.getParamNames();
     let params = [];
     for (let i = 0; i < args.length; i++) {
@@ -72,6 +72,22 @@ Array.prototype.remove = function () {
     }
     return this;
 };
+
+Array.prototype.up = function (item) {
+    let i = this.indexOf(item);
+    if (i < 0) return
+    tmp = this[i];
+    this.splice(i, 1);
+    this.splice(i - 1, 0, tmp);
+}
+
+Array.prototype.down = function (item) {
+    let i = this.indexOf(item);
+    if (i < 0) return
+    tmp = this[i];
+    this.splice(i, 1);
+    this.splice(i + 1, 0, tmp);
+}
 
 String.prototype.string = function (len) {
     var s = '',
