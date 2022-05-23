@@ -383,7 +383,35 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             if (value.type == 'variable') {
                 let variable_name = value.name;
                 let wrapper = $("<div class='value-wrapper'></div>");
-                wrapper.append('<div class="value-title">' + variable_name + '</div><div><input class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '/></div>')
+                wrapper.append('<div class="value-title">' + variable_name + '</div>');
+
+                if (value.inputtype == 'number') {
+                    wrapper.append('<div class="value-data"><input type="number" class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '/></div>');
+                } else if (value.inputtype == 'date') {
+                    wrapper.append('<div class="value-data"><input type="date" class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '/></div>');
+                } else if (value.inputtype == 'memo') {
+                    wrapper.append('<div class="value-data"><textarea rows=5 class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '></textarea></div>');
+                } else if (value.inputtype == 'list') {
+                    let vals = value.description;
+                    vals = vals.replace(/\n/gim, "").split(",");
+                    let opts = "";
+                    for (let j = 0; j < vals.length; j++) {
+                        vals[j] = vals[j].split(":");
+                        let listkey = vals[j][0].trim();
+                        let listval = listkey;
+                        if (vals[j].length > 1) {
+                            listval = vals[j][1].trim();
+                        }
+                        opts = opts + "<option value='" + listval + "'>" + listkey + "</option>"
+                    }
+
+                    opts = '<div class="value-data"><select class="form-select form-select-sm" df-' + variable_name + '>' + opts + "</select></div>";
+                    wrapper.append(opts);
+                } else {
+                    wrapper.append('<div class="value-data"><input class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '/></div>');
+                }
+
+
                 value_container.append(wrapper);
                 value_counter++;
             }

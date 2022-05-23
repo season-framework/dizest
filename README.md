@@ -50,6 +50,10 @@ dizest update
 
 ## Release Note
 
+### 2.1.4
+
+- variable type on workflow apps (select, text, textarea, date, number)
+
 ### 2.1.3
 
 - socketio bug fixed

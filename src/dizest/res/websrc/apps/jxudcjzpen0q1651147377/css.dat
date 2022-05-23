@@ -233,6 +233,15 @@ $color-secondary: rgba(116, 108, 112, .1);
             .input-container {
                 border-right: 1px solid $color-border;
             }
+
+            textarea, select {
+                border: none;
+
+                &:hover, &:focus {
+                    border: none;
+                    box-shadow: none;
+                }
+            }
         }
 
         .connection {
@@ -307,6 +316,13 @@ $color-secondary: rgba(116, 108, 112, .1);
                     font-size: 12px;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                }
+
+                .value-data {
+                    flex: auto;
+                    textarea, select, input {
+                        width: 100%;
+                    }
                 }
 
                 input {

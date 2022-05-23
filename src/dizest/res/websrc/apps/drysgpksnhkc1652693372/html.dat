@@ -133,13 +133,13 @@
                         table.table.card-table
                             thead
                                 tr
-                                    th.text-left Type
+                                    th.text-left(colspan=2) Type
                                     th.text-left Input Name
                                     th.text-left Description
                                     th.text-left
                             tbody(ng-repeat="item in app.data.inputs track by $index")
                                 tr
-                                    td.w-1.nowrap.pl-2
+                                    td.w-1.nowrap.pl-2.text-left(colspan="{{item.type == 'variable' ? 1 : 2}}")
                                         label.form-selectgroup-item
                                             input.form-selectgroup-input(type="radio" name="vartype-{{item.name}}" value="variable" ng-model="item.type")
                                             span.form-selectgroup-label.w-96
@@ -149,17 +149,23 @@
                                             input.form-selectgroup-input(type="radio" name="vartype-{{item.name}}" value="output" ng-model="item.type")
                                             span.form-selectgroup-label.w-96
                                                 span App Output
-                                        
+                                    td.w-1(ng-if="item.type == 'variable'")
+                                        select.form-select(style="width: 120px;" ng-model="item.inputtype")
+                                            option(value="text") Text
+                                            option(value="number") Number
+                                            option(value="date") Date
+                                            option(value="list") List
+                                            option(value="memo") Memo
                                     td.w-1
                                         input.form-control(style="width: 160px;" placeholder="Input Name" ng-model="item.name")
                                     td
-                                        textarea.form-control(placeholder="Description" rows=3 ng-model="item.description")
+                                        textarea.form-control(placeholder="{{ item.inputtype == 'list' ? 'samsung: 005930,\nkakao: 035720' : 'Description'}}" rows="{{ item.inputtype == 'list' ? 5 : 3}}" ng-model="item.description")
                                     td.w-1
                                         button.btn.btn-white.btn-sm.pt-1.pb-1(style="margin-top: 5px; margin-right: 8px;" ng-click="app.data.inputs.remove(item)")
                                             i.fa-solid.fa-xmark
                             tbody
                                 tr
-                                    td.p-2(colspan=4 style="background: rgba(116,108,112,.1);")
+                                    td.p-2(colspan=5 style="background: rgba(116,108,112,.1);")
                                         button.btn.btn-primary.btn-circle(ng-click="app.add_input()")
                                             i.fa-solid.fa-plus
 
