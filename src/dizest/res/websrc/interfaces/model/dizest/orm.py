@@ -13,7 +13,7 @@ class Model:
         if dbconfig.type == 'mysql':
             db = pw.MySQLDatabase(dbconfig.database, **dbconfig.config)
         else:
-            BASEPATH = season.core.PATH.PROJECT
+            BASEPATH = season.path.project
             sqlitedb = os.path.realpath(os.path.join(BASEPATH, '..', 'dizest.db'))
             db = pw.SqliteDatabase(sqlitedb)
         return db

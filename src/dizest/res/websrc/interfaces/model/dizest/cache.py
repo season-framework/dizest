@@ -4,7 +4,7 @@ CACHE_NAMESPACE = 'dizest_cache'
 
 class Model:
     def __init__(self, namespace):
-        self.framework = wiz.__wiz__.framework
+        self.framework = season
         self.namespace = namespace
         if CACHE_NAMESPACE not in self.framework.cache:
             self.framework.cache[CACHE_NAMESPACE] = season.stdClass()

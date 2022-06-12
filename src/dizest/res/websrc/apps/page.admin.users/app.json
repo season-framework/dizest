@@ -1,0 +1,15 @@
+{
+    "id": "page.admin.users",
+    "title": "/admin/users",
+    "properties": {
+        "html": "pug",
+        "js": "javascript",
+        "css": "scss"
+    },
+    "viewuri": "",
+    "created": "2022-04-27 21:21:59",
+    "updated": "2022-05-05 21:01:58",
+    "category": "page",
+    "controller": "admin",
+    "theme": "dizest/aside"
+}

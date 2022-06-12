@@ -1,0 +1,15 @@
+{
+    "id": "page.hub.drive",
+    "title": "/hub/drive",
+    "properties": {
+        "html": "pug",
+        "js": "javascript",
+        "css": "scss"
+    },
+    "viewuri": "",
+    "created": "2022-05-04 09:16:59",
+    "updated": "2022-06-12 12:45:07",
+    "category": "page",
+    "controller": "user",
+    "theme": "dizest/aside"
+}

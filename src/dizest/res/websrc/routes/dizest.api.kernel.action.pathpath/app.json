@@ -1,0 +1,9 @@
+{
+    "id": "dizest.api.kernel.action.pathpath",
+    "title": "/dizest/api/kernel/*",
+    "route": "/dizest/api/kernel/<action>/<path:path>",
+    "viewuri": "/dizest/api/kernel/test",
+    "created": "2022-05-04 21:24:18",
+    "updated": "2022-06-12 12:43:38",
+    "controller": "base"
+}

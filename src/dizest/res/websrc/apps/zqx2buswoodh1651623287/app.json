@@ -1,1 +1,0 @@
-{"id": "zqx2buswoodh1651623287", "title": "/hub/dashboard", "namespace": "page.hub.dashboard", "properties": {"html": "pug", "js": "javascript", "css": "scss"}, "viewuri": "", "created": "2022-05-04 09:14:47", "updated": "2022-05-04 09:33:50", "category": "page", "controller": "user", "theme": "dizest/aside"}

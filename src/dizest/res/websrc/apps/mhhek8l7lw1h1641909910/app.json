@@ -1,1 +1,0 @@
-{"id": "mhhek8l7lw1h1641909910", "title": "/auth/login", "namespace": "page.signin", "properties": {"html": "pug", "js": "javascript", "css": "css"}, "viewuri": "/auth/login", "created": "2022-01-11 23:05:10", "updated": "2022-05-05 19:19:11", "theme": "dizest/base", "controller": "view", "category": "page"}

@@ -1,12 +1,10 @@
 import season
 
-config = season.stdClass()
+app = season.stdClass()
+app.cors_allowed_origins = "*"
+app.async_handlers = True
+app.always_connect = False
+app.manage_session = True
+# app.message_queue = "redis://localhost:6379"
 
-config.app = season.stdClass()
-config.app.cors_allowed_origins = "*"
-config.app.async_handlers = True
-config.app.always_connect = False
-config.app.manage_session = True
-# config.app.message_queue = "redis://localhost:6379"
-
-config.run = season.stdClass()
+run = season.stdClass()

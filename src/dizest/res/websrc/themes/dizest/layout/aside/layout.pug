@@ -2,7 +2,7 @@ doctype 5
 
 html(ng-app="app")
     head
-        {$ wiz.theme('dizest', 'base', 'header.pug') $}
+        {$ wiz.theme('dizest').layout('base').view('header.pug') $}
         link(href='/resources/themes/dizest/core/css/theme-vertical.scss' rel='stylesheet')
         
     body.antialiased
@@ -12,7 +12,7 @@ html(ng-app="app")
             require.config({ paths: { vs: '/resources/themes/dizest/libs/monaco/min/vs' } });
         
         .page
-            {$ wiz.theme('dizest', 'aside', 'navbar.pug') $}
+            {$ wiz.theme('dizest').layout('aside').view('navbar.pug') $}
 
             .content(ng-cloak)
                 - if topmenus

@@ -1,0 +1,13 @@
+{
+    "id": "modal.message",
+    "title": "+modal/message",
+    "properties": {
+        "html": "pug",
+        "js": "javascript",
+        "css": "scss"
+    },
+    "viewuri": "",
+    "created": "2022-01-11 23:07:52",
+    "updated": "2022-04-27 21:23:00",
+    "category": "modal"
+}

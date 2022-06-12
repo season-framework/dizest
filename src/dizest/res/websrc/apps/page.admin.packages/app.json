@@ -1,0 +1,15 @@
+{
+    "id": "page.admin.packages",
+    "title": "/admin/packages",
+    "properties": {
+        "html": "pug",
+        "js": "javascript",
+        "css": "scss"
+    },
+    "viewuri": "",
+    "created": "2022-05-04 20:38:32",
+    "updated": "2022-05-23 23:33:02",
+    "theme": "dizest/aside",
+    "controller": "admin",
+    "category": "page"
+}

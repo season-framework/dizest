@@ -3,7 +3,6 @@ def compile(wiz, js, data):
         return js
 
     app_id = data['app_id']
-    app_namespace = data['app_namespace']
     render_id = data['render_id']
     namespace = data['namespace']
 
@@ -15,7 +14,7 @@ def compile(wiz, js, data):
 
     js = f"""
     function __init_{render_id}() {o}
-        let wiz = season_wiz.load('{app_id}', '{namespace}', '{app_namespace}', '{render_id}');
+        let wiz = season_wiz.load('{app_id}', '{namespace}', '{render_id}');
         wiz.branch = '{branch}';
         wiz.data = wiz.kwargs = wiz.options = JSON.parse(atob('{kwargsstr}'));
         wiz.dic = wiz.DIC = JSON.parse(atob('{dicstr}'));

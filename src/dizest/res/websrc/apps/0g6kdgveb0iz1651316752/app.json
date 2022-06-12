@@ -1,1 +1,0 @@
-{"id": "0g6kdgveb0iz1651316752", "title": "/hub/workflow/list", "namespace": "page.hub.workflow.list", "properties": {"html": "pug", "js": "javascript", "css": "scss"}, "viewuri": "", "created": "2022-04-30 20:05:52", "updated": "2022-05-18 23:10:12", "category": "page", "controller": "user", "theme": "dizest/aside"}

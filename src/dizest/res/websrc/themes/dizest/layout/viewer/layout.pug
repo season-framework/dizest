@@ -2,7 +2,7 @@ doctype 5
 
 html(ng-app="app")
     head
-        {$ wiz.theme('dizest', 'viewer', 'header.pug') $}
+        {$ wiz.theme('dizest').layout('base').view('header.pug') $}
         link(href='/resources/themes/dizest/core/css/dizest.viewer.scss' rel='stylesheet')
         
     body.antialiased

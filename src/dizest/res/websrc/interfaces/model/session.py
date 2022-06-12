@@ -1,6 +1,6 @@
 class Model:
     def __init__(self):
-        self.flask = wiz.flask
+        self.flask = wiz.server.flask
     
     def has(self, key):
         if key in self.flask.session:

@@ -1,0 +1,15 @@
+{
+    "id": "page.hub.apps",
+    "title": "/hub/apps",
+    "properties": {
+        "html": "pug",
+        "js": "javascript",
+        "css": "scss"
+    },
+    "viewuri": "/hub/apps",
+    "created": "2022-04-27 15:42:48",
+    "updated": "2022-06-12 12:43:22",
+    "category": "page",
+    "controller": "user",
+    "theme": "dizest/aside"
+}

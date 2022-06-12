@@ -1,0 +1,42 @@
+.apps-container
+    .apps-list-area
+        .top-menu
+            .header
+                .header-title Apps
+                .ml-auto
+                .side-btns
+                    .btn.btn-white.btn-sm(ng-click="app.select('new')")
+                        i.fa-solid.fa-plus
+
+            .action-btns
+                .action-btn(ng-click="apps.load.private(true)" class="{{ apps.tab == 'private' ? 'active' : '' }}")
+                    span My Apps
+                .action-btn(ng-click="apps.load.hub(true)" class="{{ apps.tab == 'hub' ? 'active' : '' }}")
+                    span Hub Apps
+
+        .top-submenu
+            input.form-control.form-control-sm.search-form(placeholder="enter for search" ng-model="apps.query.text" ng-enter="apps.load.current(true)")
+
+        .app-list
+            .no-items.text-center.p-6(ng-if="apps.list.length == 0 && apps.loading")
+                i.fa-solid.fa-cube
+                .mt-2 No Apps
+                .btn.btn-primary.mt-3(ng-click="app.select('new')" ng-if="apps.tab == 'private'") Create New App
+
+            .app-info(ng-repeat="item in apps.list" class="{{item.id == app.id ? 'active' : ''}}" ng-click="app.select(item.id)")
+                .avatar-area.avatar-area-sm.mr-3
+                    .avatar-container
+                        span.avatar(style="background-image: url({{item.logo}})")
+                .title-area
+                    .app-header {{item.title}}
+                    .app-namespace.text-muted {{item.id}}
+
+        .app-pagenation
+            .pagenation.text-center
+                button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="apps.load.page(apps.query.page*1-1)")
+                    i.fas.fa-angle-double-left
+                button.btn.btn-sm(ng-repeat="page in apps.pages" ng-class="page == apps.query.page ? 'btn-primary' : 'btn-link'" ng-click="apps.load.page(page)") {{page}}
+                button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="apps.load.page(apps.query.page*1+1)")
+                    i.fas.fa-angle-double-right
+
+    {$ wiz.render("page.hub.app.editor") $}

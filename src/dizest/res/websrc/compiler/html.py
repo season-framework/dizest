@@ -3,7 +3,6 @@ def compile(wiz, html, data):
         return html
         
     app_id = data['app_id']
-    app_namespace = data['app_namespace']
     render_id = data['render_id']
     namespace = data['namespace']
 

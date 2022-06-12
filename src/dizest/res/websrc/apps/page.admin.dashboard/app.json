@@ -1,0 +1,15 @@
+{
+    "id": "page.admin.dashboard",
+    "title": "/admin/dashboard",
+    "properties": {
+        "html": "pug",
+        "js": "javascript",
+        "css": "scss"
+    },
+    "viewuri": "",
+    "created": "2022-05-07 12:53:09",
+    "updated": "2022-05-19 10:56:25",
+    "category": "page",
+    "controller": "admin",
+    "theme": "dizest/aside"
+}

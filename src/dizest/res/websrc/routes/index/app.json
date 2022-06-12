@@ -1,0 +1,9 @@
+{
+    "id": "index",
+    "title": "Index Router",
+    "route": "/",
+    "viewuri": "/",
+    "created": "2021-11-28 14:09:14",
+    "updated": "2022-05-06 18:00:53",
+    "controller": "base"
+}

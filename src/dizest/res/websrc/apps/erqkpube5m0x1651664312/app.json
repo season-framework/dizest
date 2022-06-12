@@ -1,1 +1,0 @@
-{"id": "erqkpube5m0x1651664312", "title": "/admin/packages", "namespace": "page.admin.packages", "properties": {"html": "pug", "js": "javascript", "css": "scss"}, "viewuri": "", "created": "2022-05-04 20:38:32", "updated": "2022-05-19 09:42:01", "theme": "dizest/aside", "controller": "admin", "category": "page"}

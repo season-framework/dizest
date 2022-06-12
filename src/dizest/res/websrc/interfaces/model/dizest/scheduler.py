@@ -7,7 +7,7 @@ import urllib
 # sys.path.insert(0, '/opt/workspace/dizest/src')
 import dizest
 
-BASEPATH = os.path.realpath(season.core.PATH.PROJECT + "/..")
+BASEPATH = os.path.realpath(season.path.project + "/..")
 
 class Model:
     def __init__(self, wpid, package=None, develop=False):
@@ -31,7 +31,7 @@ class Model:
             kernel = cache.get(wpid)
             if kernel is None:
                 if package is not None:
-                    cwd = os.path.realpath(season.core.PATH.PROJECT + "/../storage/local/" + session.get("id"))
+                    cwd = os.path.realpath(season.path.project + "/../storage/local/" + session.get("id"))
                     workflow = dizest.Workflow(package, api=host, cwd=cwd, isdev=True, cache=kernel_cache, kernel_mode=kernel_mode)
                     workflow.user_id = session.get("id")
                     workflow.created = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -46,7 +46,7 @@ class Model:
             kernel = cache.get(wpid)
             if kernel is None:
                 if package is not None:
-                    cwd = os.path.realpath(season.core.PATH.PROJECT + "/../storage/local/" + session.get("id"))
+                    cwd = os.path.realpath(season.path.project + "/../storage/local/" + session.get("id"))
                     workflow = dizest.Workflow(package, api=host, cwd=cwd, cache=kernel_cache, kernel_mode=kernel_mode)
                     workflow.user_id = session.get("id")
                     workflow.created = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

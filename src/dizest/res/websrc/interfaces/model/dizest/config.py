@@ -2,7 +2,7 @@ import os
 import season
 import dizest
 
-BASEPATH = os.path.realpath(season.core.PATH.PROJECT + "/..")
+BASEPATH = os.path.realpath(season.path.project + "/..")
 
 class Model:
     @staticmethod

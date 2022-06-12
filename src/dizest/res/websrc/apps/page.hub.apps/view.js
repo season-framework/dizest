@@ -1,0 +1,240 @@
+let resizer = (file, width, quality) => new Promise((resolve) => {
+    if (!quality) quality = 0.8;
+    if (!width) width = 64;
+
+    let photo = function (file, maxSize, callback) {
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (readerEvent) {
+            resize(readerEvent.target.result, maxSize, callback);
+        };
+    }
+
+    let resize = function (dataURL, maxSize, callback) {
+        let image = new Image();
+
+        image.onload = function () {
+            let canvas = document.createElement('canvas'),
+                width = image.width,
+                height = image.height;
+            if (width > height) {
+                if (width > maxSize) {
+                    height *= maxSize / width;
+                    width = maxSize;
+                }
+            } else {
+                if (height > maxSize) {
+                    width *= maxSize / height;
+                    height = maxSize;
+                }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+            output(canvas, callback);
+        };
+
+        image.onerror = function () {
+            return;
+        };
+
+        image.src = dataURL;
+    };
+
+    let output = function (canvas, callback) {
+        let blob = canvas.toDataURL('image/jpeg', quality);
+        callback(blob);
+    }
+
+    photo(file, width, (blob) => {
+        resolve(blob);
+    });
+});
+
+let wiz_controller = async ($sce, $scope, $timeout) => {
+    let _$timeout = $timeout;
+    $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
+    $scope.trustAsHtml = $sce.trustAsHtml;
+
+    let ansi_up = new AnsiUp();
+    let socket = wiz.socket.get();
+
+    $scope.socket = {};
+
+    $scope.apps = {};
+    $scope.apps.list = [];
+    $scope.apps.loading = false;
+    $scope.apps.tab = 'private';
+
+    let DEFAULT_QUERY = {
+        page: 1,
+        dump: 40,
+        text: ''
+    };
+    $scope.apps.query = angular.copy(DEFAULT_QUERY);
+
+    $scope.apps.pagination = async () => {
+        let lastpage = $scope.apps.lastpage * 1;
+        let startpage = Math.floor(($scope.apps.query.page - 1) / 10) * 10 + 1;
+        $scope.apps.pages = [];
+        for (var i = 0; i < 10; i++) {
+            if (startpage + i > lastpage) break;
+            $scope.apps.pages.push(startpage + i);
+        }
+        await $timeout();
+    }
+
+    $scope.apps.load = {};
+    $scope.apps.load.current = async (init) => {
+        if (init) {
+            $scope.apps.query.page = 1;
+        }
+
+        if ($scope.apps.tab == 'private') {
+            await $scope.apps.load.private();
+        } else {
+            await $scope.apps.load.hub();
+        }
+    }
+
+    $scope.apps.load.page = async (page) => {
+        if (page < 1) {
+            toastr.error('첫 페이지 입니다');
+            return;
+        }
+        if (page > $scope.apps.lastpage) {
+            toastr.error('마지막 페이지 입니다');
+            return;
+        }
+
+        if ($scope.apps.query.page == page) {
+            return;
+        }
+
+        $scope.apps.query.page = page;
+        await $scope.apps.load.current();
+    }
+
+    $scope.apps.load.private = async (init) => {
+        if (init) {
+            $scope.apps.query = angular.copy(DEFAULT_QUERY);
+        }
+
+        let q = angular.copy($scope.apps.query);
+        let res = await wiz.API.async("myapps", q);
+
+        $scope.apps.list = res.data.result;
+        $scope.apps.lastpage = res.data.lastpage;
+        $scope.apps.tab = 'private';
+        $scope.app.view = 'editor';
+
+        await $scope.apps.pagination();
+        await $timeout();
+
+        if (init) {
+            if ($scope.apps.list.length > 0)
+                await $scope.app.select($scope.apps.list[0].id);
+            else
+                await $scope.app.select("new");
+        }
+
+        $scope.apps.loading = true;
+        await $timeout();
+    }
+
+    $scope.apps.load.hub = async (init) => {
+        if (init) {
+            $scope.apps.query = angular.copy(DEFAULT_QUERY);
+        }
+
+        let q = angular.copy($scope.apps.query);
+        let res = await wiz.API.async("hubapps", q);
+        $scope.apps.list = res.data.result;
+        $scope.apps.lastpage = res.data.lastpage;
+        $scope.apps.tab = 'hub';
+        $scope.app.view = 'info';
+
+        await $scope.apps.pagination();
+        await $timeout();
+
+        if (init) {
+            if ($scope.apps.list.length > 0)
+                await $scope.app.select($scope.apps.list[0].id);
+            else
+                await $scope.app.select("new");
+        }
+
+        $scope.apps.loading = true;
+        await $timeout();
+    }
+
+
+    $scope.app = {};
+    $scope.app.select = async (app_id) => {
+        let connected = wiz.connect("page.hub.app.editor");
+        let res = await connected.data({
+            workflow_id: 'develop',
+            flow_id: app_id,
+            socket: $scope.socket,
+            view: $scope.app.view,
+            remove: async () => {
+                await $scope.apps.load.current();
+            },
+            run: async () => {
+                if (app_id != 'new')
+                    await wiz.API.async("run", { id: app_id })
+            },
+            stop: async () => {
+                if (app_id != 'new')
+                    await wiz.API.async("stop", { id: app_id })
+            }
+        }).event("load");
+
+        if (res !== true) {
+            $scope.app.id = res;
+            await $scope.apps.load.current();
+        } else {
+            $scope.app.id = app_id;
+        }
+        await $timeout();
+    }
+
+    await $scope.apps.load.private(true);
+
+    let ROOM = $scope.app.id;
+
+    await $timeout();
+
+    
+    $scope.socket.running_status = {};
+    $scope.socket.log = "";
+    $scope.socket.clear = async () => {
+        $scope.socket.log = "";
+        await $timeout();
+    }
+
+    socket.on("connect", async () => {
+        socket.emit("join", { id: ROOM });
+    });
+
+    socket.on("status", async (data) => {
+        $scope.socket.running_status = data;
+        await $timeout();
+    });
+
+    socket.on("log", async (data) => {
+        data = data.replace(/ /gim, "__SEASONWIZPADDING__");
+        data = ansi_up.ansi_to_html(data).replace(/\n/gim, '<br>').replace(/__SEASONWIZPADDING__/gim, '&nbsp;');
+        $scope.socket.log = $scope.socket.log + data;
+        await $timeout();
+        let element = $('.dizest-debug-messages')[0];
+        if (!element) return;
+        element.scrollTop = element.scrollHeight - element.clientHeight;
+    });
+
+    $scope.$watch('app.id', async () => {
+        if (ROOM) socket.emit("leave", { id: ROOM });
+        ROOM = $scope.app.id;
+        if (ROOM) socket.emit("join", { id: ROOM });
+    }, true)
+}

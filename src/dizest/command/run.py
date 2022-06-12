@@ -5,7 +5,7 @@ import time
 import subprocess
 import psutil
 import shutil
-from git import Repo
+import git
 import socket
 import pathlib
 import season
@@ -13,6 +13,8 @@ import dizest
 import multiprocessing as mp
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+import datetime
+import platform
 
 def portchecker(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,8 +26,7 @@ def portchecker(port):
         pass
     return False
 
-PATH_USERHOME = pathlib.Path.home()
-PATH_WIZ = season.core.PATH.FRAMEWORK
+PATH_WIZ = season.path.lib
 PATH_DIZEST = os.path.dirname(os.path.dirname(__file__))
 
 PATH_WORKINGDIR = os.getcwd()
@@ -45,49 +46,21 @@ def install():
     fs = dizest.util.os.storage(PATH_WORKINGDIR)
     fs.remove("websrc")
     
-    PATH_PUBLIC_SRC = os.path.join(PATH_WIZ, 'data', 'wizbase')
-    shutil.copytree(PATH_PUBLIC_SRC, PATH_WEBSRC)
-
     print("install wiz...")
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-setting', os.path.join(PATH_WEBSRC, 'plugin', 'core.setting'))
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-branch', os.path.join(PATH_WEBSRC, 'plugin', 'core.branch'))
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-workspace', os.path.join(PATH_WEBSRC, 'plugin', 'core.workspace'))
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-theme', os.path.join(PATH_WEBSRC, 'plugin', 'theme'))
-
-    print("install dizest...")
-    shutil.copytree(os.path.join(PATH_DIZEST, 'res', 'websrc'), os.path.join(PATH_WEBSRC, 'branch', 'master'))
+    PATH_PUBLIC_SRC = os.path.join(PATH_WIZ, 'data')
+    shutil.copytree(PATH_PUBLIC_SRC, PATH_WEBSRC)
+    git.Repo.clone_from("https://github.com/season-framework/wiz-ide", os.path.join(PATH_WEBSRC, 'plugin'))
+    fs.write(os.path.join(PATH_WEBSRC, 'config', 'installed.py'), "started = '" + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S') + "'")
     
-    fs.makedirs("storage")
-    fs.makedirs("cache")
+    print("install dizest...")
+    shutil.copytree(os.path.join(PATH_DIZEST, 'res', 'websrc'), os.path.join(PATH_WEBSRC, 'branch', 'main'))
 
     if fs.exists(PATH_DIZEST_CONFIG) == False:
         fs.write.json(PATH_DIZEST_CONFIG, {"db": {"type": "sqlite"}, "version": dizest.version})
-
     print("installed!")
 
 def update():
-    fs = dizest.util.os.storage(PATH_WORKINGDIR)
-    fs.remove("websrc")
-    
-    PATH_PUBLIC_SRC = os.path.join(PATH_WIZ, 'data', 'wizbase')
-    shutil.copytree(PATH_PUBLIC_SRC, PATH_WEBSRC)
-
-    print("install wiz...")
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-setting', os.path.join(PATH_WEBSRC, 'plugin', 'core.setting'))
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-branch', os.path.join(PATH_WEBSRC, 'plugin', 'core.branch'))
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-workspace', os.path.join(PATH_WEBSRC, 'plugin', 'core.workspace'))
-    Repo.clone_from('https://github.com/season-framework/wiz-plugin-theme', os.path.join(PATH_WEBSRC, 'plugin', 'theme'))
-
-    print("install dizest...")
-    shutil.copytree(os.path.join(PATH_DIZEST, 'res', 'websrc'), os.path.join(PATH_WEBSRC, 'branch', 'master'))
-    
-    fs.makedirs("storage")
-    fs.makedirs("cache")
-
-    if fs.exists(PATH_DIZEST_CONFIG) == False:
-        fs.write.json(PATH_DIZEST_CONFIG, {"db": {"type": "sqlite"}})
-
-    print("updated!")
+    install()
 
 @arg('-f', default=None, help='workflow.dzw')
 def flow(f=None):
@@ -107,17 +80,17 @@ def flow(f=None):
 @arg('-f', default=None, help='workflow.dzw')
 def run(f=None, host="0.0.0.0", port=3000):
     if f is not None:
-        fs = dizest.util.os.storage(PATH_WORKINGDIR)
-        package = fs.read.json(f)
-        workflow = dizest.Workflow(package, cwd=PATH_WORKINGDIR, user="daemon", auth="admin", develop=False, logger=print, command=True)
-        workflow.run("zrjzackezlufnrr2-1651384139666")
+        # fs = dizest.util.os.storage(PATH_WORKINGDIR)
+        # package = fs.read.json(f)
+        # workflow = dizest.Workflow(package, cwd=PATH_WORKINGDIR, user="daemon", auth="admin", develop=False, logger=print, command=True)
+        # workflow.run("zrjzackezlufnrr2-1651384139666")
         return
 
     fs = dizest.util.os.storage(PATH_WEBSRC)
     if fs.exists() is False:
         install()
+    
     config = fs.read.json(PATH_DIZEST_CONFIG, dict())
-
     if 'version' not in config:
         config['version'] = dizest.version
 
@@ -143,8 +116,8 @@ def run(f=None, host="0.0.0.0", port=3000):
     fs.write.json(PATH_DIZEST_CONFIG, config)
 
     # build config
-    PATH_CONFIG_BASE = os.path.join(PATH_DIZEST, 'res', 'config', 'config.py')
-    PATH_CONFIG = os.path.join(PATH_WEBSRC, 'config', 'config.py')
+    PATH_CONFIG_BASE = os.path.join(PATH_DIZEST, 'res', 'config', 'server.py')
+    PATH_CONFIG = os.path.join(PATH_WEBSRC, 'config', 'server.py')
 
     data = fs.read.text(PATH_CONFIG_BASE)
     data = data.replace("__PORT__", str(startport))
@@ -152,8 +125,7 @@ def run(f=None, host="0.0.0.0", port=3000):
     fs.write.text(PATH_CONFIG, data)
     
     # copy config
-    fs.copy(os.path.join(PATH_DIZEST, 'res', 'config', 'wiz.py'), "config/wiz.py")
-    fs.copy(os.path.join(PATH_DIZEST, 'res', 'config', 'wiz.json'), "wiz.json")
+    fs.copy(os.path.join(PATH_DIZEST, 'res', 'config', 'wiz.py'), os.path.join("config", "wiz.py"))
 
     # run server
     publicpath = os.path.join(PATH_WEBSRC, 'public')
@@ -164,17 +136,23 @@ def run(f=None, host="0.0.0.0", port=3000):
         return
 
     def run_ctrl():
-        cmd = "python {}".format(apppath)
-        subprocess.call(cmd, shell=True)
+        env = os.environ.copy()
+        env['WERKZEUG_RUN_MAIN'] = 'true'
+        cmd = str(sys.executable) + " " +  str(apppath)
+        subprocess.call(cmd, env=env, shell=True)
 
-    while True:
-        try:
-            proc = mp.Process(target=run_ctrl)
-            proc.start()
-            proc.join()
-        except KeyboardInterrupt:
-            for child in psutil.Process(proc.pid).children(recursive=True):
-                child.kill()
-            return
-        except:
-            pass
+    ostype = platform.system().lower()
+    if ostype == 'linux':
+        while True:
+            try:
+                proc = mp.Process(target=run_ctrl)
+                proc.start()
+                proc.join()
+            except KeyboardInterrupt:
+                for child in psutil.Process(proc.pid).children(recursive=True):
+                    child.kill()
+                return
+            except:
+                pass
+    else:
+        run_ctrl()
