@@ -50,6 +50,10 @@ dizest update
 
 ## Release Note
 
+### 2.2.1
+
+- wiz 1.0 upgrade
+
 ### 2.2.0
 
 - ui changed (app editor/info)
