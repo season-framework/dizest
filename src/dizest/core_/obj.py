@@ -25,7 +25,7 @@ class Instance(util.std.stdClass):
 
     def storage(self, mode='local'):
         cwd = self.flow.workflow.opts.cwd
-        return util.os.storage(cwd, root=False, rw=True)
+        return util.os.storage(cwd)
 
     def input(self, name, default=None, id=None):
         try:
@@ -192,7 +192,8 @@ class Flow:
         for i in range(len(args)): 
             args[i] = str(args[i])
         timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-        logdata = f"\033[{log_color}m[{timestamp}]{tag}\033[0m " + " ".join(args)
+        # logdata = f"\033[{log_color}m[{timestamp}]{tag}\033[0m " + " ".join(args)
+        logdata = " ".join(args)
         requests.post(self.workflow.opts.api, {"mode": "stdout", "data": logdata, "workflow_id": workflow_id, "flow_id": flow_id})
 
     def app(self):
@@ -268,9 +269,8 @@ class Flow:
         
         flow.output.clear()
 
-        local_env = dict()
         try:
-            exec(app_code, env, local_env)
+            exec(app_code, env)
         except Exception as e:
             stderr = traceback.format_exc()
             flow.logger(stderr)
