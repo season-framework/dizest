@@ -158,6 +158,14 @@ class Manager:
 
                 if MODE == 'kernel.status':
                     spawner.status = data
+                    try:
+                        if data == 'error':
+                            for key in spawner.flow._data:
+                                if spawner.flow(key).status != 'pending': 
+                                    continue
+                                spawner.flow(key).status = 'ready'
+                    except:
+                        pass
 
                 if self._data.broker is not None:
                     self._data.broker(spawner, FLOW_ID, MODE, data)

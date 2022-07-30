@@ -122,6 +122,10 @@ class Workflow:
         if self.spawner is None: return None
         return self.spawner.kernel
 
+    def storage(self):
+        if self.spawner is None: return None
+        return self.spawner.storage()
+
     def update(self, package):
         self.package = package
 

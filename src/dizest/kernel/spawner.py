@@ -76,6 +76,9 @@ class BaseSpawner(metaclass=ABCMeta):
     def init(self):
         self.flow = Flow()
 
+    def storage(self):
+        return util.os.storage(self.cwd)
+
     @abstractmethod
     def start(self):
         pass
@@ -105,13 +108,16 @@ class SimpleSpawner(BaseSpawner):
 
     def _request(self):
         try:
-            self.request.process.kill()
+            self.request.process.terminate()
         except:
             pass
+
         self.request = util.std.stdClass()
+        
         def reqthread(q):
             def sigterm_handler(_signo, _stack_frame):
                 exit(0)
+
             signal.signal(signal.SIGTERM, sigterm_handler)
             signal.signal(signal.SIGABRT, sigterm_handler)
             signal.signal(signal.SIGINT, sigterm_handler)
@@ -124,7 +130,7 @@ class SimpleSpawner(BaseSpawner):
                         try:
                             url = msg['url']
                             data = msg['data']
-                            requests.post(url, data=data, timeout=None)
+                            res = requests.post(url, data=data, timeout=None)
                             break
                         except Exception as e1:
                             time.sleep(3)
