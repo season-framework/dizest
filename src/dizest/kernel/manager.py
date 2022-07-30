@@ -1,5 +1,6 @@
 from dizest import util
 from dizest.kernel import spawner
+from dizest.workflow import Workflow
 import sys
 import os
 import subprocess
@@ -8,7 +9,7 @@ import socketio
 import requests
 
 class Manager:
-    def __init__(self, path, host="127.0.0.1", broker=None, spawner_class=spawner.SimpleSpawner):
+    def __init__(self, path=None, host="127.0.0.1", broker=None, spawner_class=spawner.SimpleSpawner):
         self._data = util.std.stdClass()
         
         self._data.basepath = path
@@ -22,10 +23,53 @@ class Manager:
 
         self._data.spawner_class = spawner_class
         self._data.spawners = dict()
+        self._data.workflows = dict()
 
         self._data.kernel = util.std.stdClass()
         self._data.kernel.specs = dict()
-        self._data.kernel.names = []
+        self._data.kernel.names = ['base']
+
+        self._data.kernel.specs['base'] = dict()
+        self._data.kernel.specs['base']['path'] = ''
+        self._data.kernel.specs['base']['name'] = 'base'
+        self._data.kernel.specs['base']['cmd'] = "$EXECUTABLE $LIBSPEC_PATH/python/kernel.py $PORT"
+
+        self.set_path(path)
+
+    # save log
+    def send(self, **data):
+        try:
+            requests.post(self.api() + '/log', data=data)
+        except:
+            pass
+        return self
+
+    # setter
+    def set_broker(self, broker):
+        self._data.broker = broker
+        return self
+
+    def set_host(self, host):
+        self._data.server.host = host
+        return self
+
+    def set_spawner_class(self, spawner_class):
+        self._data.spawner_class = spawner_class
+        return self
+
+    def set_path(self, path):
+        if path is None:
+            return self
+        self._data.basepath = path
+
+        self._data.kernel = util.std.stdClass()
+        self._data.kernel.specs = dict()
+        self._data.kernel.names = ['base']
+
+        self._data.kernel.specs['base'] = dict()
+        self._data.kernel.specs['base']['path'] = ''
+        self._data.kernel.specs['base']['name'] = 'base'
+        self._data.kernel.specs['base']['cmd'] = "$EXECUTABLE $LIBSPEC_PATH/python/kernel.py $PORT"
 
         fs = util.os.storage(path)
         specs = fs.list()
@@ -38,26 +82,38 @@ class Manager:
                     self._data.kernel.names.append(kernelspec['name'])
                 except:
                     pass
-        
-        self.start()
-
-    # save log
-    def send(self, **data):
-        try:
-            requests.post(self.api() + '/log', data=data)
-        except:
-            pass
-
-    # set broker
-    def set_broker(self, broker):
-        self._data.broker = broker
+        return self
 
     # manager server api url
     def api(self):
         return self._data.server.api
 
+    def spawners(self):
+        return [x for x in self._data.spawners]
+
+    def kernelspecs(self):
+        return self._data.kernel.names
+
+    def kernelspec(self, kernel_name):
+        spawner_class = self._data.spawner_class
+        kernelspecs = self._data.kernel.specs
+        if kernel_name not in kernelspecs:
+            return None
+        return kernelspecs[kernel_name]
+
+    def process(self):
+        return self._data.server.process
+
+    def is_running(self):
+        if self._data.server.process is not None:
+            return True
+        return False
+
     # manager server start
     def start(self):
+        if self._data.server.process is not None:
+            return self
+
         path = self._data.basepath
         host = self._data.server.host
 
@@ -77,22 +133,35 @@ class Manager:
         def on_message(data):
             try:
                 SPAWNER_ID = data['id']
-                FLOW_ID = data['flow_id']
+                if 'flow_id' not in data:
+                    FLOW_ID = None
+                else:    
+                    FLOW_ID = data['flow_id']
                 MODE = data['mode']
                 data = data['data']
                 
                 spawner = self.spawner(SPAWNER_ID)
                 if spawner is None: return
-                if MODE == 'log' and FLOW_ID is not None:
-                    spawner.log[FLOW_ID].append(data)
-                if MODE == 'status' and FLOW_ID is not None:
-                    spawner.status[FLOW_ID].status = data
-                if MODE == 'index' and FLOW_ID is not None:
-                    spawner.status[FLOW_ID].index = data
+                
+                if MODE == 'flow.log' and FLOW_ID is not None:
+                    spawner.flow(FLOW_ID).log.append(data)
+                
+                if MODE == 'flow.status' and FLOW_ID is not None:
+                    spawner.flow(FLOW_ID).status = data
+                    if data == 'running': 
+                        spawner.current = FLOW_ID
+                    elif data == 'finish': 
+                        spawner.current = None
+
+                if MODE == 'flow.index' and FLOW_ID is not None:
+                    spawner.flow(FLOW_ID).index = data
+
+                if MODE == 'kernel.status':
+                    spawner.status = data
 
                 if self._data.broker is not None:
                     self._data.broker(spawner, FLOW_ID, MODE, data)
-            except:
+            except Exception as e:
                 pass
         
         while True:
@@ -102,6 +171,14 @@ class Manager:
             except:
                 pass
         
+        return self
+
+    def restart(self):
+        try:
+            self.stop()
+        except:
+            pass
+        self.start()
         return self
 
     # manager server stop
@@ -126,16 +203,25 @@ class Manager:
         return self
     
     # call spawner
-    def spawner(self, id, kernel_name=None, cwd=None):
-        spawners = self._data.spawners
+    def spawner(self, id, kernel_name=None, cwd=None, workflow=None):
         spawner_class = self._data.spawner_class
         kernelspecs = self._data.kernel.specs
-
-        if id in spawners: return spawners[id]
+        if id in self._data.spawners: 
+            return self._data.spawners[id]
         if kernel_name not in kernelspecs:
             return None
-
         kernelspec = kernelspecs[kernel_name]
-
         self._data.spawners[id] = spawner_class(id, kernelspec, self, cwd=cwd)
+        if workflow is not None:
+            workflow.connect(self._data.spawners[id])
         return self._data.spawners[id]
+
+    # workflow loader
+    def workflow(self, package):
+        workflow = Workflow(package)
+        wpid = workflow.id()
+        if wpid in self._data.workflows:
+            return self._data.workflows[wpid]
+        workflow.manager = self
+        self._data.workflows[wpid] = workflow
+        return workflow

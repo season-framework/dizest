@@ -135,7 +135,7 @@ def run():
                 except:
                     args[i] = str(args[i])
             log = " ".join(args)
-            logger("log", flow_id=flow_id, data=log)
+            logger("flow.log", flow_id=flow_id, data=log)
 
         env = dict()
         env['dizest'] = dizesti
@@ -143,23 +143,25 @@ def run():
         env['display'] = display
 
         try:
-            logger("status", flow_id=flow_id, data="running")
-            logger("index", flow_id=flow_id, data="*")
+            logger("kernel.status", data="running")
+            logger("flow.status", flow_id=flow_id, data="running")
+            logger("flow.index", flow_id=flow_id, data="*")
             exec(code, env)
-            logger("status", flow_id=flow_id, data="finish")
-            logger("index", flow_id=flow_id, data=data['index'])
+            logger("kernel.status", data="ready")
+            logger("flow.status", flow_id=flow_id, data="finish")
+            logger("flow.index", flow_id=flow_id, data=data['index'])
         except Exception as e:
             stderr = traceback.format_exc()
-            logger("status", flow_id=flow_id, data="error")
-            logger("index", flow_id=flow_id, data=data['index'])
-            logger("log", flow_id=flow_id, data=stderr)
+            logger("flow.status", flow_id=flow_id, data="error")
+            logger("flow.index", flow_id=flow_id, data=data['index'])
+            logger("flow.log", flow_id=flow_id, data=stderr)
 
         status['index'] = status['index'] + 1
         return {'code': 200}
     except:
         pass
-    logger("status", flow_id=flow_id, data="error")
-    logger("index", flow_id=flow_id, data="")
+    logger("flow.status", flow_id=flow_id, data="error")
+    logger("flow.index", flow_id=flow_id, data="")
     return {'code': 500}
 
 # signal handler
@@ -168,6 +170,8 @@ def sigterm_handler(_signo, _stack_frame):
 signal.signal(signal.SIGTERM, sigterm_handler)
 signal.signal(signal.SIGABRT, sigterm_handler)
 signal.signal(signal.SIGINT, sigterm_handler)
+
+logger("kernel.status", data="ready")
 
 # start process
 while True:
@@ -179,4 +183,5 @@ while True:
 
         # if kill signal
         if SIGTYPE in ['2', '15']:
+            logger("kernel.status", data="stop")
             sys.exit(0)

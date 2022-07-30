@@ -9,54 +9,53 @@ import socketio
 import requests
 import json
 import signal
+import time
 
 class Log:
-    def __init__(self, id=None):
+    def __init__(self, id):
         self.id = id
-        if id is None: self._data = dict()
-        else: self._data = []
+        self._data = []
     
     def append(self, log):
-        if id is None: return
         self._data.append(log)
     
     def clear(self):
         del self._data
-        if self.id is None: self._data = dict()
-        else: self._data = []
-
-    def __getattr__(self, attr):
-        if self.id is None:
-            if attr not in self._data:
-                self._data[attr] = Log(attr)
-            return self._data[attr]
+        self._data = []
 
     def __getitem__(self, attr):
-        if self.id is None:
-            if attr not in self._data:
-                self._data[attr] = Log(attr)
-            return self._data[attr]
         return self._data[attr]
 
-class Status:
+class Flow:
     def __init__(self, id=None):
-        self.id = id
+        self.id = id        
+        if id is None: 
+            self._data = dict()
+            return
+
         self._data = None
-        if id is None: self._data = dict()
-        self.status = 'pending'
+        self.status = 'ready'
         self.index = ''
+        self.log = Log(id)
 
     def __getattr__(self, attr):
         if self.id is None:
             if attr not in self._data:
-                self._data[attr] = Status(attr)
+                self._data[attr] = Flow(attr)
             return self._data[attr]
         return None
 
     def __getitem__(self, attr):
         if self.id is None:
             if attr not in self._data:
-                self._data[attr] = Status(attr)
+                self._data[attr] = Flow(attr)
+            return self._data[attr]
+        return None
+
+    def __call__(self, attr):
+        if self.id is None:
+            if attr not in self._data:
+                self._data[attr] = Flow(attr)
             return self._data[attr]
         return None
     
@@ -68,14 +67,14 @@ class BaseSpawner(metaclass=ABCMeta):
         self.kernelspec = kernelspec
         self.manager = manager
         self.cwd = cwd
-        self.log = Log()
-        self.status = Status()
-        self.is_running = False
+        self.flow = Flow()
+        
+        self.status = 'stop'
+        self.current = None
         self.workflow = None
 
     def init(self):
-        self.log = Log()
-        self.status = Status()
+        self.flow = Flow()
 
     @abstractmethod
     def start(self):
@@ -120,10 +119,16 @@ class SimpleSpawner(BaseSpawner):
             while True:
                 try:
                     msg = json.loads(q.recv())
-                    url = msg['url']
-                    data = msg['data']
-                    requests.post(url, data=data, timeout=None)
-                except Exception as e:
+
+                    for i in range(5):
+                        try:
+                            url = msg['url']
+                            data = msg['data']
+                            requests.post(url, data=data, timeout=None)
+                            break
+                        except Exception as e1:
+                            time.sleep(3)
+                except Exception as e2:
                     pass
 
         sender, receiver = mp.Pipe()
@@ -164,14 +169,14 @@ class SimpleSpawner(BaseSpawner):
             self.process = subprocess.Popen(cmd, shell=False, env=env)
 
         self.port = port
-        self.is_running = True
+        self.status = 'ready'
 
     def kill(self):
         self.init()
         self._request()
         self.process.terminate()
         self.process = None
-        self.is_running = False
+        self.status = 'stop'
 
     def restart(self):
         self.kill()
@@ -182,9 +187,12 @@ class SimpleSpawner(BaseSpawner):
         self.process.send_signal(signal.SIGABRT)
 
     def run(self, flow_id, code, inputs, outputs):
-        self.log[flow_id].clear()        
+        if self.process is None:
+            raise Exception("Spawner is not started")
+
+        self.flow(flow_id).log.clear()
+
         port = self.port
-        manager = self.manager
         id = self.id
 
         data = dict()
@@ -193,5 +201,5 @@ class SimpleSpawner(BaseSpawner):
 
         self._send(data)
 
-        manager.send(id=id, flow_id=flow_id, mode='status', data='ready')
-        manager.send(id=id, flow_id=flow_id, mode='index', data='')
+        self.manager.send(id=id, flow_id=flow_id, mode='flow.status', data='pending')
+        self.manager.send(id=id, flow_id=flow_id, mode='flow.index', data='')
