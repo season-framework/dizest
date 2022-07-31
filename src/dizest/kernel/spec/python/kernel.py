@@ -59,8 +59,11 @@ class Instance:
             ivalue = inputs[name]['data']
 
             # load from variable
-            if itype == 'variable': 
-                return ivalue
+            if itype == 'variable':
+                if ivalue is not None and len(ivalue) > 0:
+                    return ivalue
+                else:
+                    return default
             
             # load from previous output
             res = []
@@ -81,13 +84,44 @@ class Instance:
             if id is not None: return res[int(id)]
 
             return res
-        except:
+        except Exception as e:
             pass
         
         return default
 
     def inputs(self, name):
-        pass
+        try:
+            res = []
+            inputs = self._data['inputs']
+            if name not in inputs:
+                return res
+            
+            itype = inputs[name]['type']
+            ivalue = inputs[name]['data']
+
+            # load from variable
+            if itype == 'variable':
+                return res
+            
+            # load from previous output
+            for iv in ivalue:
+                fid = iv[0]
+                oname = iv[1]
+                if fid not in cache:
+                    res.append(None)
+                    continue
+
+                linked_output = cache[fid]._output
+                if oname in linked_output:
+                    res.append(linked_output[oname])
+                else:
+                    res.append(None)
+            
+            return res
+        except Exception as e:
+            pass
+
+        return []
 
     def output(self, name, value):
         self._output[name] = value
