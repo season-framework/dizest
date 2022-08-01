@@ -42,6 +42,7 @@ setup(
     ]},
     install_requires=[
         'argh',
+        'matplotlib',
         'psutil',
         'requests',
         'Pillow',

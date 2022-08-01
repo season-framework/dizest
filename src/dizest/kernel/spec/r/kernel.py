@@ -17,6 +17,9 @@ import threading
 if __name__ != '__main__':
     exit(0)
 
+from rpy2 import robjects
+rexec = robjects.r
+
 SPAWNER_ID = os.environ['SPAWNER_ID']
 DIZEST_API = os.environ['DIZEST_API']
 
@@ -49,6 +52,16 @@ class Instance:
         self._data = data
         self._output = dict()
     
+    def names(self, mode='input'):
+        res = []
+        if mode == 'input':
+            for name in self._data['inputs']:
+                res.append(name)
+            return res
+        for name in self._data['outputs']:
+            res.append(name)
+        return res
+
     def input(self, name, default=None, id=None):
         try:
             inputs = self._data['inputs']
@@ -149,6 +162,50 @@ def logger(mode, **data):
     if "flow_id" not in data: data["flow_id"] = None
     requests.post(DIZEST_API + '/log', data=data, timeout=None)
 
+class Capturing():
+    def __init__(self):
+        self._stdout = None
+        self._stderr = None
+        self._r = None
+        self._w = None
+        self._thread = None
+        self._on_readline_cb = None
+
+    def _handler(self):
+        while not self._w.closed:
+            try:
+                while True:
+                    line = self._r.readline()
+                    if len(line) == 0: break
+                    if self._on_readline_cb: self._on_readline_cb(line)
+            except:
+                break
+
+    def print(self, s, end=""):
+        pass
+
+    def on_readline(self, callback):
+        self._on_readline_cb = callback
+
+    def start(self):
+        self._stdout = sys.stdout
+        self._stderr = sys.stderr
+        r, w = os.pipe()
+        r, w = os.fdopen(r, 'r'), os.fdopen(w, 'w', 1)
+        self._r = r
+        self._w = w
+        sys.stdout = self._w
+        sys.stderr = self._w
+        self._thread = threading.Thread(target=self._handler)
+        self._thread.start()
+
+    def stop(self):
+        self._w.close()
+        if self._thread: self._thread.join()
+        self._r.close()
+        sys.stdout = self._stdout
+        sys.stderr = self._stderr
+
 @app.route('/run', methods=['POST'])
 def run():
     data = dict()
@@ -161,7 +218,7 @@ def run():
 
     dizesti = Instance(data)
     cache[data['id']] = dizesti
-    
+
     def display(*args):
         args = list(args)
         for i in range(len(args)):
@@ -171,17 +228,34 @@ def run():
                 args[i] = str(args[i])
         log = " ".join(args)
         logger("flow.log", flow_id=flow_id, data=log)
-
-    env = dict()
-    env['dizest'] = dizesti
-    env['print'] = display
-    env['display'] = display
-
+    
     try:
+        inputnames = dizesti.names()
+        for key in inputnames:
+            inputdata = dizesti.input(key, default=None)
+            if inputdata is not None:
+                robjects.globalenv[key] = inputdata
+        
         logger("kernel.status", data="running")
         logger("flow.status", flow_id=flow_id, data="running")
         logger("flow.index", flow_id=flow_id, data="*")
-        exec(code, env)
+        
+        capturing = Capturing()
+        def on_read(line):
+            display(line)
+        capturing.on_readline(on_read)
+        capturing.start()
+
+        rexec(code)
+
+        capturing.stop()
+
+        for key in robjects.globalenv:
+            if key in dizesti.names("output"):
+                outputdata = robjects.globalenv[key]
+                dizesti.output(key, outputdata)
+            del robjects.globalenv[key]
+
         logger("kernel.status", data="ready")
         logger("flow.status", flow_id=flow_id, data="finish")
         logger("flow.index", flow_id=flow_id, data=data['index'])
