@@ -244,6 +244,7 @@ class storage:
                 self.__image_pil__(filepath, img)
 
         self.read = read(self)
+        self.write = write(self)
         
     def basepath(self):
         return os.path.join(self.config.path, self.namespace)

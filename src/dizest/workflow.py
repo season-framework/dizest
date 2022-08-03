@@ -164,6 +164,24 @@ class DriveAPI:
                 path = path[1:]
         return self.__request__(f"rename/{path}", method="POST", data=data)
 
+    def remove(self, path, data):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"remove/{path}", method="POST", data=data)
+    
+    def upload(self, path, **kwargs):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"upload/{path}", **kwargs)
+
+    def download(self, path):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"download/{path}", method="GET")
+
 class Workflow:
     def __init__(self, package):
         required = ['id', 'apps', 'flow']
