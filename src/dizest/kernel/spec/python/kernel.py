@@ -370,9 +370,10 @@ class Instance:
             pass
         return value
 
-    def storage(self):
-        pwd = os.getcwd()
-        return dizest.util.os.storage(pwd)
+    def drive(self, *path):
+        cwd = os.getcwd()
+        cwd = os.path.join(cwd, *path)
+        return dizest.util.os.storage(cwd)
 
 # get http query
 app = flask.Flask('__main__', static_url_path='')
@@ -496,7 +497,54 @@ def api(flow_id, path):
         stderr = traceback.format_exc()
         logger("flow.api", flow_id=flow_id, data=stderr)
         return {"code": 500, "data": str(e2)}, 500
+
+@app.route('/drive/ls/', methods=['GET', 'POST'])
+@app.route('/drive/ls/<path:path>', methods=['GET', 'POST'])
+def drive_ls(path=None):
+    try:
+        cwd = os.getcwd()
+        if path is not None and len(path) > 0:
+            cwd = os.path.join(cwd, path)
+        fs = dizest.util.os.storage(cwd)
+        res = fs.ls()
+        for i in range(len(res)):
+            obj = dict()
+            obj['name'] = res[i]
+            obj['type'] = 'folder'
+            filepath = fs.abspath(res[i])
+            if fs.isfile(res[i]):
+                obj['type'] = 'file'
+                obj['size'] = os.path.getsize(filepath)
+            obj['ctime'] = os.path.getctime(filepath)
+            res[i] = obj
+        return {"code": 200, "data": res}
+    except Exception as e:
+        stderr = traceback.format_exc()
+        logger("flow.api", data=stderr)
+        return {"code": 500, "data": str(e)}
     
+
+@app.route('/drive/rename/', methods=['GET', 'POST'])
+@app.route('/drive/rename/<path:path>', methods=['GET', 'POST'])
+def drive_rename(path=None):
+    try:
+        cwd = os.getcwd()
+        if path is not None and len(path) > 0:
+            cwd = os.path.join(cwd, path)
+        fs = dizest.util.os.storage(cwd)
+        name = query("name", None)
+        rename = query("rename", None)
+        if name is None or rename is None or len(rename) == 0 or len(name) == 0:
+            return {"code": 200}
+        if fs.exists(rename):
+            return {"code": 401}
+        fs.move(name, rename)
+        return {"code": 200}
+    except Exception as e:
+        stderr = traceback.format_exc()
+        logger("flow.api", data=stderr)
+        return {"code": 500, "data": str(e)}
+
 # signal handler
 def sigterm_handler(_signo, _stack_frame):
     if _signo in [2, 15]:

@@ -141,6 +141,29 @@ class Flow:
         view = f"<!DOCTYPE html><html><head>{head}{_head}{css}</head><body>{pug}{_body}{js}</body></html>"
         return view
 
+class DriveAPI:
+    def __init__(self, workflow):
+        self.workflow = workflow
+
+    def __request__(self, fnname, **kwargs):
+        if self.workflow.spawner is None:
+            raise Exception("Spawner is not connected")
+        kwargs["url"] = self.workflow.spawner.uri + "/drive/" + fnname
+        kwargs["allow_redirects"] = False
+        return requests.request(**kwargs)
+
+    def ls(self, path):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"ls/{path}", method="GET")
+
+    def rename(self, path, data):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"rename/{path}", method="POST", data=data)
+
 class Workflow:
     def __init__(self, package):
         required = ['id', 'apps', 'flow']
@@ -152,6 +175,7 @@ class Workflow:
         self.manager = None
         self.kernel_name = None
         self.cwd = None
+        self.drive_api = DriveAPI(self)
 
     def id(self):
         return self.package['id']
