@@ -158,6 +158,12 @@ class DriveAPI:
                 path = path[1:]
         return self.__request__(f"ls/{path}", method="GET")
 
+    def create(self, path, data):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"create/{path}", method="POST", data=data)
+
     def rename(self, path, data):
         if len(path) > 0:
             if path[0] == "/": 

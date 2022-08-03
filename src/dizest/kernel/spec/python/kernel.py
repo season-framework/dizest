@@ -525,6 +525,15 @@ def drive_api(action, path=None):
                 res[i] = obj
             return {"code": 200, "data": res}
 
+        elif action == 'create':
+            name = query("name", None)
+            if name is None or len(name) == 0:
+                return {"code": 200}
+            if fs.exists(name):
+                return {"code": 401}
+            fs.makedirs(name)
+            return {"code": 200}
+
         elif action == 'rename':
             name = query("name", None)
             rename = query("rename", None)
@@ -570,16 +579,15 @@ def drive_api(action, path=None):
                     for file in files:
                         zipdata.write(os.path.join(folder, file), os.path.relpath(os.path.join(folder,file), path), compress_type=zipfile.ZIP_DEFLATED)
                 zipdata.close()
-                return flask.send_file(zippath, as_attachment=True, attachment_filename=filename)
+                return flask.send_file(zippath, as_attachment=True, download_name=filename)
             else:
                 path = fs.abspath()
-                return flask.send_file(path, as_attachment=True)
+                return flask.send_file(path, as_attachment=False)
 
     except Exception as e:
         stderr = traceback.format_exc()
         logger("flow.api", data=stderr)
         return {"code": 500, "data": str(e)}
-
 
 # signal handler
 def sigterm_handler(_signo, _stack_frame):
