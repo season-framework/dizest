@@ -72,6 +72,7 @@ class BaseSpawner(metaclass=ABCMeta):
         self.status = 'stop'
         self.current = None
         self.workflow = None
+        self.uri = None
 
     def init(self):
         self.flow = Flow()
@@ -97,6 +98,10 @@ class BaseSpawner(metaclass=ABCMeta):
 
     @abstractmethod
     def run(self, flow_id, code, inputs, outputs):
+        pass
+
+    @abstractmethod
+    def update(self):
         pass
 
 class SimpleSpawner(BaseSpawner):
@@ -174,7 +179,24 @@ class SimpleSpawner(BaseSpawner):
         else:
             self.process = subprocess.Popen(cmd, shell=False, env=env)
 
+        # wait for kernel server start
+        counter = 0
+        while True:
+            if counter > 5:
+                try:
+                    self.kill()
+                except Exception as e:
+                    pass
+                raise Exception("Kernel Error")
+            try:
+                requests.get(f"http://127.0.0.1:{port}/health", timeout=3)
+                break
+            except Exception as e:
+                time.sleep(1)
+                counter = counter + 1
+
         self.port = port
+        self.uri = f"http://127.0.0.1:{port}"
         self.status = 'ready'
 
     def kill(self):
@@ -183,6 +205,8 @@ class SimpleSpawner(BaseSpawner):
         self.process.terminate()
         self.process = None
         self.status = 'stop'
+        self.port = None
+        self.uri = None
 
     def restart(self):
         self.kill()
@@ -192,20 +216,40 @@ class SimpleSpawner(BaseSpawner):
         self._request()
         self.process.send_signal(signal.SIGABRT)
 
-    def run(self, flow_id, code, inputs, outputs):
+    def update(self):
+        if self.workflow is None:
+            return
+        
+        uri = self.uri
+        port = self.port
+        package = self.workflow.package
+        data = dict()
+        
+        data['url'] = f"{uri}/update"
+        data['data'] = dict()
+        data['data']['package'] = json.dumps(package, default=util.string.json_default)
+        self._send(data)
+
+    def run(self, flow_id):
         if self.process is None:
             raise Exception("Spawner is not started")
 
         self.flow(flow_id).log.clear()
 
+        uri = self.uri
         port = self.port
         id = self.id
 
         data = dict()
-        data['url'] = f"http://127.0.0.1:{port}/run"
-        data['data'] = {"id": flow_id, "code": code, "inputs": json.dumps(inputs, default=util.string.json_default), "outputs": json.dumps(outputs, default=util.string.json_default)}
+        data['url'] = f"{uri}/run/{flow_id}"
+        data['data'] = dict()
 
         self._send(data)
 
         self.manager.send(id=id, flow_id=flow_id, mode='flow.status', data='pending')
         self.manager.send(id=id, flow_id=flow_id, mode='flow.index', data='')
+
+    def api(self, flow_id):
+        if self.process is None:
+            raise Exception("Spawner is not started")
+    

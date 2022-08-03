@@ -17,4 +17,4 @@ def addtabs(v, size=1):
 def json_default(value): 
     if isinstance(value, datetime.date): 
         return value.strftime('%Y-%m-%d %H:%M:%S') 
-    raise str(value)
+    return str(value)

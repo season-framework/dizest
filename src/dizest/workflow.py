@@ -1,4 +1,7 @@
 from dizest import util
+import requests
+import pypugjs
+import sass
 
 class App:
     def __init__(self, workflow, package):
@@ -8,8 +11,18 @@ class App:
     def id(self):
         return self.package['id']
 
+    def get(self, key, default=None):
+        try:
+            return self.package[key]
+        except Exception as e:
+            pass
+        return default
+
     def code(self):
         return self.package['code']
+
+    def api(self):
+        return self.package['api']
 
     def outputs(self):
         return [x['name'] for x in self.package['outputs']]
@@ -80,9 +93,53 @@ class Flow:
             raise Exception("Spawner is not connected")
         if self.status() == 'running':
             raise Exception("already running")
-        flow_id, code, inputs, outputs = self.data()
-        self.workflow.spawner.run(flow_id, code, inputs, outputs)
+        self.workflow.spawner.run(self.id())
         return True
+
+    def api(self, fnname, **kwargs):
+        if self.workflow.spawner is None:
+            raise Exception("Spawner is not connected")
+        kwargs["url"] = self.workflow.spawner.uri + "/api/" + self.id() + "/" + fnname
+        kwargs["allow_redirects"] = False
+        return requests.request(**kwargs)
+
+    def render(self, **kwargs):
+        app = self.app()
+        pugconfig = dict()
+        pugconfig['variable_start_string'] = '{$'
+        pugconfig['variable_end_string'] = '$}'
+
+        pug = app.get("pug", "")
+        pug = pypugjs.Parser(pug)
+        pug = pug.parse()
+        pug = pypugjs.ext.jinja.Compiler(pug, **pugconfig).compile()
+
+        head = app.get("head", "")
+        head = pypugjs.Parser(head)
+        head = head.parse()
+        head = pypugjs.ext.jinja.Compiler(head, **pugconfig).compile()
+
+        js = app.get("js")
+        if js is None or len(js) == 0:
+            js = ""
+        else:
+            js = f"<script type='text/javascript'>{js}</script>"
+
+        css = app.get("css")
+        try:
+            css = sass.compile(string=css)
+            css = str(css)
+            css = f"<style>{css}</style>"
+        except:
+            css = ""
+
+        _head = ""
+        _body = ""
+        if 'head' in kwargs: _head = kwargs['head']
+        if 'body' in kwargs: _body = kwargs['body']
+
+        view = f"<!DOCTYPE html><html><head>{head}{_head}{css}</head><body>{pug}{_body}{js}</body></html>"
+        return view
 
 class Workflow:
     def __init__(self, package):
@@ -128,6 +185,8 @@ class Workflow:
 
     def update(self, package):
         self.package = package
+        if self.spawner is not None:
+            self.spawner.update()
 
     # spawn kernel
     def spawn(self, kernel_name=None, cwd=None):
@@ -148,7 +207,11 @@ class Workflow:
             self.kill()
         except:
             pass
+        
         self.start()
+        
+        spawner.update()
+
         return self
 
     # spawner functions
@@ -194,7 +257,6 @@ class Workflow:
         for flow_id in flows:
             flow = self.flow(flow_id)
             if flow.active():
-                flow_id, code, inputs, outputs = flow.data()
-                self.spawner.run(flow_id, code, inputs, outputs)
+                self.spawner.run(flow_id)
         
         return True
