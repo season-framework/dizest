@@ -93,10 +93,6 @@ class storage:
         class read:
             def __init__(self, parent):
                 self.__parent__ = parent
-                
-                self.image = std.stdClass()
-                self.image.PIL = self.image.pillow = self.__image_pil__
-                self.image.numpy = self.image.np = self.__image_numpy__
 
             def __call__(self, filepath, default=DEFAULT_VALUE):
                 return self.text(filepath, default=default)
@@ -138,19 +134,10 @@ class storage:
                         raise e
                     return default
             
-            def __image_pil__(self, filepath, default=DEFAULT_VALUE):
+            def image(self, filepath, default=DEFAULT_VALUE):
                 try:
                     abspath = self.__parent__.abspath(filepath)
                     return Image.open(abspath)
-                except Exception as e:
-                    if default == DEFAULT_VALUE:
-                        raise e
-                    return default
-
-            def __image_numpy__(self, filepath, default=DEFAULT_VALUE):
-                try:
-                    img = self.__image_pil__(filepath)
-                    return np.array(img)
                 except Exception as e:
                     if default == DEFAULT_VALUE:
                         raise e

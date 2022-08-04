@@ -16,11 +16,15 @@ import psutil
 import shutil
 import threading
 import pandas
-import matplotlib
-import io
-import base64
 import zipfile
 import tempfile
+
+# for rendering
+from matplotlib import pyplot
+import io
+import base64
+from PIL import Image
+import html
 
 if __name__ != '__main__':
     exit(0)
@@ -259,17 +263,29 @@ def logger(mode, **data):
     requests.post(DIZEST_API + '/log', data=data, timeout=None)
 
 def renderer(v):
-    if v == matplotlib.pyplot:
-        img = io.BytesIO()
-        v.savefig(img, format='png', bbox_inches='tight')
-        img.seek(0)
-        encoded = base64.b64encode(img.getvalue())
-        return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
+    try:
+        if v == pyplot:
+            img = io.BytesIO()
+            v.savefig(img, format='png', bbox_inches='tight')
+            img.seek(0)
+            encoded = base64.b64encode(img.getvalue())
+            return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
 
-    if isinstance(v, pandas.DataFrame):
-        return v.to_html()
-    
-    return str(v)
+        if isinstance(v, Image.Image):
+            img = io.BytesIO()
+            v.save(img, format='PNG')
+            img.seek(0)
+            encoded = base64.b64encode(img.getvalue())
+            return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
+
+        if isinstance(v, pandas.DataFrame):
+            return v.to_html()
+    except Exception as e: 
+        pass
+
+    v = str(v)
+    v = html.escape(v)
+    return v
 
 # dizest instance: input/output loader
 class Instance:
@@ -556,10 +572,13 @@ def drive_api(action, path=None):
             return {"code": 200}
         
         elif action == 'upload':
+            filepath = query("filepath")
             files = flask.request.files.getlist('file')
+            
             for i in range(len(files)):
                 f = files[i]
-                name = f.filename
+                if filepath is not None: name = filepath
+                else: name = f.filename
                 fs.write.file(name, f)
             return {"code": 200}
         

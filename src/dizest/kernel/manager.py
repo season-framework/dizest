@@ -91,6 +91,14 @@ class Manager:
     def spawners(self):
         return [x for x in self._data.spawners]
 
+    def workflows(self):
+        return [x for x in self._data.workflows]
+
+    def workflow_by_id(self, workflow_id):
+        if workflow_id in self._data.workflows:
+            return self._data.workflows[workflow_id]
+        return None
+
     def kernelspecs(self):
         return self._data.kernel.names
 
