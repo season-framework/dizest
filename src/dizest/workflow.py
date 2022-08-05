@@ -251,6 +251,7 @@ class Workflow:
             spawner.kernelspec = kernelspec
         if cwd is not None:
             spawner.cwd = cwd
+            self.cwd = cwd
         try:
             self.kill()
         except:

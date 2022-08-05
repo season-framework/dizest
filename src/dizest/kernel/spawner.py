@@ -18,6 +18,7 @@ class Log:
     
     def append(self, log):
         self._data.append(log)
+        self._data = self._data[-100:]
     
     def clear(self):
         del self._data
@@ -165,9 +166,8 @@ class SimpleSpawner(BaseSpawner):
         while util.os.port(port):
             port = random.randrange(10000, 60000)
 
-        KERNELSPEC_PATH = kernelspec['path']
         LIBSPEC_PATH = os.path.join(os.path.dirname(__file__), 'spec')
-        cmd = kernelspec['cmd'].replace("$EXECUTABLE", sys.executable).replace("$KERNELSPEC_PATH", KERNELSPEC_PATH).replace("$LIBSPEC_PATH", LIBSPEC_PATH).replace("$PORT", str(port))
+        cmd = kernelspec['cmd'].replace("$EXECUTABLE", sys.executable).replace("$LIBSPEC_PATH", LIBSPEC_PATH).replace("$PORT", str(port))
         cmd = cmd.split(" ")
 
         env = os.environ.copy()
@@ -175,6 +175,7 @@ class SimpleSpawner(BaseSpawner):
         env['DIZEST_API'] = manager.api()
 
         if cwd is not None:
+            util.os.storage(cwd).makedirs()
             self.process = subprocess.Popen(cmd, shell=False, cwd=cwd, env=env)
         else:
             self.process = subprocess.Popen(cmd, shell=False, env=env)

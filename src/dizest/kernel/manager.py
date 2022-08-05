@@ -7,12 +7,12 @@ import subprocess
 import random
 import socketio
 import requests
+import platform
 
 class Manager:
-    def __init__(self, path=None, host="127.0.0.1", broker=None, spawner_class=spawner.SimpleSpawner):
+    def __init__(self, host="127.0.0.1", broker=None, spawner_class=spawner.SimpleSpawner):
         self._data = util.std.stdClass()
         
-        self._data.basepath = path
         self._data.broker = broker
         
         self._data.server = util.std.stdClass()
@@ -27,15 +27,10 @@ class Manager:
 
         self._data.kernel = util.std.stdClass()
         self._data.kernel.specs = dict()
-        self._data.kernel.names = ['base']
-
-        self._data.kernel.specs['base'] = dict()
-        self._data.kernel.specs['base']['path'] = ''
-        self._data.kernel.specs['base']['name'] = 'base'
-        self._data.kernel.specs['base']['cmd'] = "$EXECUTABLE $LIBSPEC_PATH/python/kernel.py $PORT"
-
-        self.set_path(path)
-
+        self._data.kernel.names = []
+        PYTHON_VERSION = platform.python_version()
+        self.set_kernelspec('base', title=f"Python {PYTHON_VERSION}", cmd="$EXECUTABLE $LIBSPEC_PATH/python/kernel.py $PORT")
+    
     # save log
     def send(self, **data):
         try:
@@ -57,32 +52,20 @@ class Manager:
         self._data.spawner_class = spawner_class
         return self
 
-    def set_path(self, path):
-        if path is None:
-            return self
-        self._data.basepath = path
-
-        self._data.kernel = util.std.stdClass()
+    def set_kernelspec(self, name=None, **data):
+        if 'cmd' not in data: raise Exception("kernelspec must contains `cmd`")
+        data['name'] = name
+        if 'name' not in data: raise Exception("kernelspec must contains `name`")
+        if 'title' not in data: data['title'] = name
+        self._data.kernel.specs[name] = data
+        self._data.kernel.names.append(name)
+        return self._data.kernel.specs[name]
+    
+    def clear_kernelspec(self):
         self._data.kernel.specs = dict()
-        self._data.kernel.names = ['base']
-
-        self._data.kernel.specs['base'] = dict()
-        self._data.kernel.specs['base']['path'] = ''
-        self._data.kernel.specs['base']['name'] = 'base'
-        self._data.kernel.specs['base']['cmd'] = "$EXECUTABLE $LIBSPEC_PATH/python/kernel.py $PORT"
-
-        fs = util.os.storage(path)
-        specs = fs.list()
-        for spec in specs:
-            if fs.isdir(spec):
-                try:
-                    kernelspec = fs.read.json(os.path.join(spec, 'kernel.json'))
-                    kernelspec['path'] = fs.abspath(spec)
-                    self._data.kernel.specs[kernelspec['name']] = kernelspec
-                    self._data.kernel.names.append(kernelspec['name'])
-                except:
-                    pass
-        return self
+        self._data.kernel.names = []
+        PYTHON_VERSION = platform.python_version()
+        self.set_kernelspec('base', title=f"Python {PYTHON_VERSION}", cmd="$EXECUTABLE $LIBSPEC_PATH/python/kernel.py $PORT")
 
     # manager server api url
     def api(self):
@@ -122,9 +105,7 @@ class Manager:
         if self._data.server.process is not None:
             return self
 
-        path = self._data.basepath
         host = self._data.server.host
-
         executable = sys.executable
         server = os.path.join(os.path.dirname(__file__), 'server.py')
 

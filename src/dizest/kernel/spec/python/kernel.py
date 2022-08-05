@@ -1,8 +1,14 @@
 #-*- coding: utf-8 -*-
+if __name__ != '__main__':
+    exit(0)
+
+import sys
+import os
+import threading
+import requests
+
 import dizest
 import flask
-import os
-import sys
 import json
 import logging
 import random
@@ -10,11 +16,9 @@ import time
 import datetime
 import signal
 import pathlib
-import requests
 import traceback
 import psutil
 import shutil
-import threading
 import pandas
 import zipfile
 import tempfile
@@ -26,8 +30,98 @@ import base64
 from PIL import Image
 import html
 
-if __name__ != '__main__':
-    exit(0)
+SPAWNER_ID = os.environ['SPAWNER_ID']
+DIZEST_API = os.environ['DIZEST_API']
+
+cache = dict() # dizest instance cache (run)
+status = dict()
+status['index'] = 1
+status['package'] = dict()
+
+def logger(mode, **data):
+    data["mode"] = mode
+    data["id"] = SPAWNER_ID
+    if "flow_id" not in data: data["flow_id"] = None
+    requests.post(DIZEST_API + '/log', data=data, timeout=None)
+    time.sleep(0.05)
+
+class Capturing():
+    def __init__(self):
+        self._stdout = None
+        self._stderr = None
+        self._r = None
+        self._w = None
+        self._thread = None
+        self._on_readline_cb = None
+        self.flow_id = None
+
+    def _handler(self):
+        while not self._w.closed:
+            try:
+                while True:
+                    line = self._r.readline()
+                    if len(line) == 0: break
+                    if self._on_readline_cb: self._on_readline_cb(self.flow_id, line)
+            except:
+                break
+
+    def on_readline(self, callback):
+        self._on_readline_cb = callback
+
+    def set(self, flow_id):
+        self.flow_id = flow_id
+
+    def start(self):
+        self._stdout = sys.stdout
+        self._stderr = sys.stderr
+        r, w = os.pipe()
+        r, w = os.fdopen(r, 'r'), os.fdopen(w, 'w', 1)
+        self._r = r
+        self._w = w
+        sys.stdout = self._w
+        sys.stderr = self._w
+        self._thread = threading.Thread(target=self._handler)
+        self._thread.start()
+
+    def stop(self):
+        self.flow_id = None
+        self._w.close()
+        if self._thread: self._thread.join()
+        self._r.close()
+        sys.stdout = self._stdout
+        sys.stderr = self._stderr
+
+# logging
+capturing = Capturing()
+def on_read(flow_id, line):
+    logger("flow.log", flow_id=flow_id, data=line)
+capturing.on_readline(on_read)
+capturing.start()
+
+def renderer(v):
+    try:
+        if v == pyplot:
+            img = io.BytesIO()
+            v.savefig(img, format='png', bbox_inches='tight')
+            img.seek(0)
+            encoded = base64.b64encode(img.getvalue())
+            return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
+
+        if isinstance(v, Image.Image):
+            img = io.BytesIO()
+            v.save(img, format='PNG')
+            img.seek(0)
+            encoded = base64.b64encode(img.getvalue())
+            return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
+
+        if isinstance(v, pandas.DataFrame):
+            return v.to_html()
+    except Exception as e: 
+        pass
+
+    v = str(v)
+    v = html.escape(v)
+    return v
 
 class ResponseException(Exception):
     def __init__(self, code=200, response=None):
@@ -248,45 +342,6 @@ class Request:
     def request(self):
         return self._flask.request
 
-SPAWNER_ID = os.environ['SPAWNER_ID']
-DIZEST_API = os.environ['DIZEST_API']
-
-cache = dict() # dizest instance cache (run)
-status = dict()
-status['index'] = 1
-status['package'] = dict()
-
-def logger(mode, **data):
-    data["mode"] = mode
-    data["id"] = SPAWNER_ID
-    if "flow_id" not in data: data["flow_id"] = None
-    requests.post(DIZEST_API + '/log', data=data, timeout=None)
-
-def renderer(v):
-    try:
-        if v == pyplot:
-            img = io.BytesIO()
-            v.savefig(img, format='png', bbox_inches='tight')
-            img.seek(0)
-            encoded = base64.b64encode(img.getvalue())
-            return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
-
-        if isinstance(v, Image.Image):
-            img = io.BytesIO()
-            v.save(img, format='PNG')
-            img.seek(0)
-            encoded = base64.b64encode(img.getvalue())
-            return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
-
-        if isinstance(v, pandas.DataFrame):
-            return v.to_html()
-    except Exception as e: 
-        pass
-
-    v = str(v)
-    v = html.escape(v)
-    return v
-
 # dizest instance: input/output loader
 class Instance:
     def __init__(self, _flask, data):
@@ -444,13 +499,14 @@ def run(flow_id):
             except:
                 args[i] = str(args[i])
         log = " ".join(args)
-        logger("flow.log", flow_id=flow_id, data=log)
+        logger("flow.log", flow_id=flow_id, data=log+"\n")
 
     env = dict()
     env['dizest'] = dizesti
     env['print'] = display
     env['display'] = display
 
+    capturing.set(flow_id)
     try:
         logger("kernel.status", data="running")
         logger("flow.status", flow_id=flow_id, data="running")
@@ -465,7 +521,7 @@ def run(flow_id):
         logger("flow.status", flow_id=flow_id, data="error")
         logger("flow.index", flow_id=flow_id, data=data['index'])
         logger("flow.log", flow_id=flow_id, data=stderr)
-        
+    capturing.set(None)
     status['index'] = status['index'] + 1
     return {'code': 200}
 
@@ -612,6 +668,7 @@ def drive_api(action, path=None):
 def sigterm_handler(_signo, _stack_frame):
     if _signo in [2, 15]:
         logger("kernel.status", data="stop")
+        capturing.stop()
         sys.exit(0)
     raise Exception(_signo)
 

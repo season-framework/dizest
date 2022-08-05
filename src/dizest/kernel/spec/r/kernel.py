@@ -181,9 +181,6 @@ class Capturing():
             except:
                 break
 
-    def print(self, s, end=""):
-        pass
-
     def on_readline(self, callback):
         self._on_readline_cb = callback
 
