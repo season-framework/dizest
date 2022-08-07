@@ -18,6 +18,7 @@ def package_files(directory):
 extra_files = package_files(os.path.join(SEASON_PKG_DIR, 'command'))
 extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'res'))
 extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'util'))
+extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'kernel'))
 
 setup(
     name='dizest',
@@ -41,14 +42,16 @@ setup(
     ]},
     install_requires=[
         'argh',
+        'matplotlib',
         'psutil',
         'requests',
         'Pillow',
         'numpy',
         'pandas',
-        'season>=0.5.33',
+        'season==1.0.4',
         'peewee',
-        'bcrypt'
+        'bcrypt',
+        'python-socketio[client]'
     ],
     python_requires='>=3.6',
     classifiers=[

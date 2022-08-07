@@ -1,9 +1,0 @@
-{
-    "id": "auth.pathpath",
-    "title": "/auth/<path:path>",
-    "route": "/auth/<path:path>",
-    "viewuri": "/auth/logout",
-    "created": "2022-01-11 23:04:23",
-    "updated": "2022-05-05 14:48:36",
-    "controller": "view"
-}

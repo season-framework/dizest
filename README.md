@@ -50,6 +50,13 @@ dizest update
 
 ## Release Note
 
+### 3.0.0
+
+- define dizest process `server`, `kernel`, `spawner`
+- update workflow editor ui: `codeflow`, `kernel selector`, etc
+- multi kernel support (support multi language like R)
+- support 3rd party development (spawner, kernel)
+
 ### 2.2.1
 
 - wiz 1.0 upgrade

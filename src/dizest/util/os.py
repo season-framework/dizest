@@ -11,6 +11,7 @@ import pandas as pd
 import pickle
 import time
 from PIL import Image
+import socket
 
 # compile string
 _compile = compile
@@ -57,24 +58,41 @@ def timer(func):
         print(f"[timelab]", et - st, "ms")
     return decorator
 
+def cwd(path):
+    def parameterized(func):
+        def wrapper(*args, **kwargs):
+            cwd = os.getcwd()
+            os.chdir(path)
+            try:
+                ret = func(*args, **kwargs)
+            finally:
+                os.chdir(cwd)
+            return ret
+        return wrapper
+    return parameterized  
+
+def port(number, host="127.0.0.1"):
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        number = int(number)
+        s.connect((host, number))
+        return True
+    except:
+        pass
+    return False
+
 # file system util
 class storage:
-    def __init__(self, basepath=".", root=True, rw=True):
+    def __init__(self, basepath="."):
         self.config = std.stdClass()
         self.config.path = basepath
         self.namespace = ""
-        self.root = root
-        self.rw = rw
 
         DEFAULT_VALUE = "__ERROR__"
 
         class read:
             def __init__(self, parent):
                 self.__parent__ = parent
-                
-                self.image = std.stdClass()
-                self.image.PIL = self.image.pillow = self.__image_pil__
-                self.image.numpy = self.image.np = self.__image_numpy__
 
             def __call__(self, filepath, default=DEFAULT_VALUE):
                 return self.text(filepath, default=default)
@@ -116,19 +134,10 @@ class storage:
                         raise e
                     return default
             
-            def __image_pil__(self, filepath, default=DEFAULT_VALUE):
+            def image(self, filepath, default=DEFAULT_VALUE):
                 try:
                     abspath = self.__parent__.abspath(filepath)
                     return Image.open(abspath)
-                except Exception as e:
-                    if default == DEFAULT_VALUE:
-                        raise e
-                    return default
-
-            def __image_numpy__(self, filepath, default=DEFAULT_VALUE):
-                try:
-                    img = self.__image_pil__(filepath)
-                    return np.array(img)
                 except Exception as e:
                     if default == DEFAULT_VALUE:
                         raise e
@@ -222,8 +231,7 @@ class storage:
                 self.__image_pil__(filepath, img)
 
         self.read = read(self)
-        if rw:
-            self.write = write(self)
+        self.write = write(self)
         
     def basepath(self):
         return os.path.join(self.config.path, self.namespace)
@@ -302,7 +310,6 @@ class storage:
         return os.path.isdir(self.abspath(filepath))
 
     def __copy__(self, src, dest, ignore=None):
-        if self.rw == False: raise Exception("Permission denied")
         if os.path.isdir(src):
             if not os.path.isdir(dest):
                 os.makedirs(dest)
@@ -315,7 +322,6 @@ class storage:
             shutil.copyfile(src, dest)
 
     def copy(self, filepath1, filepath2):
-        if self.rw == False: raise Exception("Permission denied")
         filepath1 = self.abspath(filepath1)
         filepath2 = self.abspath(filepath2)
         self.__copy__(filepath1, filepath2)
@@ -325,12 +331,9 @@ class storage:
         notallowed = ["", "/"]
         if target_path in notallowed: 
             raise Exception("not allowed path")
-        if self.root == False and self.basepath() not in target_path:
-            raise Exception("not allowed path")
         return os.path.realpath(target_path)
 
     def makedirs(self, path=""):
-        if self.rw == False: raise Exception("Permission denied")
         try:
             path = self.abspath(path)
             os.makedirs(path)
@@ -338,7 +341,6 @@ class storage:
             pass
 
     def __makedirs__(self, path):
-        if self.rw == False: raise Exception("Permission denied")
         try:
             filedir = os.path.dirname(path)
             os.makedirs(filedir)
@@ -350,17 +352,14 @@ class storage:
         return mimetypes.guess_type(path)[0]
 
     def move(self, path, rename):
-        if self.rw == False: raise Exception("Permission denied")
         path = self.abspath(path)
         rename = self.abspath(rename)
         shutil.move(path, rename)
 
     def remove(self, filepath=""):
-        if self.rw == False: raise Exception("Permission denied")
         self.delete(filepath)
 
     def delete(self, filepath=""):
-        if self.rw == False: raise Exception("Permission denied")
         abspath = self.abspath(filepath)
         try:
             shutil.rmtree(abspath)

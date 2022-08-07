@@ -1,9 +1,0 @@
-{
-    "id": "hub.pathpath",
-    "title": "/hub/*",
-    "route": "/hub/<path:path>",
-    "viewuri": "",
-    "created": "2022-04-24 20:45:49",
-    "updated": "2022-05-19 09:44:21",
-    "controller": "user"
-}

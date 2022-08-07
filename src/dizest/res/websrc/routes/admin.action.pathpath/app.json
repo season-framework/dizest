@@ -1,9 +1,0 @@
-{
-    "id": "admin.action.pathpath",
-    "title": "/admin/<path:path>",
-    "route": "/admin/<action>/<path:path>",
-    "viewuri": "",
-    "created": "2022-04-27 21:20:06",
-    "updated": "2022-05-07 12:54:19",
-    "controller": "admin"
-}
