@@ -3,6 +3,7 @@ import season
 import os
 import traceback
 import time
+import datetime
 
 log_level = season.log.warning
 plugin = ['workspace', 'branch', 'setting', 'plugin']
@@ -26,8 +27,13 @@ def acl(wiz):
 def on_error(wiz, e):
     pass
 
-def before_request():
-    pass
+def before_request(wiz):
+    try:
+        wiz.server.flask.session.permanent = True
+        wiz.server.wsgi.flask.permanent_session_lifetime = datetime.timedelta(minutes=360)
+        wiz.server.wsgi.flask.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=360)
+    except Exception as e:
+        pass
 
 def after_request(wiz, response):
     if wiz.is_dev():

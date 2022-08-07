@@ -2,7 +2,7 @@ from dizest import util
 from .workflow import Workflow
 from .server import Server
 
-from .version import VERSION_STRING, VERSIONS
+from .version import VERSION_STRING
 
 cache = util.std.stdClass()
 cache.server = util.std.stdClass()
@@ -18,4 +18,3 @@ def instances():
     return [name for name in cache.server]
 
 version = VERSION = __version__ = __VERSION__= VERSION_STRING
-versions = VERSIONS

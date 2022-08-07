@@ -576,7 +576,7 @@ def api(flow_id, path):
 
 # signal handler
 def sigterm_handler(_signo, _stack_frame):
-    if _signo in [2, 15]:
+    if _signo in [2, 9, 15]:
         logger("kernel.status", data="stop")
         sys.exit(0)
     raise Exception(_signo)

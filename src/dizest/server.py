@@ -9,8 +9,53 @@ import socketio
 import requests
 import platform
 
+class DriveAPI:
+    def __init__(self, server):
+        self.server = server
+
+    def __request__(self, fnname, **kwargs):
+        kwargs["url"] = self.server.drive().uri() + "/drive/" + fnname
+        kwargs["allow_redirects"] = False
+        return requests.request(**kwargs)
+
+    def ls(self, path):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"ls/{path}", method="GET", timeout=3)
+
+    def create(self, path, data):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"create/{path}", method="POST", data=data, timeout=3)
+
+    def rename(self, path, data):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"rename/{path}", method="POST", data=data, timeout=3)
+
+    def remove(self, path, data):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"remove/{path}", method="POST", data=data, timeout=3)
+    
+    def upload(self, path, **kwargs):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"upload/{path}", **kwargs)
+
+    def download(self, path):
+        if len(path) > 0:
+            if path[0] == "/": 
+                path = path[1:]
+        return self.__request__(f"download/{path}", method="GET")
+
 class Server:
-    def __init__(self, host="127.0.0.1", broker=None, spawner_class=spawner.SimpleSpawner, log_limit=0, cwd=None):
+    def __init__(self, host="127.0.0.1", broker=None, spawner_class=spawner.SimpleSpawner, log_limit=0, cwd=None, user=None):
         self._data = util.std.stdClass()
 
         self._data.config = util.std.stdClass()
@@ -19,6 +64,7 @@ class Server:
         self._data.config.broker = broker
         self._data.config.host = host
         self._data.config.cwd = cwd
+        self._data.config.user = user
         
         self._data.server = util.std.stdClass()
         self._data.server.drive = None
@@ -32,6 +78,8 @@ class Server:
         self._data.kernel.names = []
 
         self._data.workflows = dict()
+
+        self.drive_api = DriveAPI(self)
 
     def drive(self):
         return self._data.server.drive
@@ -186,6 +234,7 @@ class Server:
                 pass
         
         # kill server
+        self._data.server.drive.terminate()
         self._data.server.process.terminate()
 
         # init instance
