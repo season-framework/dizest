@@ -99,7 +99,7 @@ class Flow:
     def api(self, fnname, **kwargs):
         if self.workflow.spawner is None:
             raise Exception("Spawner is not connected")
-        kwargs["url"] = self.workflow.spawner.uri + "/api/" + self.id() + "/" + fnname
+        kwargs["url"] = self.workflow.spawner.uri() + "/api/" + self.id() + "/" + fnname
         kwargs["allow_redirects"] = False
         return requests.request(**kwargs)
 
@@ -148,7 +148,7 @@ class DriveAPI:
     def __request__(self, fnname, **kwargs):
         if self.workflow.spawner is None:
             raise Exception("Spawner is not connected")
-        kwargs["url"] = self.workflow.spawner.uri + "/drive/" + fnname
+        kwargs["url"] = self.workflow.server.drive().uri() + "/drive/" + fnname
         kwargs["allow_redirects"] = False
         return requests.request(**kwargs)
 
@@ -193,12 +193,11 @@ class Workflow:
         required = ['id', 'apps', 'flow']
         for req in required:
             if req not in package:
-                raise Exception(f"`{req}` not defined")
+                raise Exception(f"{req} not defined")
         self.package = package
         self.spawner = None
-        self.manager = None
+        self.server = None
         self.kernel_name = None
-        self.cwd = None
         self.drive_api = DriveAPI(self)
 
     def id(self):
@@ -224,49 +223,49 @@ class Workflow:
         return Flow(self, flow)
 
     def kernelspec(self):
-        if self.spawner is None: return None
-        return self.spawner.kernel
-
-    def storage(self):
-        if self.spawner is None: return None
-        return self.spawner.storage()
+        return self.kernel_name
 
     def update(self, package):
         self.package = package
         if self.spawner is not None:
             self.spawner.update()
 
-    # spawn kernel
-    def spawn(self, kernel_name=None, cwd=None):
-        # if manager not set
-        if self.manager is None: 
-            raise Exception("dizest manager not connected")
+    def spawn(self, kernel_name=None):
+        if self.server is None: 
+            raise Exception("dizest server not connected")
+        server = self.server
 
-        # previous options
-        if kernel_name is None: kernel_name = self.kernel_name
-        if cwd is None: cwd = self.cwd
-        spawner = self.manager.spawner(self.id(), kernel_name=kernel_name, cwd=cwd, workflow=self)
-        kernelspec = self.manager.kernelspec(kernel_name)
+        cwd = server.config("cwd")
+
+        # load kernelspec
+        if kernel_name is None: 
+            kernel_name = self.kernel_name
+        kernelspec = server.kernelspec(kernel_name)
+
+        # generate spawner
+        if self.spawner is None:
+            spawner_class = server.config('spawner_class')
+            kernelspec = server.kernelspec(kernel_name)
+            self.spawner = spawner_class(workflow=self, kernelspec=kernelspec, cwd=cwd, mode="kernel")
+
+        # update kernelspec
         if kernelspec is not None:
-            spawner.kernelspec = kernelspec
-        if cwd is not None:
-            spawner.cwd = cwd
-            self.cwd = cwd
+            self.spawner.kernelspec = kernelspec
+        
+        # kill previous spawner
         try:
             self.kill()
         except:
             pass
         
+        # start spawner
         self.start()
         
-        spawner.update()
+        # spawner update
+        self.spawner.update()
 
+        self.kernel_name = kernel_name
         return self
-
-    # spawner functions
-    def connect(self, spawner):
-        self.spawner = spawner
-        spawner.workflow = self
 
     def start(self):
         if self.spawner is None:
@@ -292,11 +291,6 @@ class Workflow:
         if self.spawner is None:
             return 'stop'
         return self.spawner.status
-
-    def current(self):
-        if self.spawner is None:
-            raise Exception("Spawner is not connected")
-        return self.spawner.current
 
     def run(self):
         if self.spawner is None:

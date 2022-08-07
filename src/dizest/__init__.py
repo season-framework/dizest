@@ -1,20 +1,21 @@
 from dizest import util
-from dizest import kernel
 from .workflow import Workflow
+from .server import Server
+
 from .version import VERSION_STRING, VERSIONS
 
 cache = util.std.stdClass()
-cache.manager = util.std.stdClass()
+cache.server = util.std.stdClass()
 
-def load(name, **kwargs):
-    if name in cache.manager:
-        return cache.manager[name]
-    instance = kernel.Manager(**kwargs)
-    cache.manager[name] = instance
+def server(name, **kwargs):
+    if name in cache.server:
+        return cache.server[name]
+    instance = Server(**kwargs)
+    cache.server[name] = instance
     return instance
 
 def instances():
-    return [name for name in cache.manager]
+    return [name for name in cache.server]
 
 version = VERSION = __version__ = __VERSION__= VERSION_STRING
 versions = VERSIONS

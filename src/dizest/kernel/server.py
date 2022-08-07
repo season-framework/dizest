@@ -26,7 +26,6 @@ def api_log():
         pass
     return {'code': 200}
 
-
 # signal handler
 def sigterm_handler(_signo, _stack_frame):
     raise Exception(_signo)
