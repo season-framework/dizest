@@ -55,7 +55,7 @@ class DriveAPI:
         return self.__request__(f"download/{path}", method="GET")
 
 class Server:
-    def __init__(self, host="127.0.0.1", broker=None, spawner_class=spawner.SimpleSpawner, log_limit=0, cwd=None, user=None):
+    def __init__(self, host="127.0.0.1", broker=None, spawner_class=spawner.SimpleSpawner, log_limit=0, cwd=None, user=None, executable=None):
         self._data = util.std.stdClass()
 
         self._data.config = util.std.stdClass()
@@ -65,6 +65,7 @@ class Server:
         self._data.config.host = host
         self._data.config.cwd = cwd
         self._data.config.user = user
+        self._data.config.executable = executable
         
         self._data.server = util.std.stdClass()
         self._data.server.drive = None
@@ -153,7 +154,9 @@ class Server:
             return self
 
         host = self._data.config.host
-        executable = sys.executable
+        executable = self.config('executable')
+        if executable is None:
+            executable = sys.executable
         server = os.path.join(os.path.dirname(__file__), 'kernel', 'server.py')
 
         port = random.randrange(3000, 9999)

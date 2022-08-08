@@ -326,7 +326,10 @@ class SimpleSpawner(BaseSpawner):
             port = random.randrange(10000, 60000)
 
         LIBSPEC_PATH = os.path.join(os.path.dirname(__file__), 'kernel')
-        cmd = "$EXECUTABLE $LIBSPEC_PATH/drive.py $PORT".replace("$EXECUTABLE", sys.executable).replace("$LIBSPEC_PATH", LIBSPEC_PATH).replace("$PORT", str(port))
+        executable = server.config("executable")
+        if executable is None:
+            executable = sys.executable
+        cmd = "$EXECUTABLE $LIBSPEC_PATH/drive.py $PORT".replace("$EXECUTABLE", executable).replace("$LIBSPEC_PATH", LIBSPEC_PATH).replace("$PORT", str(port))
         cmd = cmd.split(" ")
 
         env = os.environ.copy()
@@ -372,7 +375,10 @@ class SimpleSpawner(BaseSpawner):
             port = random.randrange(10000, 60000)
 
         LIBSPEC_PATH = os.path.join(os.path.dirname(__file__), 'kernel', 'spec')
-        cmd = "$EXECUTABLE $LIBSPEC_PATH/python/terminal.py $PORT".replace("$EXECUTABLE", sys.executable).replace("$LIBSPEC_PATH", LIBSPEC_PATH).replace("$PORT", str(port))
+        executable = server.config("executable")
+        if executable is None:
+            executable = sys.executable
+        cmd = "$EXECUTABLE $LIBSPEC_PATH/python/terminal.py $PORT".replace("$EXECUTABLE", executable).replace("$LIBSPEC_PATH", LIBSPEC_PATH).replace("$PORT", str(port))
         cmd = cmd.split(" ")
 
         env = os.environ.copy()

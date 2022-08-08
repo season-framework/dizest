@@ -50,6 +50,10 @@ dizest update
 
 ## Release Note
 
+### 3.0.2
+
+- add `executable` option
+
 ### 3.0.0
 
 - define dizest process `server`, `kernel`, `spawner`
