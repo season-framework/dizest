@@ -20,12 +20,120 @@ PATH_WORKINGDIR_WEBSRC = os.path.join(PATH_WORKINGDIR, "websrc")
 PATH_WORKINGDIR_PACKAGE = os.path.join(PATH_WORKINGDIR, "dizest.json")
 PATH_WORKINGDIR_CONFIG = os.path.join(PATH_WORKINGDIR, "config.py")
 
+cache = dict()
+
+class Instance:
+    def __init__(self, data):
+        self._data = data
+        self._output = dict()
+
+    def input(self, name, default=None, id=None):
+        try:
+            inputs = self._data['inputs']
+            if name not in inputs:
+                return default
+            
+            itype = inputs[name]['type']
+            ivalue = inputs[name]['data']
+
+            # load from variable
+            if itype == 'variable':
+                if ivalue is not None and len(ivalue) > 0:
+                    return ivalue
+                else:
+                    return default
+            
+            # load from previous output
+            res = []
+            for iv in ivalue:
+                fid = iv[0]
+                oname = iv[1]
+                if fid not in cache:
+                    continue
+
+                linked_output = cache[fid]._output
+                if oname in linked_output:
+                    res.append(linked_output[oname])
+                else:
+                    res.append(None)
+            
+            if len(res) == 0: res = None
+            elif len(res) == 1: res = res[0]
+            if id is not None: return res[int(id)]
+
+            return res
+        except Exception as e:
+            pass
+        
+        return default
+
+    def inputs(self, name):
+        try:
+            res = []
+            inputs = self._data['inputs']
+            if name not in inputs:
+                return res
+            
+            itype = inputs[name]['type']
+            ivalue = inputs[name]['data']
+
+            # load from variable
+            if itype == 'variable':
+                return res
+            
+            # load from previous output
+            for iv in ivalue:
+                fid = iv[0]
+                oname = iv[1]
+                if fid not in cache:
+                    res.append(None)
+                    continue
+
+                linked_output = cache[fid]._output
+                if oname in linked_output:
+                    res.append(linked_output[oname])
+                else:
+                    res.append(None)
+            
+            return res
+        except Exception as e:
+            pass
+
+        return []
+
+    def output(self, name, value=None):
+        self._output[name] = value
+
+    def drive(self, *path):
+        cwd = os.getcwd()
+        cwd = os.path.join(cwd, *path)
+        return dizest.util.os.storage(cwd)
+
 @arg('--host', default=None, help='0.0.0.0')
 @arg('--port', default=0, help='3000')
 @arg('-f', default=None, help='workflow.dzw')
 def run(f=None, host="0.0.0.0", port=0):
     if f is not None:
-        return
+        workflow = dizest.Workflow.load(f)
+        flows = workflow.flows()
+        for flow_id in flows:
+            flow = workflow.flow(flow_id)
+            if flow.active() == False:
+                continue
+            
+            flow_id, code, inputs, outputs = flow.data()
+
+            data = dict()
+            data['flow_id'] = flow_id
+            data['inputs'] = inputs
+            data['outputs'] = outputs
+
+            dizesti = Instance(data)
+            cache[flow_id] = dizesti
+
+            env = dict()
+            env['dizest'] = dizesti
+            exec(code, env)
 
     port = int(port)
     fs = dizest.util.os.storage(PATH_WORKINGDIR_WEBSRC)
@@ -63,6 +171,7 @@ def run(f=None, host="0.0.0.0", port=0):
     
     # copy config
     fs.copy(os.path.join(PATH_DIZEST, 'res', 'wiz', 'wiz.py'), os.path.join("config", "wiz.py"))
+    fs.copy(os.path.join(PATH_DIZEST, 'res', 'wiz', 'socketio.py'), os.path.join("config", "socketio.py"))
 
     # run server
     publicpath = os.path.join(PATH_WORKINGDIR_WEBSRC, 'public')

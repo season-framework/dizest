@@ -152,6 +152,13 @@ class Workflow:
         self.server = None
         self.kernel_name = None
 
+    @classmethod
+    def load(cls, package):
+        if isinstance(package, str):
+            fs = util.os.storage(".")
+            package = fs.read.json(package)
+        return cls(package)
+
     def id(self):
         return self.package['id']
 
