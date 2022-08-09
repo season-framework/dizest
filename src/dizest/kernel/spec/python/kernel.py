@@ -96,7 +96,7 @@ capturing = Capturing()
 def on_read(flow_id, line):
     logger("flow.log", flow_id=flow_id, data=line)
 capturing.on_readline(on_read)
-capturing.start()
+# capturing.start()
 
 def renderer(v):
     try:

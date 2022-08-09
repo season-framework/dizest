@@ -50,6 +50,10 @@ dizest update
 
 ## Release Note
 
+### 3.0.3
+
+- bug fixed at sudo spawner
+
 ### 3.0.2
 
 - add `executable` option

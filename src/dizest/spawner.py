@@ -421,8 +421,8 @@ class SudoSpawner(BaseSpawner):
         self._request()
         self.cwd = cwd
         try:
-            subprocess.Popen('id -u ' + self.user + ' &>/dev/null | useradd -m ' + self.user, shell=False)
-        except:
+            subprocess.run('useradd -m ' + self.user, shell=True, capture_output=True)
+        except Exception as e:
             pass
 
     def _request(self):
