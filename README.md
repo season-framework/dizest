@@ -50,6 +50,10 @@ dizest update
 
 ## Release Note
 
+### 3.0.4
+
+- child process bug fixed
+
 ### 3.0.3
 
 - bug fixed at sudo spawner

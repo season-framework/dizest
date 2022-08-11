@@ -130,7 +130,7 @@ class Flow:
             css = sass.compile(string=css)
             css = str(css)
             css = f"<style>{css}</style>"
-        except:
+        except Exception as e:
             css = ""
 
         _head = ""
@@ -214,7 +214,7 @@ class Workflow:
         # kill previous spawner
         try:
             self.kill()
-        except:
+        except Exception as e:
             pass
         
         # start spawner

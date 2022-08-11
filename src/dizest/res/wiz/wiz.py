@@ -20,7 +20,7 @@ def acl(wiz):
         role = wiz.server.flask.session['role']
         if role == 'admin':
             return True
-    except:
+    except Exception as e:
         pass
     wiz.response.abort(401)
 
@@ -60,7 +60,7 @@ def build_resource(resource_dirpath, resource_filepath):
 
         try:
             mode = flask.request.cookies.get("season-wiz-devmode")
-        except:
+        except Exception as e:
             mode = False
 
         if mode != 'true':

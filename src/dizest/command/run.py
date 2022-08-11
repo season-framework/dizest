@@ -6,11 +6,11 @@ import subprocess
 import psutil
 import season
 import dizest
-import multiprocessing as mp
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import datetime
 import platform
+import signal
 
 PATH_WIZ = season.path.lib
 PATH_DIZEST = os.path.dirname(os.path.dirname(__file__))
@@ -184,21 +184,16 @@ def run(f=None, host="0.0.0.0", port=0):
     def run_ctrl():
         env = os.environ.copy()
         env['WERKZEUG_RUN_MAIN'] = 'true'
-        cmd = str(sys.executable) + " " +  str(apppath)
-        subprocess.call(cmd, env=env, shell=True)
+        process = subprocess.Popen([str(sys.executable), str(apppath)], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(f"DIZEST Hub running on http://{host}:{port}")
+        process.communicate()
 
-    ostype = platform.system().lower()
-    if ostype == 'linux':
-        while True:
-            try:
-                proc = mp.Process(target=run_ctrl)
-                proc.start()
-                proc.join()
-            except KeyboardInterrupt:
-                for child in psutil.Process(proc.pid).children(recursive=True):
-                    child.kill()
-                return
-            except:
-                pass
-    else:
-        run_ctrl()
+    while True:
+        try:
+            run_ctrl()
+        except Exception:
+            pass
+        except:
+            for child in psutil.Process(os.getpid()).children(recursive=True):
+                child.kill()
+            sys.exit(0)

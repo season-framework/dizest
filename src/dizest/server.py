@@ -145,7 +145,7 @@ class Server:
     def send(self, **data):
         try:
             requests.post(self.api() + '/log', data=data)
-        except:
+        except Exception as e:
             pass
         return self
 
@@ -205,7 +205,7 @@ class Server:
                                 if spawner.flow(key).status != 'pending': 
                                     continue
                                 spawner.flow(key).status = 'ready'
-                    except:
+                    except Exception as e:
                         pass
 
                 if self._data.config.broker is not None:
@@ -217,7 +217,7 @@ class Server:
             try:
                 sio.connect(self._data.server.api)
                 break
-            except:
+            except Exception as e:
                 pass
         
         # start drive spawner
@@ -233,7 +233,7 @@ class Server:
         for key in self._data.workflows:
             try:
                 self._data.workflows[key].kill()
-            except:
+            except Exception as e:
                 pass
         
         # kill server
@@ -250,7 +250,7 @@ class Server:
     def restart(self):
         try:
             self.stop()
-        except:
+        except Exception as e:
             pass
         self.start()
         return self

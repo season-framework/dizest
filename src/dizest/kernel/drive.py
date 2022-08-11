@@ -119,7 +119,7 @@ def drive_api(action, path=None):
                 if len(zippath) < 10: return {"code": 404}
                 try:
                     shutil.remove(zippath)
-                except:
+                except Exception as e:
                     pass
                 os.makedirs(os.path.dirname(zippath))
                 zipdata = zipfile.ZipFile(zippath, 'w')
@@ -137,7 +137,7 @@ def drive_api(action, path=None):
 
 # signal handler
 def sigterm_handler(_signo, _stack_frame):
-    if _signo in [2, 15]:
+    if _signo in [2, 9, 15]:
         capturing.stop()
         sys.exit(0)
     raise Exception(_signo)

@@ -176,7 +176,7 @@ class SimpleSpawner(BaseSpawner):
     def _request(self):
         try:
             self.request.process.terminate()
-        except:
+        except Exception as e:
             pass
 
         self.request = util.std.stdClass()
@@ -428,7 +428,7 @@ class SudoSpawner(BaseSpawner):
     def _request(self):
         try:
             self.request.process.terminate()
-        except:
+        except Exception as e:
             pass
 
         self.request = util.std.stdClass()

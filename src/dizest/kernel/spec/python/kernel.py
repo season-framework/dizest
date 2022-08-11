@@ -62,7 +62,7 @@ class Capturing():
                     line = self._r.readline()
                     if len(line) == 0: break
                     if self._on_readline_cb: self._on_readline_cb(self.flow_id, line)
-            except:
+            except Exception as e:
                 break
 
     def on_readline(self, callback):
@@ -179,7 +179,7 @@ class Response:
     def json(self, obj):
         try:
             obj = dict(obj)
-        except:
+        except Exception as e:
             pass
         obj = json.dumps(obj, default=dizest.util.string.json_default, ensure_ascii=False)
         resp = self._flask.Response(str(obj))
@@ -291,7 +291,7 @@ class Request:
                 lang = headers['Accept-Language']
                 lang = lang[:2]
             return lang.upper()
-        except:
+        except Exception as e:
             return "DEFAULT"
 
     def match(self, pattern):
@@ -330,13 +330,13 @@ class Request:
     def file(self, namespace='file'):
         try:
             return self._flask.request.files[namespace]
-        except:
+        except Exception as e:
             return None
 
     def files(self, namespace='file'):
         try:
             return self._flask.request.files.getlist(f'{namespace}[]')
-        except:
+        except Exception as e:
             return []
 
     def request(self):
@@ -441,7 +441,7 @@ class Instance:
         try:
             output = cache[self._data['flow_id']]._output
             return output[name]
-        except:
+        except Exception as e:
             pass
         return value
 
@@ -496,7 +496,7 @@ def run(flow_id):
         for i in range(len(args)):
             try:
                 args[i] = renderer(args[i])
-            except:
+            except Exception as e:
                 args[i] = str(args[i])
         log = " ".join(args)
         logger("flow.log", flow_id=flow_id, data=log+"\n")
@@ -553,7 +553,7 @@ def api(flow_id, path):
             for i in range(len(args)):
                 try:
                     args[i] = renderer(args[i])
-                except:
+                except Exception as e:
                     args[i] = str(args[i])
             log = " ".join(args)
             logger("flow.api", flow_id=flow_id, data=log)

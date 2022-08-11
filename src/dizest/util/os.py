@@ -77,7 +77,7 @@ def port(number, host="127.0.0.1"):
         number = int(number)
         s.connect((host, number))
         return True
-    except:
+    except Exception as e:
         pass
     return False
 
@@ -239,7 +239,7 @@ class storage:
     def __json__(self, jsonstr):
         try:
             return json.loads(jsonstr)
-        except:
+        except Exception as e:
             return None
 
     def __walkdir__(self, dirname):
@@ -286,14 +286,14 @@ class storage:
                 return files
             page = (page - 1) * dump
             return files[page:page+dump]
-        except:
+        except Exception as e:
             return []
 
     def count(self, filepath=""):
         try:
             abspath = self.abspath(filepath)
             return len(os.listdir(abspath))
-        except:
+        except Exception as e:
             return 0
 
     def exists(self, filepath=""):
@@ -337,7 +337,7 @@ class storage:
         try:
             path = self.abspath(path)
             os.makedirs(path)
-        except:
+        except Exception as e:
             pass
 
     def __makedirs__(self, path):
