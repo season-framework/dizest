@@ -26,6 +26,13 @@ def api_log():
         pass
     return {'code': 200}
 
+@socketio.on('log')
+def handle_log(data):
+    try:
+        flask_socketio.emit('log', data, namespace="/", broadcast=True)
+    except Exception as e:
+        pass
+
 # signal handler
 def sigterm_handler(_signo, _stack_frame):
     raise Exception(_signo)

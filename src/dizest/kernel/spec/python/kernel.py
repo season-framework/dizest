@@ -6,6 +6,7 @@ import sys
 import os
 import threading
 import requests
+import socketio
 
 import dizest
 import flask
@@ -38,12 +39,14 @@ status = dict()
 status['index'] = 1
 status['package'] = dict()
 
+socket_client = socketio.Client()
+socket_client.connect(DIZEST_API)
+
 def logger(mode, **data):
     data["mode"] = mode
     data["id"] = WORKFLOW_ID
     if "flow_id" not in data: data["flow_id"] = None
-    requests.post(DIZEST_API + '/log', data=data, timeout=None)
-    time.sleep(0.05)
+    socket_client.emit('log', data)
 
 class Capturing():
     def __init__(self):

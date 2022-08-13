@@ -13,7 +13,6 @@ import platform
 import signal
 import atexit
 import contextlib
-import multiprocessing as mp
 
 PATH_WIZ = season.path.lib
 PATH_DIZEST = os.path.dirname(os.path.dirname(__file__))
@@ -258,7 +257,7 @@ def run(f=None, host="0.0.0.0", port=0):
         print("dizest not installed. run `dizest install` first.")
         return
     
-    config = fs.read.json("dizest.json", dict())
+    config = fs.read.json(PATH_WORKINGDIR_PACKAGE, dict())
     
     if port < 1000:
         if 'port' in config:
@@ -275,7 +274,7 @@ def run(f=None, host="0.0.0.0", port=0):
     config['path'] = PATH_WORKINGDIR
 
     # save dizest config
-    fs.write.json("dizest.json", config)
+    fs.write.json(PATH_WORKINGDIR_PACKAGE, config)
 
     # build config
     PATH_CONFIG_BASE = os.path.join(PATH_DIZEST, 'res', 'wiz', 'server.py')
@@ -311,7 +310,7 @@ def server(action, host="0.0.0.0", port=0):
         print("dizest not installed. run `dizest install` first.")
         return
     
-    config = fs.read.json("dizest.json", dict())
+    config = fs.read.json(PATH_WORKINGDIR_PACKAGE, dict())
     
     if port < 1000:
         if 'port' in config:
@@ -328,7 +327,7 @@ def server(action, host="0.0.0.0", port=0):
     config['path'] = PATH_WORKINGDIR
 
     # save dizest config
-    fs.write.json("dizest.json", config)
+    fs.write.json(PATH_WORKINGDIR_PACKAGE, config)
 
     # build config
     PATH_CONFIG_BASE = os.path.join(PATH_DIZEST, 'res', 'wiz', 'server.py')

@@ -54,6 +54,12 @@ dizest update
 
 ## Release Note
 
+### 3.0.6
+
+- port bug fixed on command line
+- kernel communication changed (http to socket)
+- process stabilization
+
 ### 3.0.5
 
 - support dizest server command (daemon)

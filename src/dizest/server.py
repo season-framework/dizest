@@ -3,11 +3,13 @@ from dizest import util
 from dizest.workflow import Workflow
 import sys
 import os
+import time
 import subprocess
 import random
 import socketio
 import requests
 import platform
+import threading
 
 class DriveAPI:
     def __init__(self, server):
@@ -167,7 +169,9 @@ class Server:
         self._data.server.port = port
         self._data.server.api = f'http://{host}:{port}'
 
+        scache = []
         sio = socketio.Client()
+
         @sio.on('log')
         def on_message(data):
             try:
@@ -208,8 +212,12 @@ class Server:
                     except Exception as e:
                         pass
 
-                if self._data.config.broker is not None:
-                    self._data.config.broker(workflow, FLOW_ID, MODE, data)
+                args = dict()
+                args['workflow_id'] = workflow.id()
+                args['flow_id'] = FLOW_ID
+                args['mode'] = MODE
+                args['data'] = data
+                scache.append(args)
             except Exception as e:
                 pass
         
@@ -219,7 +227,22 @@ class Server:
                 break
             except Exception as e:
                 pass
-        
+
+        # checking thread
+        def polling():
+            while True:
+                try:
+                    if len(scache) > 0:
+                        if self._data.config.broker is not None:
+                            util.fn.call(self._data.config.broker, logs=scache)
+                    scache.clear()
+                except Exception as e:
+                    pass
+                time.sleep(1)
+
+        th = threading.Thread(target=polling)
+        th.start()
+
         # start drive spawner
         spawner_class = self.config('spawner_class')
         cwd = self.config("cwd")
