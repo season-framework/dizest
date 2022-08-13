@@ -54,6 +54,10 @@ dizest update
 
 ## Release Note
 
+### 3.0.7
+
+- kernel logging updated
+
 ### 3.0.6
 
 - port bug fixed on command line
