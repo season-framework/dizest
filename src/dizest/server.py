@@ -191,6 +191,9 @@ class Server:
                 if MODE == 'flow.log' and FLOW_ID is not None:
                     spawner.flow(FLOW_ID).log.append(data)
                 
+                if MODE == 'flow.log.clear' and FLOW_ID is not None:
+                    spawner.flow(FLOW_ID).log.clear()
+                
                 if MODE == 'flow.status' and FLOW_ID is not None:
                     spawner.flow(FLOW_ID).status = data
                     if data == 'running': 

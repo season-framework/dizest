@@ -54,6 +54,16 @@ dizest update
 
 ## Release Note
 
+### 3.0.8
+
+- remove useless import
+- python kernel
+    - add `dizest.clear()` function
+    - log sync on multi view
+    - enhanced plot log
+    - dizest.input logic changed: get last proceed result
+- add dependencies: pymysql, natsort
+
 ### 3.0.7
 
 - kernel logging updated

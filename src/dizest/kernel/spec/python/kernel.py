@@ -20,9 +20,10 @@ import pathlib
 import traceback
 import psutil
 import shutil
-import pandas
 import zipfile
 import tempfile
+
+import numpy as np
 
 # for rendering
 from matplotlib import pyplot
@@ -108,18 +109,24 @@ def renderer(v):
             v.savefig(img, format='png', bbox_inches='tight')
             img.seek(0)
             encoded = base64.b64encode(img.getvalue())
+            pyplot.figure().clear()
             return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
 
         if isinstance(v, Image.Image):
+            # resize image
+            height, width = np.array(v).shape[:2]
+            if width > 256:
+                v = v.resize((256, int(256 * height / width)))
+
             img = io.BytesIO()
             v.save(img, format='PNG')
             img.seek(0)
             encoded = base64.b64encode(img.getvalue())
             return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
 
-        if isinstance(v, pandas.DataFrame):
+        if hasattr(v, 'to_html'):
             return v.to_html()
-    except Exception as e: 
+    except Exception as e:
         pass
 
     v = str(v)
@@ -348,6 +355,7 @@ class Request:
 # dizest instance: input/output loader
 class Instance:
     def __init__(self, _flask, data):
+        self._timestamp = time.time()
         self._data = data
         self._output = dict()
 
@@ -363,7 +371,10 @@ class Instance:
             pass
         return False
     
-    def input(self, name, default=None, id=None):
+    def clear(self):
+        logger("flow.log.clear", flow_id=capturing.flow_id, data="")
+
+    def input(self, name, default=None):
         try:
             inputs = self._data['inputs']
             if name not in inputs:
@@ -380,22 +391,21 @@ class Instance:
                     return default
             
             # load from previous output
-            res = []
+            res = None
+            _timestamp = 0
             for iv in ivalue:
                 fid = iv[0]
                 oname = iv[1]
                 if fid not in cache:
                     continue
 
-                linked_output = cache[fid]._output
-                if oname in linked_output:
-                    res.append(linked_output[oname])
-                else:
-                    res.append(None)
-            
-            if len(res) == 0: res = None
-            elif len(res) == 1: res = res[0]
-            if id is not None: return res[int(id)]
+                if _timestamp < cache[fid]._timestamp:
+                    _timestamp = cache[fid]._timestamp
+                    linked_output = cache[fid]._output
+                    if oname in linked_output:
+                        res = linked_output[oname]
+                    else:
+                        res = None
 
             return res
         except Exception as e:
@@ -483,6 +493,8 @@ def run(flow_id):
     workflow = status['workflow']
     flow = workflow.flow(flow_id)
     flow_id, code, inputs, outputs = flow.data()
+
+    logger("flow.log.clear", flow_id=flow_id, data="")
 
     data = dict()
     data['action'] = 'run'

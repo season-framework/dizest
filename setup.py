@@ -48,7 +48,9 @@ setup(
         'Pillow',
         'numpy',
         'pandas',
-        'season==1.0.4',
+        'pymysql',
+        'natsort',
+        'season==1.0.6',
         'peewee',
         'bcrypt',
         'python-socketio[client]'

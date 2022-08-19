@@ -1,13 +1,11 @@
-from argh import arg, expects_obj
 import os
 import sys
-import time
+from argh import arg, expects_obj
 import subprocess
+import time
 import psutil
 import season
 import dizest
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 import datetime
 import platform
 import signal
