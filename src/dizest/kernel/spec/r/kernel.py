@@ -6,6 +6,7 @@ import sys
 import os
 import threading
 import requests
+import socketio
 
 import dizest
 import flask
@@ -19,11 +20,10 @@ import pathlib
 import traceback
 import psutil
 import shutil
-import pandas
 import zipfile
 import tempfile
 
-from rpy2 import robjects
+import numpy as np
 
 # for rendering
 from matplotlib import pyplot
@@ -32,6 +32,10 @@ import base64
 from PIL import Image
 import html
 
+# language support r
+from rpy2 import robjects
+
+# general
 WORKFLOW_ID = os.environ['WORKFLOW_ID']
 DIZEST_API = os.environ['DIZEST_API']
 
@@ -40,12 +44,14 @@ status = dict()
 status['index'] = 1
 status['package'] = dict()
 
+socket_client = socketio.Client()
+socket_client.connect(DIZEST_API)
+
 def logger(mode, **data):
     data["mode"] = mode
     data["id"] = WORKFLOW_ID
     if "flow_id" not in data: data["flow_id"] = None
-    requests.post(DIZEST_API + '/log', data=data, timeout=None)
-    time.sleep(0.05)
+    socket_client.emit('log', data)
 
 class Capturing():
     def __init__(self):
@@ -107,18 +113,24 @@ def renderer(v):
             v.savefig(img, format='png', bbox_inches='tight')
             img.seek(0)
             encoded = base64.b64encode(img.getvalue())
+            pyplot.figure().clear()
             return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
 
         if isinstance(v, Image.Image):
+            # resize image
+            height, width = np.array(v).shape[:2]
+            if width > 256:
+                v = v.resize((256, int(256 * height / width)))
+
             img = io.BytesIO()
             v.save(img, format='PNG')
             img.seek(0)
             encoded = base64.b64encode(img.getvalue())
             return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
 
-        if isinstance(v, pandas.DataFrame):
+        if hasattr(v, 'to_html'):
             return v.to_html()
-    except Exception as e: 
+    except Exception as e:
         pass
 
     v = str(v)
@@ -347,6 +359,7 @@ class Request:
 # dizest instance: input/output loader
 class Instance:
     def __init__(self, _flask, data):
+        self._timestamp = time.time()
         self._data = data
         self._output = dict()
 
@@ -362,7 +375,10 @@ class Instance:
             pass
         return False
     
-    def input(self, name, default=None, id=None):
+    def clear(self):
+        logger("flow.log.clear", flow_id=capturing.flow_id, data="")
+
+    def input(self, name, default=None):
         try:
             inputs = self._data['inputs']
             if name not in inputs:
@@ -379,22 +395,21 @@ class Instance:
                     return default
             
             # load from previous output
-            res = []
+            res = None
+            _timestamp = 0
             for iv in ivalue:
                 fid = iv[0]
                 oname = iv[1]
                 if fid not in cache:
                     continue
 
-                linked_output = cache[fid]._output
-                if oname in linked_output:
-                    res.append(linked_output[oname])
-                else:
-                    res.append(None)
-            
-            if len(res) == 0: res = None
-            elif len(res) == 1: res = res[0]
-            if id is not None: return res[int(id)]
+                if _timestamp < cache[fid]._timestamp:
+                    _timestamp = cache[fid]._timestamp
+                    linked_output = cache[fid]._output
+                    if oname in linked_output:
+                        res = linked_output[oname]
+                    else:
+                        res = None
 
             return res
         except Exception as e:
@@ -436,16 +451,32 @@ class Instance:
 
         return []
 
-    def output(self, name, value=None):
-        if self.on("run"):
+    def output(self, *args, **kwargs):
+        # if arguments exists
+        if len(args) > 0:
+            name = args[0]
+            value = None
+            if len(args) > 1:
+                value = args[1]
+            
+            # update if process running
+            if self.on("run"):
+                self._output[name] = value
+                return
+
+            # load output in api call
+            try:
+                output = cache[self._data['flow_id']]._output
+                return output[name]
+            except Exception as e:
+                pass
+            
+            return value
+        
+        # if set kwargs, update output
+        for name in kwargs:
+            value = kwargs[name]
             self._output[name] = value
-            return
-        try:
-            output = cache[self._data['flow_id']]._output
-            return output[name]
-        except Exception as e:
-            pass
-        return value
 
     def drive(self, *path):
         cwd = os.getcwd()
@@ -483,6 +514,8 @@ def run(flow_id):
     flow = workflow.flow(flow_id)
     flow_id, code, inputs, outputs = flow.data()
 
+    logger("flow.log.clear", flow_id=flow_id, data="")
+
     data = dict()
     data['action'] = 'run'
     data['flow_id'] = flow_id
@@ -502,6 +535,11 @@ def run(flow_id):
                 args[i] = str(args[i])
         log = " ".join(args)
         logger("flow.log", flow_id=flow_id, data=log+"\n")
+
+    env = dict()
+    env['dizest'] = dizesti
+    env['print'] = display
+    env['display'] = display
 
     capturing.set(flow_id)
     try:

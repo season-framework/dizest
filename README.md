@@ -54,6 +54,12 @@ dizest update
 
 ## Release Note
 
+### 3.0.9
+
+- apply natsort in drive api
+- kernel api method usage changed: dizest.output(key1=value1, key2=value2)
+- upgrade r kernel
+
 ### 3.0.8
 
 - remove useless import

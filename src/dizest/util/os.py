@@ -12,6 +12,7 @@ import pickle
 import time
 from PIL import Image
 import socket
+import natsort
 
 # compile string
 _compile = compile
@@ -249,6 +250,7 @@ class storage:
                 if filename.startswith('.'): continue
                 abspath = os.path.join(root, filename)
                 result.append(abspath[len(self.basepath()):])
+        result = natsort.natsorted(result)
         return result
 
     def use(self, namespace):
@@ -282,6 +284,7 @@ class storage:
                 return self.__walkdir__(abspath)
 
             files = os.listdir(abspath)
+            files = natsort.natsorted(files)
             if page is None:
                 return files
             page = (page - 1) * dump

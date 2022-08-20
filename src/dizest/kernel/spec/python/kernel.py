@@ -447,16 +447,32 @@ class Instance:
 
         return []
 
-    def output(self, name, value=None):
-        if self.on("run"):
+    def output(self, *args, **kwargs):
+        # if arguments exists
+        if len(args) > 0:
+            name = args[0]
+            value = None
+            if len(args) > 1:
+                value = args[1]
+            
+            # update if process running
+            if self.on("run"):
+                self._output[name] = value
+                return
+
+            # load output in api call
+            try:
+                output = cache[self._data['flow_id']]._output
+                return output[name]
+            except Exception as e:
+                pass
+            
+            return value
+        
+        # if set kwargs, update output
+        for name in kwargs:
+            value = kwargs[name]
             self._output[name] = value
-            return
-        try:
-            output = cache[self._data['flow_id']]._output
-            return output[name]
-        except Exception as e:
-            pass
-        return value
 
     def drive(self, *path):
         cwd = os.getcwd()
