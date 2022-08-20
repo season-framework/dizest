@@ -54,6 +54,10 @@ dizest update
 
 ## Release Note
 
+### 3.0.11
+
+- dizest run command bug fixed
+
 ### 3.0.10
 
 - add kill command

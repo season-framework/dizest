@@ -226,11 +226,9 @@ def runnable():
 def rebuild(host, port):
     fs = dizest.util.os.storage(PATH_WORKINGDIR_WEBSRC)
     config = fs.read.json(PATH_WORKINGDIR_PACKAGE, dict())
-    if port < 1000:
-        if 'port' in config:
-            port = int(config['port'])
-        else:
-            port = 3000
+    if port == 0:
+        if 'port' in config: port = int(config['port'])
+        else: port = 3000
     
     # set host
     if 'host' in config and host is None: host = config['host']
