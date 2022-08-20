@@ -54,6 +54,11 @@ dizest update
 
 ## Release Note
 
+### 3.0.10
+
+- add kill command
+- wiz config changed (for pwa)
+
 ### 3.0.9
 
 - apply natsort in drive api

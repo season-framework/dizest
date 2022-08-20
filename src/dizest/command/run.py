@@ -223,6 +223,41 @@ def runnable():
                 child.kill()
             sys.exit(0)
 
+def rebuild(host, port):
+    fs = dizest.util.os.storage(PATH_WORKINGDIR_WEBSRC)
+    config = fs.read.json(PATH_WORKINGDIR_PACKAGE, dict())
+    if port < 1000:
+        if 'port' in config:
+            port = int(config['port'])
+        else:
+            port = 3000
+    
+    # set host
+    if 'host' in config and host is None: host = config['host']
+    if host is None: host = '0.0.0.0'
+
+    config['port'] = port
+    config['host'] = host
+    config['path'] = PATH_WORKINGDIR
+
+    # update dizest config
+    fs.write.json(PATH_WORKINGDIR_PACKAGE, config)
+
+    # build config
+    PATH_CONFIG_BASE = os.path.join(PATH_DIZEST, 'res', 'wiz', 'server.py')
+    PATH_CONFIG = os.path.join(PATH_WORKINGDIR_WEBSRC, 'config', 'server.py')
+
+    data = fs.read.text(PATH_CONFIG_BASE)
+    data = data.replace("__PORT__", str(port))
+    data = data.replace("__HOST__", str(host))
+    fs.write.text(PATH_CONFIG, data)
+    
+    # copy config
+    fs.copy(os.path.join(PATH_DIZEST, 'res', 'wiz', 'wiz.py'), os.path.join("config", "wiz.py"))
+    fs.copy(os.path.join(PATH_DIZEST, 'res', 'wiz', 'socketio.py'), os.path.join("config", "socketio.py"))
+
+    return host, port
+
 @arg('--host', default=None, help='0.0.0.0')
 @arg('--port', default=0, help='3000')
 @arg('-f', default=None, help='workflow.dzw')
@@ -248,6 +283,7 @@ def run(f=None, host="0.0.0.0", port=0):
             env = dict()
             env['dizest'] = dizesti
             exec(code, env)
+        return
 
     port = int(port)
     fs = dizest.util.os.storage(PATH_WORKINGDIR_WEBSRC)
@@ -255,37 +291,7 @@ def run(f=None, host="0.0.0.0", port=0):
         print("dizest not installed. run `dizest install` first.")
         return
     
-    config = fs.read.json(PATH_WORKINGDIR_PACKAGE, dict())
-    
-    if port < 1000:
-        if 'port' in config:
-            port = int(config['port'])
-        else:
-            port = 3000
-    
-    # set host
-    if 'host' in config and host is None: host = config['host']
-    if host is None: host = '0.0.0.0'
-
-    config['port'] = port
-    config['host'] = host
-    config['path'] = PATH_WORKINGDIR
-
-    # save dizest config
-    fs.write.json(PATH_WORKINGDIR_PACKAGE, config)
-
-    # build config
-    PATH_CONFIG_BASE = os.path.join(PATH_DIZEST, 'res', 'wiz', 'server.py')
-    PATH_CONFIG = os.path.join(PATH_WORKINGDIR_WEBSRC, 'config', 'server.py')
-
-    data = fs.read.text(PATH_CONFIG_BASE)
-    data = data.replace("__PORT__", str(port))
-    data = data.replace("__HOST__", str(host))
-    fs.write.text(PATH_CONFIG, data)
-    
-    # copy config
-    fs.copy(os.path.join(PATH_DIZEST, 'res', 'wiz', 'wiz.py'), os.path.join("config", "wiz.py"))
-    fs.copy(os.path.join(PATH_DIZEST, 'res', 'wiz', 'socketio.py'), os.path.join("config", "socketio.py"))
+    host, port = rebuild(host, port)
 
     # run server
     publicpath = os.path.join(PATH_WORKINGDIR_WEBSRC, 'public')
@@ -308,37 +314,7 @@ def server(action, host="0.0.0.0", port=0):
         print("dizest not installed. run `dizest install` first.")
         return
     
-    config = fs.read.json(PATH_WORKINGDIR_PACKAGE, dict())
-    
-    if port < 1000:
-        if 'port' in config:
-            port = int(config['port'])
-        else:
-            port = 3000
-    
-    # set host
-    if 'host' in config and host is None: host = config['host']
-    if host is None: host = '0.0.0.0'
-
-    config['port'] = port
-    config['host'] = host
-    config['path'] = PATH_WORKINGDIR
-
-    # save dizest config
-    fs.write.json(PATH_WORKINGDIR_PACKAGE, config)
-
-    # build config
-    PATH_CONFIG_BASE = os.path.join(PATH_DIZEST, 'res', 'wiz', 'server.py')
-    PATH_CONFIG = os.path.join(PATH_WORKINGDIR_WEBSRC, 'config', 'server.py')
-
-    data = fs.read.text(PATH_CONFIG_BASE)
-    data = data.replace("__PORT__", str(port))
-    data = data.replace("__HOST__", str(host))
-    fs.write.text(PATH_CONFIG, data)
-    
-    # copy config
-    fs.copy(os.path.join(PATH_DIZEST, 'res', 'wiz', 'wiz.py'), os.path.join("config", "wiz.py"))
-    fs.copy(os.path.join(PATH_DIZEST, 'res', 'wiz', 'socketio.py'), os.path.join("config", "socketio.py"))
+    host, port = rebuild(host, port)
 
     # run server
     publicpath = os.path.join(PATH_WORKINGDIR_WEBSRC, 'public')
@@ -366,3 +342,6 @@ def server(action, host="0.0.0.0", port=0):
         daemon.start()
     else:
         print(f"`dizest server` not support `{action}`. (start|stop|restart)")
+
+def kill():
+    os.system("kill -9 $(ps -ef | grep python | grep dizest | awk '{print $2}')")

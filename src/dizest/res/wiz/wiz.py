@@ -36,6 +36,7 @@ def before_request(wiz):
         pass
 
 def after_request(wiz, response):
+    response.headers['Service-Worker-Allowed'] = '/'
     if wiz.is_dev():
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         response.headers["Pragma"] = "no-cache"
