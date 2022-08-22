@@ -42,6 +42,7 @@ setup(
     ]},
     install_requires=[
         'argh',
+        'python-crontab',
         'matplotlib',
         'psutil',
         'requests',

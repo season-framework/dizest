@@ -54,6 +54,10 @@ dizest update
 
 ## Release Note
 
+### 3.0.12
+
+- add crontab
+
 ### 3.0.11
 
 - dizest run command bug fixed
