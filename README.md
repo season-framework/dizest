@@ -54,6 +54,10 @@ dizest update
 
 ## Release Note
 
+### 3.0.13
+
+- update command changed
+
 ### 3.0.12
 
 - add crontab

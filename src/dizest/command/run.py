@@ -4,6 +4,7 @@ from argh import arg, expects_obj
 import subprocess
 import time
 import psutil
+import shutil
 import season
 import dizest
 import datetime
@@ -11,6 +12,7 @@ import platform
 import signal
 import atexit
 import contextlib
+import git
 
 PATH_WIZ = season.path.lib
 PATH_DIZEST = os.path.dirname(os.path.dirname(__file__))
@@ -343,3 +345,23 @@ def server(action, host="0.0.0.0", port=0):
 
 def kill():
     os.system("kill -9 $(ps -ef | grep python | grep dizest | awk '{print $2}')")
+
+def update():
+    fs = dizest.util.os.storage(PATH_WORKINGDIR)
+    fs.remove("websrc")
+    
+    print("install wiz...")
+    PATH_PUBLIC_SRC = os.path.join(PATH_WIZ, 'data')
+    shutil.copytree(PATH_PUBLIC_SRC, PATH_WORKINGDIR_WEBSRC)
+    git.Repo.clone_from("https://github.com/season-framework/wiz-ide", os.path.join(PATH_WORKINGDIR_WEBSRC, 'plugin'))
+    fs.write(os.path.join(PATH_WORKINGDIR_WEBSRC, 'config', 'installed.py'), "started = '" + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S') + "'")
+    
+    print("install dizest...")
+    git.Repo.clone_from("https://github.com/season-framework/dizest-ui", os.path.join(PATH_WORKINGDIR_WEBSRC, 'branch', 'main'))
+
+    if fs.exists(PATH_WORKINGDIR_CONFIG) == False:
+        fs.copy(os.path.join(PATH_DIZEST, "res", "config", "config.py"), PATH_WORKINGDIR_CONFIG)
+
+    host, port = rebuild("0.0.0.0", 0)
+    
+    print("installed!")
