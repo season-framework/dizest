@@ -51,7 +51,7 @@ setup(
         'pandas',
         'pymysql',
         'natsort',
-        'season==1.0.6',
+        'season==1.0.7',
         'peewee',
         'bcrypt',
         'python-socketio[client]'

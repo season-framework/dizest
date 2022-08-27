@@ -54,6 +54,10 @@ dizest update
 
 ## Release Note
 
+### 3.0.14
+
+- add `dizest server start --log <file>` method 
+
 ### 3.0.13
 
 - update command changed

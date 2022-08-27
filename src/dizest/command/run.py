@@ -83,7 +83,7 @@ class Daemon:
             sys.exit(1)
         
         self.daemonize()
-        self.run()
+        self.run(self.stdout)
 
     def stop(self):
         try:
@@ -206,7 +206,8 @@ class Instance:
         cwd = os.path.join(cwd, *path)
         return dizest.util.os.storage(cwd)
 
-def runnable():
+def runnable(log):
+    if log == '/dev/null': None
     publicpath = os.path.join(PATH_WORKINGDIR_WEBSRC, 'public')
     apppath = os.path.join(publicpath, 'app.py')
 
@@ -214,6 +215,7 @@ def runnable():
         try:
             env = os.environ.copy()
             env['WERKZEUG_RUN_MAIN'] = 'true'
+            if log is not None: env['WIZ_LOGGER'] = log
             process = subprocess.Popen([str(sys.executable), str(apppath)], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             process.communicate()
         except Exception as e:
@@ -302,12 +304,13 @@ def run(f=None, host="0.0.0.0", port=0):
         return
 
     print(f"DIZEST Hub running on http://{host}:{port}")
-    runnable()
+    runnable(None)
 
 @arg('action', default=None, help="start|stop|restart")
 @arg('--host', default=None, help='0.0.0.0')
 @arg('--port', default=0, help='3000')
-def server(action, host="0.0.0.0", port=0):
+@arg('--log', default=None, help='3000')
+def server(action, host="0.0.0.0", port=0, log=None):
     port = int(port)
     fs = dizest.util.os.storage(PATH_WORKINGDIR_WEBSRC)
     if fs.exists() is False:
@@ -324,7 +327,10 @@ def server(action, host="0.0.0.0", port=0):
         print("Invalid Project path: dizest structure not found in this folder.")
         return
 
-    daemon = Daemon(PATH_WORKINGDIR_PID, target=runnable)
+    if log is None: log = '/dev/null'
+    else: log = os.path.realpath(os.path.join(os.getcwd(), log))
+
+    daemon = Daemon(PATH_WORKINGDIR_PID, target=runnable, stdout=log, stderr=log)
     if action == 'start':
         print(f"DIZESThub server running on http://{host}:{port}")
         daemon.start()
