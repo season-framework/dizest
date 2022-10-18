@@ -200,7 +200,7 @@ class SimpleSpawner(BaseSpawner):
                             res = requests.post(url, data=data, timeout=None)
                             break
                         except Exception as e1:
-                            time.sleep(3)
+                            time.sleep(5)
                 except Exception as e2:
                     pass
 
@@ -353,7 +353,7 @@ class SimpleSpawner(BaseSpawner):
                 requests.get(f"http://127.0.0.1:{port}/health", timeout=3)
                 break
             except Exception as e:
-                time.sleep(1)
+                time.sleep(5)
                 counter = counter + 1
 
         self.port = port
@@ -402,7 +402,7 @@ class SimpleSpawner(BaseSpawner):
                 requests.get(f"http://127.0.0.1:{port}/health", timeout=3)
                 break
             except Exception as e:
-                time.sleep(1)
+                time.sleep(5)
                 counter = counter + 1
 
         self.port = port
@@ -452,7 +452,7 @@ class SudoSpawner(BaseSpawner):
                             res = requests.post(url, data=data, timeout=None)
                             break
                         except Exception as e1:
-                            time.sleep(3)
+                            time.sleep(5)
                 except Exception as e2:
                     pass
 
@@ -476,7 +476,7 @@ class SudoSpawner(BaseSpawner):
             for process in children:
                 pid = process.pid
                 os.system(f"kill -2 {pid}")
-                time.sleep(3)
+                time.sleep(5)
                 os.system(f"kill -9 {pid}")
             
             os.system(f"kill -9 {ppid}")
@@ -625,7 +625,7 @@ class SudoSpawner(BaseSpawner):
                 requests.get(f"http://127.0.0.1:{port}/health", timeout=3)
                 break
             except Exception as e:
-                time.sleep(1)
+                time.sleep(5)
                 counter = counter + 1
 
         self.port = port
@@ -674,7 +674,7 @@ class SudoSpawner(BaseSpawner):
                 requests.get(f"http://127.0.0.1:{port}/health", timeout=3)
                 break
             except Exception as e:
-                time.sleep(1)
+                time.sleep(5)
                 counter = counter + 1
 
         self.port = port
