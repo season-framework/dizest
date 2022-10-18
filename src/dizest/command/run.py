@@ -31,7 +31,7 @@ def run(host='0.0.0.0', port=None, log=None):
 
     def run_ctrl():
         app = season.app(path=PATH_WEBSRC, bundle=True)
-        os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+        os.environ['WERKZEUG_RUN_MAIN'] = 'false'
         app.run(**runconfig)
         
     ostype = platform.system().lower()

@@ -53,6 +53,10 @@ dizest update
 
 ## Release Note
 
+### 3.1.1
+
+- bug fixed on run command
+
 ### 3.1.0
 
 - ui full changed
