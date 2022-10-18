@@ -53,6 +53,10 @@ dizest update
 
 ## Release Note
 
+### 3.1.2
+
+- bug fixed on kernel
+
 ### 3.1.1
 
 - bug fixed on run command

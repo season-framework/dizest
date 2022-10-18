@@ -267,7 +267,7 @@ class SimpleSpawner(BaseSpawner):
                 requests.get(f"http://127.0.0.1:{port}/health", timeout=3)
                 break
             except Exception as e:
-                time.sleep(1)
+                time.sleep(5)
                 counter = counter + 1
 
         self.port = port
@@ -535,7 +535,7 @@ class SudoSpawner(BaseSpawner):
                 requests.get(f"http://127.0.0.1:{port}/health", timeout=3)
                 break
             except Exception as e:
-                time.sleep(1)
+                time.sleep(5)
                 counter = counter + 1
 
         self.port = port
