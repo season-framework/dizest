@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.admin.kernel",
+    "title": "Kernel",
+    "namespace": "admin.kernel",
+    "viewuri": "/admin/kernel",
+    "category": "admin",
+    "preview": "/admin/kernel",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.admin.kernel",
+        "name": "PageAdminKernelComponent",
+        "path": "./page.admin.kernel/page.admin.kernel.component"
+    },
+    "ng": {
+        "selector": "wiz-page-admin-kernel",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-admin-kernel()"
+}

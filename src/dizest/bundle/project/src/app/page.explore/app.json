@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.explore",
+    "title": "Explore",
+    "namespace": "explore",
+    "viewuri": "/hub/explore",
+    "category": "workspace",
+    "preview": "/hub/explore",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.explore",
+        "name": "PageExploreComponent",
+        "path": "./page.explore/page.explore.component"
+    },
+    "ng": {
+        "selector": "wiz-page-explore",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-explore()"
+}

@@ -1,0 +1,24 @@
+{
+    "mode": "component",
+    "id": "component.dizest.workflow",
+    "title": "Workflow",
+    "namespace": "dizest.workflow",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "user",
+    "ng.build": {
+        "id": "component.dizest.workflow",
+        "name": "ComponentDizestWorkflowComponent",
+        "path": "./component.dizest.workflow/component.dizest.workflow.component"
+    },
+    "ng": {
+        "selector": "wiz-component-dizest-workflow",
+        "inputs": [
+            "wpID",
+            "wpNamespace",
+            "wpReturnUrl"
+        ],
+        "outputs": []
+    },
+    "template": "wiz-component-dizest-workflow([wpID]=\"\", [wpNamespace]=\"\", [wpReturnUrl]=\"\")"
+}

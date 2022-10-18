@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.installation",
+    "title": "Installation",
+    "namespace": "installation",
+    "viewuri": "/installation",
+    "category": "admin",
+    "preview": "/installation",
+    "controller": "base",
+    "layout": "layout.empty",
+    "ng.build": {
+        "id": "page.installation",
+        "name": "PageInstallationComponent",
+        "path": "./page.installation/page.installation.component"
+    },
+    "ng": {
+        "selector": "wiz-page-installation",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-installation()"
+}

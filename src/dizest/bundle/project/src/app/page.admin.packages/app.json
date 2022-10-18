@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.admin.packages",
+    "title": "Packages",
+    "namespace": "admin.packages",
+    "viewuri": "/admin/packages",
+    "category": "admin",
+    "preview": "/admin/packages",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.admin.packages",
+        "name": "PageAdminPackagesComponent",
+        "path": "./page.admin.packages/page.admin.packages.component"
+    },
+    "ng": {
+        "selector": "wiz-page-admin-packages",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-admin-packages()"
+}

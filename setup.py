@@ -19,6 +19,7 @@ extra_files = package_files(os.path.join(SEASON_PKG_DIR, 'command'))
 extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'res'))
 extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'util'))
 extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'kernel'))
+extra_files = extra_files + package_files(os.path.join(SEASON_PKG_DIR, 'bundle'))
 
 setup(
     name='dizest',
@@ -51,7 +52,7 @@ setup(
         'pandas',
         'pymysql',
         'natsort',
-        'season==1.0.7',
+        'season',
         'peewee',
         'bcrypt',
         'python-socketio[client]'

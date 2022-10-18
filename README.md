@@ -10,8 +10,7 @@ SEASON DIZESThub Platform (dizest) provides visual convenience for artificial in
 
 ```bash
 pip install dizest
-cd <your-workspace>
-dizest install
+dizest install <installdir>
 ```
 
 ## Start dizest server
@@ -53,6 +52,14 @@ dizest update
     - connect with hub by API
 
 ## Release Note
+
+### 3.1.0
+
+- ui full changed
+- upgrade command
+- use built-in web server bundle
+- upgrade to wiz 2.0
+- upgrade to angular
 
 ### 3.0.14
 

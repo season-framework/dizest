@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.admin.database",
+    "title": "Database",
+    "namespace": "admin.database",
+    "viewuri": "/admin/database",
+    "category": "admin",
+    "preview": "/admin/database",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.admin.database",
+        "name": "PageAdminDatabaseComponent",
+        "path": "./page.admin.database/page.admin.database.component"
+    },
+    "ng": {
+        "selector": "wiz-page-admin-database",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-admin-database()"
+}

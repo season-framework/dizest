@@ -1,6 +1,7 @@
 from dizest import util
 import requests
 import pypugjs
+from pypugjs.ext import jinja
 import sass
 
 class App:
@@ -112,12 +113,12 @@ class Flow:
         pug = app.get("pug", "")
         pug = pypugjs.Parser(pug)
         pug = pug.parse()
-        pug = pypugjs.ext.jinja.Compiler(pug, **pugconfig).compile()
+        pug = jinja.Compiler(pug, **pugconfig).compile()
 
         head = app.get("head", "")
         head = pypugjs.Parser(head)
         head = head.parse()
-        head = pypugjs.ext.jinja.Compiler(head, **pugconfig).compile()
+        head = jinja.Compiler(head, **pugconfig).compile()
 
         js = app.get("js")
         if js is None or len(js) == 0:

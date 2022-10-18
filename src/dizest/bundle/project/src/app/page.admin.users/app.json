@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.admin.users",
+    "title": "Users",
+    "namespace": "admin.users",
+    "viewuri": "/admin/users",
+    "category": "admin",
+    "preview": "/admin/users",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.admin.users",
+        "name": "PageAdminUsersComponent",
+        "path": "./page.admin.users/page.admin.users.component"
+    },
+    "ng": {
+        "selector": "wiz-page-admin-users",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-admin-users()"
+}

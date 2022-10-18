@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.auth.login",
+    "title": "Login",
+    "namespace": "auth.login",
+    "viewuri": "/auth/login",
+    "category": "auth",
+    "preview": "/auth/login",
+    "controller": "base",
+    "layout": "layout.empty",
+    "ng.build": {
+        "id": "page.auth.login",
+        "name": "PageAuthLoginComponent",
+        "path": "./page.auth.login/page.auth.login.component"
+    },
+    "ng": {
+        "selector": "wiz-page-auth-login",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-auth-login()"
+}

@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.admin.system",
+    "title": "System",
+    "namespace": "admin.system",
+    "viewuri": "/admin/system",
+    "category": "admin",
+    "preview": "/admin/system",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.admin.system",
+        "name": "PageAdminSystemComponent",
+        "path": "./page.admin.system/page.admin.system.component"
+    },
+    "ng": {
+        "selector": "wiz-page-admin-system",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-admin-system()"
+}

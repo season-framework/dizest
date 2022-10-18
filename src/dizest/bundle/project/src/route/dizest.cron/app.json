@@ -1,0 +1,8 @@
+{
+    "id": "dizest.cron",
+    "title": "/dizest/api/cron",
+    "route": "/dizest/api/cron",
+    "viewuri": "/dizest/api/cron",
+    "category": "dizest",
+    "controller": "base"
+}

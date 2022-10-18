@@ -1,0 +1,22 @@
+{
+    "title": "Dashboard",
+    "mode": "page",
+    "namespace": "dashboard",
+    "category": "workspace",
+    "id": "page.dashboard",
+    "ng.build": {
+        "id": "page.dashboard",
+        "name": "PageDashboardComponent",
+        "path": "./page.dashboard/page.dashboard.component"
+    },
+    "viewuri": "/hub/dashboard",
+    "layout": "layout.aside",
+    "preview": "/hub/dashboard",
+    "ng": {
+        "selector": "wiz-page-dashboard",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-dashboard()",
+    "controller": "user"
+}

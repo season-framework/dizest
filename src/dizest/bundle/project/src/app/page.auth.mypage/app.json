@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.auth.mypage",
+    "title": "My Page",
+    "namespace": "auth.mypage",
+    "viewuri": "/hub/mypage",
+    "category": "auth",
+    "preview": "/hub/mypage",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.auth.mypage",
+        "name": "PageAuthMypageComponent",
+        "path": "./page.auth.mypage/page.auth.mypage.component"
+    },
+    "ng": {
+        "selector": "wiz-page-auth-mypage",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-auth-mypage()"
+}

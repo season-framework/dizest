@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.admin.release",
+    "title": "Release",
+    "namespace": "admin.release",
+    "viewuri": "/admin/release",
+    "category": "admin",
+    "preview": "/admin/release",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.admin.release",
+        "name": "PageAdminReleaseComponent",
+        "path": "./page.admin.release/page.admin.release.component"
+    },
+    "ng": {
+        "selector": "wiz-page-admin-release",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-admin-release()"
+}

@@ -1,0 +1,30 @@
+{
+    "mode": "component",
+    "id": "component.workflow.info",
+    "title": "Workflow Info",
+    "namespace": "workflow.info",
+    "viewuri": "",
+    "category": "workflow",
+    "controller": "user",
+    "ng.build": {
+        "id": "component.workflow.info",
+        "name": "ComponentWorkflowInfoComponent",
+        "path": "./component.workflow.info/component.workflow.info.component"
+    },
+    "ng": {
+        "selector": "wiz-component-workflow-info",
+        "inputs": [
+            "item",
+            "full",
+            "actions",
+            "download"
+        ],
+        "outputs": [
+            "close",
+            "open",
+            "delete",
+            "clone"
+        ]
+    },
+    "template": "wiz-component-workflow-info([item]=\"\", [full]=\"\", [actions]=\"\", [download]=\"\", (close)=\"\", (open)=\"\", (delete)=\"\", (clone)=\"\")"
+}

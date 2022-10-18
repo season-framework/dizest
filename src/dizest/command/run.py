@@ -4,26 +4,51 @@ from argh import arg, expects_obj
 import subprocess
 import time
 import psutil
-import shutil
-import season
-import dizest
 import datetime
 import platform
 import signal
 import atexit
 import contextlib
-import git
+import multiprocessing as mp
+import threading
+import season
+import dizest
 
-PATH_WIZ = season.path.lib
-PATH_DIZEST = os.path.dirname(os.path.dirname(__file__))
+PATH_WEBSRC = os.getcwd()
+PATH_PID = os.path.join(PATH_WEBSRC, "wiz.pid")
 
-PATH_WORKINGDIR = os.getcwd()
-PATH_WORKINGDIR_PID = os.path.join(PATH_WORKINGDIR, "dizest.pid")
-PATH_WORKINGDIR_WEBSRC = os.path.join(PATH_WORKINGDIR, "websrc")
-PATH_WORKINGDIR_PACKAGE = os.path.join(PATH_WORKINGDIR, "dizest.json")
-PATH_WORKINGDIR_CONFIG = os.path.join(PATH_WORKINGDIR, "config.py")
+@arg('--host', help='0.0.0.0')
+@arg('--port', help='3000')
+@arg('--log', help='log filename')
+def run(host='0.0.0.0', port=None, log=None):
+    if os.path.isfile(os.path.join(PATH_WEBSRC, "project", "config", "script.py")) == False:
+        print("Invalid Project path: dizest structure not found in this folder.")
+        return
 
-cache = dict()
+    if port is not None: 
+        port = int(port)
+    runconfig = dict(host=host, port=port, log=log)
+
+    def run_ctrl():
+        app = season.app(path=PATH_WEBSRC, bundle=True)
+        os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+        app.run(**runconfig)
+        
+    ostype = platform.system().lower()
+    if ostype == 'linux':
+        while True:
+            try:
+                proc = mp.Process(target=run_ctrl)
+                proc.start()
+                proc.join()
+            except KeyboardInterrupt:
+                for child in psutil.Process(proc.pid).children(recursive=True):
+                    child.kill()
+                return
+            except:
+                pass
+    else:
+        run_ctrl()
 
 class Daemon:
     def __init__(self, pidfile, target=None, stdout='/dev/null', stderr='/dev/null'):
@@ -58,8 +83,8 @@ class Daemon:
 
         so = open(self.stdout, 'w')
         se = open(self.stderr, 'w')
-        contextlib.redirect_stdout(so)
-        contextlib.redirect_stderr(se)
+        os.dup2(so.fileno(), sys.stdout.fileno())
+        os.dup2(se.fileno(), sys.stderr.fileno())
 
         # write pidfile
         atexit.register(self.delpid)
@@ -81,9 +106,9 @@ class Daemon:
             message = "pidfile %s already exist. Daemon already running?\n"
             sys.stderr.write(message % self.pidfile)
             sys.exit(1)
-        
+
         self.daemonize()
-        self.run(self.stdout)
+        self.run(self.stdout, self.stderr)
 
     def stop(self):
         try:
@@ -103,7 +128,7 @@ class Daemon:
             for child in psutil.Process(pid).children(recursive=True):
                 counter = counter + 1
                 child.kill()
-            print(f"killed {counter} dizest subprocess")
+            print(f"killed {counter} subprocess")
         except:
             pass
 
@@ -119,255 +144,56 @@ class Daemon:
             else:
                 sys.exit(1)
 
-class Instance:
-    def __init__(self, data):
-        self._data = data
-        self._output = dict()
-
-    def input(self, name, default=None, id=None):
-        try:
-            inputs = self._data['inputs']
-            if name not in inputs:
-                return default
-            
-            itype = inputs[name]['type']
-            ivalue = inputs[name]['data']
-
-            # load from variable
-            if itype == 'variable':
-                if ivalue is not None and len(ivalue) > 0:
-                    return ivalue
-                else:
-                    return default
-            
-            # load from previous output
-            res = []
-            for iv in ivalue:
-                fid = iv[0]
-                oname = iv[1]
-                if fid not in cache:
-                    continue
-
-                linked_output = cache[fid]._output
-                if oname in linked_output:
-                    res.append(linked_output[oname])
-                else:
-                    res.append(None)
-            
-            if len(res) == 0: res = None
-            elif len(res) == 1: res = res[0]
-            if id is not None: return res[int(id)]
-
-            return res
-        except Exception as e:
-            pass
+def runnable(stdout, stderr):
+    def run_ctrl():
+        app = season.app(path=PATH_WEBSRC, bundle=True)
+        os.environ['WERKZEUG_RUN_MAIN'] = 'false'
+        app.run()
         
-        return default
-
-    def inputs(self, name):
-        try:
-            res = []
-            inputs = self._data['inputs']
-            if name not in inputs:
-                return res
-            
-            itype = inputs[name]['type']
-            ivalue = inputs[name]['data']
-
-            # load from variable
-            if itype == 'variable':
-                return res
-            
-            # load from previous output
-            for iv in ivalue:
-                fid = iv[0]
-                oname = iv[1]
-                if fid not in cache:
-                    res.append(None)
-                    continue
-
-                linked_output = cache[fid]._output
-                if oname in linked_output:
-                    res.append(linked_output[oname])
-                else:
-                    res.append(None)
-            
-            return res
-        except Exception as e:
-            pass
-
-        return []
-
-    def output(self, name, value=None):
-        self._output[name] = value
-
-    def drive(self, *path):
-        cwd = os.getcwd()
-        cwd = os.path.join(cwd, *path)
-        return dizest.util.os.storage(cwd)
-
-def runnable(log):
-    if log == '/dev/null': None
-    publicpath = os.path.join(PATH_WORKINGDIR_WEBSRC, 'public')
-    apppath = os.path.join(publicpath, 'app.py')
-
     while True:
         try:
-            env = os.environ.copy()
-            env['WERKZEUG_RUN_MAIN'] = 'true'
-            if log is not None: env['WIZ_LOGGER'] = log
-            process = subprocess.Popen([str(sys.executable), str(apppath)], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            process.communicate()
-        except Exception as e:
-            pass
-        except:
-            counter = 0
-            for child in psutil.Process(os.getpid()).children(recursive=True):
-                counter = counter + 1
+            proc = mp.Process(target=run_ctrl)
+            proc.start()
+            proc.join()
+        except KeyboardInterrupt:
+            for child in psutil.Process(proc.pid).children(recursive=True):
                 child.kill()
             sys.exit(0)
+            return
+        except:
+            pass
 
-def rebuild(host, port):
-    fs = dizest.util.os.storage(PATH_WORKINGDIR_WEBSRC)
-    config = fs.read.json(PATH_WORKINGDIR_PACKAGE, dict())
-    if port == 0:
-        if 'port' in config: port = int(config['port'])
-        else: port = 3000
-    
-    # set host
-    if 'host' in config and host is None: host = config['host']
-    if host is None: host = '0.0.0.0'
-
-    config['port'] = port
-    config['host'] = host
-    config['path'] = PATH_WORKINGDIR
-
-    # update dizest config
-    fs.write.json(PATH_WORKINGDIR_PACKAGE, config)
-
-    # build config
-    PATH_CONFIG_BASE = os.path.join(PATH_DIZEST, 'res', 'wiz', 'server.py')
-    PATH_CONFIG = os.path.join(PATH_WORKINGDIR_WEBSRC, 'config', 'server.py')
-
-    data = fs.read.text(PATH_CONFIG_BASE)
-    data = data.replace("__PORT__", str(port))
-    data = data.replace("__HOST__", str(host))
-    fs.write.text(PATH_CONFIG, data)
-    
-    # copy config
-    fs.copy(os.path.join(PATH_DIZEST, 'res', 'wiz', 'wiz.py'), os.path.join("config", "wiz.py"))
-    fs.copy(os.path.join(PATH_DIZEST, 'res', 'wiz', 'socketio.py'), os.path.join("config", "socketio.py"))
-
-    return host, port
-
-@arg('--host', default=None, help='0.0.0.0')
-@arg('--port', default=0, help='3000')
-@arg('-f', default=None, help='workflow.dzw')
-def run(f=None, host="0.0.0.0", port=0):
-    if f is not None:
-        workflow = dizest.Workflow.load(f)
-        flows = workflow.flows()
-        for flow_id in flows:
-            flow = workflow.flow(flow_id)
-            if flow.active() == False:
-                continue
-            
-            flow_id, code, inputs, outputs = flow.data()
-
-            data = dict()
-            data['flow_id'] = flow_id
-            data['inputs'] = inputs
-            data['outputs'] = outputs
-
-            dizesti = Instance(data)
-            cache[flow_id] = dizesti
-
-            env = dict()
-            env['dizest'] = dizesti
-            exec(code, env)
-        return
-
-    port = int(port)
-    fs = dizest.util.os.storage(PATH_WORKINGDIR_WEBSRC)
-    if fs.exists() is False:
-        print("dizest not installed. run `dizest install` first.")
-        return
-    
-    host, port = rebuild(host, port)
-
-    # run server
-    publicpath = os.path.join(PATH_WORKINGDIR_WEBSRC, 'public')
-    apppath = os.path.join(publicpath, 'app.py')
-
-    if os.path.isfile(apppath) == False:
-        print("Invalid Project path: dizest structure not found in this folder.")
-        return
-
-    print(f"DIZEST Hub running on http://{host}:{port}")
-    runnable(None)
-
+@arg('--force', help='force run')
+@arg('--log', help='log file path')
 @arg('action', default=None, help="start|stop|restart")
-@arg('--host', default=None, help='0.0.0.0')
-@arg('--port', default=0, help='3000')
-@arg('--log', default=None, help='3000')
-def server(action, host="0.0.0.0", port=0, log=None):
-    port = int(port)
-    fs = dizest.util.os.storage(PATH_WORKINGDIR_WEBSRC)
-    if fs.exists() is False:
-        print("dizest not installed. run `dizest install` first.")
-        return
-    
-    host, port = rebuild(host, port)
-
-    # run server
-    publicpath = os.path.join(PATH_WORKINGDIR_WEBSRC, 'public')
-    apppath = os.path.join(publicpath, 'app.py')
-
-    if os.path.isfile(apppath) == False:
+def server(action, force=False, log=None):
+    if os.path.isfile(os.path.join(PATH_WEBSRC, "project", "config", "script.py")) == False:
         print("Invalid Project path: dizest structure not found in this folder.")
         return
 
     if log is None: log = '/dev/null'
     else: log = os.path.realpath(os.path.join(os.getcwd(), log))
 
-    daemon = Daemon(PATH_WORKINGDIR_PID, target=runnable, stdout=log, stderr=log)
+    if os.path.exists(PATH_PID) and force == 'true':
+        os.remove(PATH_PID)
+
+    daemon = Daemon(PATH_PID, target=runnable, stdout=log, stderr=log)
     if action == 'start':
-        print(f"DIZESThub server running on http://{host}:{port}")
+        print(f"dizest server started")
         daemon.start()
     elif action == 'stop':
-        print(f"DIZESThub server stop")
+        print(f"dizest server stopped")
         daemon.stop()
     elif action == 'restart':
-        print("stopping running DIZESThub server...")
+        print("stopping dizest server...")
         try:
             daemon.stop()
         except:
             pass
-        
-        print(f"DIZESThub server restarted at http://{host}:{port}")
+        print(f"dizest server started")
         daemon.start()
     else:
         print(f"`dizest server` not support `{action}`. (start|stop|restart)")
 
 def kill():
     os.system("kill -9 $(ps -ef | grep python | grep dizest | awk '{print $2}')")
-
-def update():
-    fs = dizest.util.os.storage(PATH_WORKINGDIR)
-    fs.remove("websrc")
-    
-    print("install wiz...")
-    PATH_PUBLIC_SRC = os.path.join(PATH_WIZ, 'data')
-    shutil.copytree(PATH_PUBLIC_SRC, PATH_WORKINGDIR_WEBSRC)
-    git.Repo.clone_from("https://github.com/season-framework/wiz-ide", os.path.join(PATH_WORKINGDIR_WEBSRC, 'plugin'))
-    fs.write(os.path.join(PATH_WORKINGDIR_WEBSRC, 'config', 'installed.py'), "started = '" + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S') + "'")
-    
-    print("install dizest...")
-    git.Repo.clone_from("https://github.com/season-framework/dizest-ui", os.path.join(PATH_WORKINGDIR_WEBSRC, 'branch', 'main'))
-
-    if fs.exists(PATH_WORKINGDIR_CONFIG) == False:
-        fs.copy(os.path.join(PATH_DIZEST, "res", "config", "config.py"), PATH_WORKINGDIR_CONFIG)
-
-    host, port = rebuild("0.0.0.0", 0)
-    
-    print("installed!")

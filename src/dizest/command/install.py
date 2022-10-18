@@ -6,28 +6,33 @@ import shutil
 import git
 import datetime
 
-PATH_WIZ = season.path.lib
-PATH_DIZEST = os.path.dirname(os.path.dirname(__file__))
+PATH_DIZEST_LIB = os.path.dirname(os.path.dirname(__file__))
+PATH_BUNDLE = os.path.join(PATH_DIZEST_LIB, "bundle")
+PATH_WORKING_DIR = os.getcwd()
 
-PATH_WORKINGDIR = os.getcwd()
-PATH_WORKINGDIR_WEBSRC = os.path.join(PATH_WORKINGDIR, "websrc")
-PATH_WORKINGDIR_PACKAGE = os.path.join(PATH_WORKINGDIR, "dizest.json")
-PATH_WORKINGDIR_CONFIG = os.path.join(PATH_WORKINGDIR, "config.py")
+@arg('dirname', default=None, help="dizest dirname")
+def install(dirname):
+    fs = dizest.util.os.storage(PATH_WORKING_DIR)
+    if fs.exists(dirname):
+        print("already exist directory")
+        return
 
-def install():
-    fs = dizest.util.os.storage(PATH_WORKINGDIR)
-    fs.remove("websrc")
+    if len(dirname) < 3:
+        print("dirname must be at least 3 characters")
     
-    print("install wiz...")
-    PATH_PUBLIC_SRC = os.path.join(PATH_WIZ, 'data')
-    shutil.copytree(PATH_PUBLIC_SRC, PATH_WORKINGDIR_WEBSRC)
-    git.Repo.clone_from("https://github.com/season-framework/wiz-ide", os.path.join(PATH_WORKINGDIR_WEBSRC, 'plugin'))
-    fs.write(os.path.join(PATH_WORKINGDIR_WEBSRC, 'config', 'installed.py'), "started = '" + datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S') + "'")
+    fs.copy(PATH_BUNDLE, dirname)
+    print(f"dizest installed at `{dirname}`")
+
+def upgrade():
+    fs = dizest.util.os.storage(PATH_WORKING_DIR)
+    if fs.exists("project") == False:
+        print("dizest not installed")
+        return
+
+    fs.remove(os.path.join("project", "src"))
+    fs.remove(os.path.join("project", "www"))
     
-    print("install dizest...")
-    git.Repo.clone_from("https://github.com/season-framework/dizest-ui", os.path.join(PATH_WORKINGDIR_WEBSRC, 'branch', 'main'))
+    fs.copy(os.path.join(PATH_BUNDLE, "project", "src"), os.path.join("project", "src"))
+    fs.copy(os.path.join(PATH_BUNDLE, "project", "www"), os.path.join("project", "www"))
 
-    if fs.exists(PATH_WORKINGDIR_CONFIG) == False:
-        fs.copy(os.path.join(PATH_DIZEST, "res", "config", "config.py"), PATH_WORKINGDIR_CONFIG)
-
-    print("installed!")
+    print("dizest upgraded")
