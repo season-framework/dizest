@@ -14,7 +14,7 @@ app = flask.Flask(__name__, static_url_path='')
 log = logging.getLogger('werkzeug')
 log.disabled = True
 app.logger.disabled = True
-os.environ["WERKZEUG_RUN_MAIN"] = "true"
+os.environ["WERKZEUG_RUN_MAIN"] = "false"
 socketio = flask_socketio.SocketIO(app)
 
 @app.route('/log', methods=['POST'])

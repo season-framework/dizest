@@ -488,7 +488,7 @@ app = flask.Flask('__main__', static_url_path='')
 log = logging.getLogger('werkzeug')
 log.disabled = True
 app.logger.disabled = True
-os.environ["WERKZEUG_RUN_MAIN"] = "true"
+os.environ["WERKZEUG_RUN_MAIN"] = "false"
 
 def query(key=None, default=None):
     data = dict(flask.request.values)
