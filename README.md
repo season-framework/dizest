@@ -54,6 +54,10 @@ dizest upgrade
 
 ## Release Note
 
+### 3.1.4
+
+- cron bug fixed
+
 ### 3.1.3
 
 - pwa bug fixed

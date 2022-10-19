@@ -11,7 +11,7 @@ spec = wiz.request.query("spec", True)
 db = wiz.model("orm").use(dbname)
 
 dizest = wiz.model("dizest").load(server_id)
-server = dizest.server(user_id=user_id)
+server = dizest.server(user=user_id)
     
 specs = server.kernelspecs()
 if spec not in specs:
