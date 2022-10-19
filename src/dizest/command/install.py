@@ -29,6 +29,7 @@ def upgrade():
         print("dizest not installed")
         return
 
+    fs.remove(os.path.join("project", "cache"))
     fs.remove(os.path.join("project", "src"))
     fs.remove(os.path.join("project", "www"))
     
