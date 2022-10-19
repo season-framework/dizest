@@ -10,7 +10,7 @@ SEASON DIZESThub Platform (dizest) provides visual convenience for artificial in
 
 ```bash
 pip install dizest
-dizest install <installdir>
+dizest install <INSTALL_DIRECTORY>
 ```
 
 ## Start dizest server
@@ -18,6 +18,7 @@ dizest install <installdir>
 - run server
 
 ```bash
+cd <INSTALL_DIRECTORY>
 dizest run --port 4000 --host 0.0.0.0
 ```
 
@@ -32,8 +33,8 @@ dizest server stop  # stop dizest server daemon
 
 ```bash
 pip install dizest --upgrade
-cd <your-workspace>
-dizest update
+cd <INSTALL_DIRECTORY>
+dizest upgrade
 ```
 
 ## Roadmap
@@ -52,6 +53,11 @@ dizest update
     - connect with hub by API
 
 ## Release Note
+
+### 3.1.3
+
+- pwa bug fixed
+- safari bug fixed (URLPattern)
 
 ### 3.1.2
 
