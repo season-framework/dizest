@@ -54,6 +54,10 @@ dizest upgrade
 
 ## Release Note
 
+### 3.1.5
+
+- mobile nav bug fixed
+
 ### 3.1.4
 
 - cron bug fixed
