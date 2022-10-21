@@ -54,6 +54,10 @@ dizest upgrade
 
 ## Release Note
 
+### 3.1.6
+
+- kernel display name bug fixed
+
 ### 3.1.5
 
 - mobile nav bug fixed

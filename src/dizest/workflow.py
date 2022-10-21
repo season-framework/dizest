@@ -211,6 +211,7 @@ class Workflow:
         # update kernelspec
         if kernelspec is not None:
             self.spawner.kernelspec = kernelspec
+            self.kernel_name = kernel_name
         
         # kill previous spawner
         try:
@@ -224,7 +225,6 @@ class Workflow:
         # spawner update
         self.spawner.update()
 
-        self.kernel_name = kernel_name
         return self
 
     def start(self):
