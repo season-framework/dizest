@@ -46,7 +46,7 @@ class response:
         resp['kwargs']['type'] = type
         resp['kwargs']['mimetype'] = mimetype
         resp['kwargs']['as_attachment'] = as_attachment
-        resp['kwargs']['filename'] = filename
+        resp['kwargs']['download_name'] = filename
         self._build(resp, name="PIL")
 
     def download(self, filepath, as_attachment=True, filename=None):
@@ -54,7 +54,7 @@ class response:
         resp['args'] = [filepath]
         resp['kwargs'] = dict()
         resp['kwargs']['as_attachment'] = as_attachment
-        resp['kwargs']['filename'] = filename
+        resp['kwargs']['download_name'] = filename
         self._build(resp, name="download")
     
     def send(self, message, content_type=None):

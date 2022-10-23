@@ -37,6 +37,14 @@ cd <INSTALL_DIRECTORY>
 dizest upgrade
 ```
 
+## Install with source code
+
+```
+cd <workspace>
+wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
+
+```
+
 ## Roadmap
 
 - Spawner
@@ -53,6 +61,10 @@ dizest upgrade
     - connect with hub by API
 
 ## Release Note
+
+### 3.1.7
+
+- drive api update (filename to download_name)
 
 ### 3.1.6
 
