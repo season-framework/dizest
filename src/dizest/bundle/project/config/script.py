@@ -178,12 +178,12 @@ class Response:
         img_io = io.BytesIO()
         pil_image.save(img_io, type)
         img_io.seek(0)
-        resp = self._flask.send_file(img_io, mimetype=mimetype, as_attachment=as_attachment, attachment_filename=filename)
+        resp = self._flask.send_file(img_io, mimetype=mimetype, as_attachment=as_attachment, download_name=filename)
         return self._build(resp)
 
     def download(self, filepath, as_attachment=True, filename=None):
         if os.path.isfile(filepath):
-            resp = self._flask.send_file(filepath, as_attachment=as_attachment, attachment_filename=filename)
+            resp = self._flask.send_file(filepath, as_attachment=as_attachment, download_name=filename)
             return self._build(resp)
         self._flask.abort(404)
     

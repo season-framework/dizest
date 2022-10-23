@@ -62,6 +62,10 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.1.8
+
+- kernel api update
+
 ### 3.1.7
 
 - drive api update (filename to download_name)
