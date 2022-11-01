@@ -62,6 +62,11 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.1.10
+
+- ui bug fixed
+- drop workflow & apps
+
 ### 3.1.9
 
 - select previous file on workflow
