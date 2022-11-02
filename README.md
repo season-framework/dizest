@@ -62,47 +62,51 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.1.11
+
+- [ui] support app category
+
 ### 3.1.10
 
-- ui bug fixed
-- drop workflow & apps
+- [ui] bug fixed
+- [ui] drop workflow & apps
 
 ### 3.1.9
 
-- select previous file on workflow
+- [ui] select previous file on workflow
 
 ### 3.1.8
 
-- kernel api update
+- [core] kernel api update
 
 ### 3.1.7
 
-- drive api update (filename to download_name)
+- [core] drive api update (filename to download_name)
 
 ### 3.1.6
 
-- kernel display name bug fixed
+- [ui] kernel display name bug fixed
 
 ### 3.1.5
 
-- mobile nav bug fixed
+- [ui] mobile nav bug fixed
 
 ### 3.1.4
 
-- cron bug fixed
+- [ui] cron bug fixed
 
 ### 3.1.3
 
-- pwa bug fixed
-- safari bug fixed (URLPattern)
+- [ui] pwa bug fixed
+- [ui] safari bug fixed (URLPattern)
 
 ### 3.1.2
 
-- bug fixed on kernel
+- [core] bug fixed on kernel
 
 ### 3.1.1
 
-- bug fixed on run command
+- [ui] bug fixed on run command
 
 ### 3.1.0
 
