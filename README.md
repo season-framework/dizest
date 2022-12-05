@@ -62,6 +62,10 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.1.12
+
+- [ui] login bug fixed
+
 ### 3.1.11
 
 - [ui] support app category
