@@ -13,6 +13,81 @@ import time
 from PIL import Image
 import socket
 import natsort
+import threading
+import sys
+import psutil
+import ctypes
+
+class Thread(threading.Thread): 
+    def __init__(self, *args, **keywords): 
+        threading.Thread.__init__(self, *args, **keywords) 
+        self.killed = False
+
+    def start(self): 
+        self.__run_backup = self.run
+        self.run = self.__run       
+        threading.Thread.start(self) 
+
+    def __run(self): 
+        sys.settrace(self.globaltrace) 
+        self.__run_backup() 
+        self.run = self.__run_backup
+
+    def globaltrace(self, frame, event, arg): 
+        if event == 'call': 
+            return self.localtrace 
+        else: 
+            return None
+
+    def localtrace(self, frame, event, arg): 
+        if self.killed:
+            raise SystemExit() 
+        return self.localtrace 
+    
+    def stop(self): 
+        self.killed = True
+
+class Capturing:
+    def __init__(self, namespace):
+        self._stdout = None
+        self._stderr = None
+        self._r = None
+        self._w = None
+        self._thread = None
+        self._on_readline_cb = None
+        self.namespace = namespace
+
+    def _handler(self):
+        while not self._w.closed:
+            try:
+                while True:
+                    line = self._r.readline()
+                    if len(line) == 0: break
+                    if self._on_readline_cb: self._on_readline_cb(self.namespace, line)
+            except Exception as e:
+                break
+
+    def on_readline(self, callback):
+        self._on_readline_cb = callback
+
+    def start(self):
+        self._stdout = sys.stdout
+        self._stderr = sys.stderr
+        r, w = os.pipe()
+        r, w = os.fdopen(r, 'r'), os.fdopen(w, 'w', 1)
+        self._r = r
+        self._w = w
+        sys.stdout = self._w
+        sys.stderr = self._w
+        self._thread = threading.Thread(target=self._handler)
+        self._thread.start()
+
+    def stop(self):
+        self._w.close()
+        if self._thread: self._thread.join()
+        self._r.close()
+        sys.stdout = self._stdout
+        sys.stderr = self._stderr
 
 # compile string
 _compile = compile
@@ -89,7 +164,7 @@ class storage:
         self.config.path = basepath
         self.namespace = ""
 
-        DEFAULT_VALUE = "__ERROR__"
+        DEFAULT_VALUE = None
 
         class read:
             def __init__(self, parent):

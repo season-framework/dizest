@@ -1,0 +1,1 @@
+from dizest.spawner.simple import SimpleSpawner as simple
