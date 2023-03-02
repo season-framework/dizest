@@ -1,6 +1,6 @@
 import dizest
 import json
-
+import traceback
 import time
 import datetime
 
@@ -22,23 +22,21 @@ class WorkflowServer:
         @app.route('/workflow/init', methods=['POST'])
         def workflow_init():
             try:
-                namespace = query("namespace")
+                namespace = query("channel")
                 package = query("package")
                 package = json.loads(package)
 
-                workflow_id = package['id']
-                workflow = self.workflow(workflow_id)
+                workflow = self.workflow(namespace)
                 if workflow is not None:
                     return {'code': 401}
 
                 workflow = dizest.Workflow(namespace)
                 workflow.load(package)
-                workflow_id = workflow.id()
 
                 for eventname in uweb.events:
                     workflow.on(eventname, uweb.events[eventname])
 
-                self.workflows[workflow_id] = workflow
+                self.workflows[namespace] = workflow
                 return {'code': 200}
             except:
                 return {'code': 500}
@@ -46,10 +44,10 @@ class WorkflowServer:
         @app.route('/workflow/update', methods=['POST'])
         def workflow_update():
             try:
+                namespace = query("channel")
                 package = query("package")
                 package = json.loads(package)
-                workflow_id = package['id']
-                workflow = self.workflow(workflow_id)
+                workflow = self.workflow(namespace)
                 if workflow is None:
                     return {'code': 404}
 
@@ -57,10 +55,20 @@ class WorkflowServer:
                 return {'code': 200}
             except:
                 return {'code': 500}
-            
-        @app.route('/workflow/status/<workflow_id>', methods=['GET', 'POST'])
-        def workflow_status(workflow_id):
-            workflow = self.workflow(workflow_id)
+        
+        @app.route('/workflow/status', methods=['GET', 'POST'])
+        def workflow_status_all():
+            res = dict()
+            for channel in self.workflows:
+                try:
+                    res[channel] = dict(status=self.workflows[channel].status(), id=self.workflows[channel].id())
+                except:
+                    pass
+            return {'code': 200, 'data': res}
+
+        @app.route('/workflow/status/<namespace>', methods=['GET', 'POST'])
+        def workflow_status(namespace):
+            workflow = self.workflow(namespace)
             if workflow is None:
                 return {'code': 404}
             try:
@@ -69,23 +77,54 @@ class WorkflowServer:
             except:
                 return {'code': 500}
             
-        @app.route('/workflow/run/<workflow_id>', methods=['GET', 'POST'])
-        def workflow_run(workflow_id):
-            workflow = self.workflow(workflow_id)
+        @app.route('/workflow/flow_status/<namespace>', methods=['GET', 'POST'])
+        def workflow_flow_status(namespace):
+            workflow = self.workflow(namespace)
+            res = dict()
+            flows = workflow.flows()
+            for flow_id in flows:
+                res[flow_id] = dict(
+                    status=workflow.flow(flow_id).status(), 
+                    log=workflow.flow(flow_id).log(), 
+                    index=workflow.flow(flow_id).index())
+            return {'code': 200, 'data': res}
+
+        @app.route('/workflow/run/<namespace>', methods=['GET', 'POST'])
+        def workflow_run(namespace):
+            workflow = self.workflow(namespace)
             if workflow is None:
                 return {'code': 404}
 
-            if workflow.status() != 'idle':
-                return {'code': 201, 'status': 'running'}
+            wpstat = workflow.status()
+            if wpstat != 'idle':
+                return {'code': 201, 'status': wpstat}
             try:
                 workflow.run()
-            except:
-                return {'code': 500}
+            except Exception as e:
+                stderr = traceback.format_exc()
+                return {'code': 500, 'data': stderr}
             return {'code': 200, 'status': 'start'}
         
-        @app.route('/workflow/stop/<workflow_id>', methods=['GET', 'POST'])
-        def workflow_stop(workflow_id):
-            workflow = self.workflow(workflow_id)
+        @app.route('/workflow/scheduler/<namespace>', methods=['POST'])
+        def workflow_scheduler(namespace):
+            workflow = self.workflow(namespace)
+            if workflow is None:
+                return {'code': 404}
+            try:
+                jobs = query("jobs")
+                jobs = json.loads(jobs)
+                if type(jobs) == list or type(jobs) == str:
+                    workflow.job(jobs)
+                else:
+                    return {'code': 500, 'data': str(e)}
+            except Exception as e:
+                stderr = traceback.format_exc()
+                return {'code': 500, 'data': stderr}
+            return {'code': 200, 'status': 'start'}
+        
+        @app.route('/workflow/stop/<namespace>', methods=['GET', 'POST'])
+        def workflow_stop(namespace):
+            workflow = self.workflow(namespace)
             if workflow is None:
                 return {'code': 404}
             try:
@@ -98,10 +137,10 @@ class WorkflowServer:
         app = self.uweb.app
         query = self.uweb.query
 
-        @app.route('/app/update/<workflow_id>', methods=['POST'])
-        def app_update(workflow_id):
+        @app.route('/app/update/<namespace>', methods=['POST'])
+        def app_update(namespace):
             try:
-                workflow = self.workflow(workflow_id)
+                workflow = self.workflow(namespace)
                 if workflow is None:
                     return {'code': 404}
                 package = query("package")
@@ -113,10 +152,10 @@ class WorkflowServer:
             except:
                 return {'code': 500}
         
-        @app.route('/app/delete/<workflow_id>/<app_id>', methods=['POST', 'GET'])
-        def app_delete(workflow_id, app_id):
+        @app.route('/app/delete/<namespace>/<app_id>', methods=['POST', 'GET'])
+        def app_delete(namespace, app_id):
             try:
-                workflow = self.workflow(workflow_id)
+                workflow = self.workflow(namespace)
                 if workflow is None:
                     return {'code': 404}
                 workflow.delete_app(app_id)
@@ -128,10 +167,10 @@ class WorkflowServer:
         app = self.uweb.app
         query = self.uweb.query
 
-        @app.route('/flow/update/<workflow_id>', methods=['POST'])
-        def flow_update(workflow_id):
+        @app.route('/flow/update/<namespace>', methods=['POST'])
+        def flow_update(namespace):
             try:
-                workflow = self.workflow(workflow_id)
+                workflow = self.workflow(namespace)
                 if workflow is None:
                     return {'code': 404}
                 package = query("package")
@@ -143,10 +182,10 @@ class WorkflowServer:
             except:
                 return {'code': 500}
 
-        @app.route('/flow/delete/<workflow_id>/<flow_id>', methods=['POST', 'GET'])
-        def flow_delete(workflow_id, flow_id):
+        @app.route('/flow/delete/<namespace>/<flow_id>', methods=['POST', 'GET'])
+        def flow_delete(namespace, flow_id):
             try:
-                workflow = self.workflow(workflow_id)
+                workflow = self.workflow(namespace)
                 if workflow is None:
                     return {'code': 404}
                 workflow.delete_flow(flow_id)
@@ -154,9 +193,9 @@ class WorkflowServer:
             except:
                 return {'code': 500}
 
-        @app.route('/flow/run/<workflow_id>/<flow_id>', methods=['GET', 'POST'])
-        def flow_run(workflow_id, flow_id):
-            workflow = self.workflow(workflow_id)
+        @app.route('/flow/run/<namespace>/<flow_id>', methods=['GET', 'POST'])
+        def flow_run(namespace, flow_id):
+            workflow = self.workflow(namespace)
             if workflow is None:
                 return {'code': 404}
             flow = workflow.flow(flow_id)
@@ -168,9 +207,9 @@ class WorkflowServer:
                 return {'code': 500}
             return {'code': 200}
 
-        @app.route('/flow/stop/<workflow_id>/<flow_id>', methods=['GET', 'POST'])
-        def flow_stop(workflow_id, flow_id):
-            workflow = self.workflow(workflow_id)
+        @app.route('/flow/stop/<namespace>/<flow_id>', methods=['GET', 'POST'])
+        def flow_stop(namespace, flow_id):
+            workflow = self.workflow(namespace)
             if workflow is None:
                 return {'code': 404}
             flow = workflow.flow(flow_id)

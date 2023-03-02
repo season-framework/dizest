@@ -3,6 +3,8 @@ import io
 import base64
 from PIL import Image
 import html
+import traceback
+import numpy as np
 
 class Renderer:
     def render(self, v):
@@ -28,13 +30,17 @@ class Renderer:
                 img.seek(0)
                 encoded = base64.b64encode(img.getvalue())
                 return '<img src="data:image/png;base64, {}">'.format(encoded.decode('utf-8'))
-        
         except Exception as e:
-            pass
+            stderr = traceback.format_exc().replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;").replace(" ", "&nbsp;").strip()
+            stderr = f"<div class='text-red'>{stderr}</div>"
+            return stderr
         
         try:
             if hasattr(v, 'to_html'):
-                return v.to_html().replace("\n", "")
+                val = v.to_html().replace("\n", "")
+                if len(val) > 20000:
+                    return f"<div class='text-red'>Output is too long</div>"
+                return val
         except Exception as e:
             pass
 

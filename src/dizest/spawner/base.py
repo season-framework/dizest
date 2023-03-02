@@ -26,3 +26,6 @@ class BaseSpawner(metaclass=ABCMeta):
     def setMeta(self, **kwargs):
         for key in kwargs:
             self.meta[key] = kwargs[key]
+
+    def setKernelSpec(self, kernelspec):
+        self.setMeta('kernelspec', kernelspec)

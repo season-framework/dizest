@@ -29,7 +29,10 @@ class LoggerObject:
         if status not in  ['idle', 'pending', 'running', 'error']:
             status = 'idle'
         logger.status[flow_id]['status'] = status
-        self.onchange(self.flow_id, "status", status)
+        self.onchange(self.flow_id, "flow.status", status)
+
+        wpstatus = self.logger.workflow.status()
+        self.onchange(None, "workflow.status", wpstatus)
 
     def index(self):
         value = -1
@@ -45,7 +48,7 @@ class LoggerObject:
         flow_id = self.flow_id
         logger = self.logger
         logger.status[flow_id]['index'] = value
-        self.onchange(self.flow_id, "index", value)
+        self.onchange(self.flow_id, "flow.index", value)
 
     def log(self):
         try:
@@ -64,11 +67,12 @@ class LoggerObject:
         self.onchange(self.flow_id, "log.append", value)
 
     def clear_log(self):
-        logger.logs[flow_id] = []
+        self.logger.logs[self.flow_id] = []
         self.onchange(self.flow_id, "log.clear", True)
 
 class Logger:
-    def __init__(self):
+    def __init__(self, workflow):
+        self.workflow = workflow
         self.logs = dict()
         self.status = dict()
         self.limit = 1000
@@ -80,3 +84,9 @@ class Logger:
         if flow_id not in self.status:
             self.status[flow_id] = dict()
         return LoggerObject(self, flow_id)
+    
+    def clear(self):
+        for key in self.logs:
+            self.logs[key].clear()
+        for key in self.status:
+            self.status[key].clear()

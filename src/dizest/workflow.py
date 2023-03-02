@@ -3,6 +3,7 @@ from dizest.core.app import App
 from dizest.core.flow import Flow
 from dizest.core.logger import Logger
 from dizest.core.renderer import Renderer
+from dizest.core.scheduler import Scheduler
 
 class Workflow:
     def __init__(self, namespace, package=None):
@@ -12,6 +13,7 @@ class Workflow:
         self.__namespace__ = namespace
         self.__trigger__ = dict()
         self.__renderer__ = Renderer().render
+        self.scheduler = Scheduler(self)
         self.load(package)
 
     def namespace(self):
@@ -19,6 +21,12 @@ class Workflow:
 
     def id(self):
         return self.__package__['id']
+
+    def apps(self):
+        apps = []
+        for app_id in self.__package__['apps']:
+            apps.append(app_id)
+        return apps
 
     def app(self, app_id, package=None):
         app = None
@@ -43,9 +51,8 @@ class Workflow:
     def flows(self):
         flows = []
         for flow_id in self.__package__['flow']:
-            flows.append(self.__package__['flow'][flow_id])
-        flows.sort(key=lambda x: x['order'])
-        return [x['id'] for x in flows]
+            flows.append(flow_id)
+        return flows
 
     def flow(self, flow_id, package=None):
         flow = None
@@ -81,43 +88,82 @@ class Workflow:
         disallowed = ['id', 'apps', 'flow']
         for key in kwargs:
             if key in disallowed:
-                continue
-            self.__package__[key] = kwargs[key]
+                if key == 'apps':
+                    updated = []
+                    for _id in kwargs['apps']:
+                        updated.append(_id)
+                        self.app(_id, kwargs['apps'][_id])
+                    for _id in self.apps():
+                        if _id not in updated:
+                            self.delete_app(_id)
+                    
+                if key == 'flow':
+                    updated = []
+                    for _id in kwargs['flow']:
+                        updated.append(_id)
+                        self.flow(_id, kwargs['flow'][_id])
+                    for _id in self.flows():
+                        if _id not in updated:
+                            self.delete_flow(_id)
+            else:
+                self.__package__[key] = kwargs[key]
 
     def status(self):
         flows = self.flows()
+        is_pending = False
         for flow_id in flows:
             flow = self.flow(flow_id)
             status = flow.status()
-            if status in ['pending', 'running']:
+            if status == 'running':
                 return 'running'
+            if status == 'pending':
+                is_pending = True
+        if is_pending:
+            return 'pending'
         return 'idle'
 
+    def is_runnable(self):
+        return self.status() not in ['running', 'pending']
+
     def run(self, threaded=True):
+        if self.is_runnable() == False:
+            return
+        if self.scheduler.num_jobs() > 0:
+            self.scheduler.handler('idle')
+            return
+
         flows = self.flows()
         for flow_id in flows:
             flow = self.flow(flow_id)
             if flow.active():
                 flow.run(threaded=threaded)
+                    
+    def job(self, jobs):
+        self.scheduler.regist(jobs)
 
     def stop(self):
+        self.scheduler.clear()
         flows = self.flows()
         for flow_id in flows:
             flow = self.flow(flow_id)
             flow.stop()
+        self.logger.clear()
+        self.index = 0
 
     def to_dict(self):
         return self.__package__
 
     def __event__(self, flow_id, eventname, value):
         namespace = self.namespace()
+        if eventname in ['status']:
+            util.fn.call(self.scheduler.handler, namespace=namespace, flow_id=flow_id, eventname=eventname, event=eventname, value=value, workflow_id=self.id())
         if eventname in self.__trigger__: 
             util.fn.call(self.__trigger__[eventname], namespace=namespace, flow_id=flow_id, eventname=eventname, event=eventname, value=value, workflow_id=self.id())
         if "*" in self.__trigger__: 
             util.fn.call(self.__trigger__["*"], namespace=namespace, flow_id=flow_id, eventname=eventname, event=eventname, value=value, workflow_id=self.id())
 
     def load(self, package):
-        self.logger = Logger()
+        self.logger = Logger(self)
         self.logger.onchange = self.__event__
         self.cache = dict()
         self.__apps__ = dict()

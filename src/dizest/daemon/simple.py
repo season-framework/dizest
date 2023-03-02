@@ -14,6 +14,23 @@ io_namespace = parts.path
 socket_client = socketio.Client()
 socket_client.connect(host, namespaces=[io_namespace])
 
+cache = []
+def queue():
+    global cache
+    global io_namespace
+    while True:
+        try:
+            if len(cache) > 0:
+                data = cache[:100]
+                socket_client.emit('wplog', data, namespace=io_namespace)
+                cache = cache[100:]
+        except:
+            pass
+        time.sleep(1)
+
+process = dizest.util.os.Thread(target=queue)
+process.start()
+
 uweb = dizest.uWeb(port=PORT)
 def onchange(namespace, workflow_id, flow_id, event, value):
     try:
@@ -23,7 +40,8 @@ def onchange(namespace, workflow_id, flow_id, event, value):
         data['flow_id'] = flow_id
         data['event'] = event
         data['value'] = value
-        socket_client.emit('wplog', data, namespace=io_namespace)
+        data['timestamp'] = int(time.time()* 1000)
+        cache.append(data)
     except Exception as e:
         pass
 

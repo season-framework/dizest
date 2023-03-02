@@ -37,6 +37,9 @@ class SimpleSpawner(BaseSpawner):
             pass
         
     def start(self):
+        if self.process is not None:
+            return False
+
         kernelspec = self.getMeta("kernelspec", dict(name='base'))
         user = self.getMeta("user")
         if user is None: raise Exception("`user` not defined")
@@ -60,12 +63,12 @@ class SimpleSpawner(BaseSpawner):
         cmd = cmd.split(" ")
 
         uri = f"http://127.0.0.1:{port}".strip()
-        
+
         self.process = subprocess.Popen(cmd, cwd=cwd, **SUBPROCESS_ARGS)
 
         counter = 0
         while True:
-            if counter > 60:
+            if counter > 20:
                 try:
                     self.stop()
                 except Exception as e:
@@ -78,7 +81,7 @@ class SimpleSpawner(BaseSpawner):
                 time.sleep(1)
                 counter = counter + 1
 
-        self.setMeta(port=port, uri=uri, status='ready')
+        self.setMeta(port=port, uri=uri, status='start')
         return uri
 
     def stop(self):
@@ -90,13 +93,26 @@ class SimpleSpawner(BaseSpawner):
                 pid = process.pid
                 os.system(f"kill -9 {pid} > /dev/null")
             os.system(f"kill -9 {ppid} > /dev/null")
-
-            self.process = None
-            self.setMeta(uri=None, port=None, status='stop')
-            return True
         except Exception as e:
-            pass
-        return False
+            return False
+        
+        counter = 0
+        while True:
+            if counter > 20:
+                raise Exception("Kernel Error")
+            try:
+                requests.get(f"{uri}/health", timeout=3)
+                counter = counter + 1
+            except Exception as e:
+                break
+            time.sleep(1)
+
+        self.process = None
+        self.setMeta(uri=None, port=None, status='stop')
+        return True
 
     def uri(self):
         return self.getMeta("uri")
+
+    def status(self):
+        return self.getMeta('status', 'stop')

@@ -1,6 +1,5 @@
 from dizest.core.dizesti import DizestInstance
 from dizest import util
-import multiprocessing as mp
 import os
 import time
 import threading
@@ -60,6 +59,9 @@ class Flow:
     def status(self):
         return self.logger.status()
 
+    def is_runnable(self):
+        return self.status() in ['idle', 'error']
+
     def index(self):
         return self.logger.index()
 
@@ -86,15 +88,14 @@ class Flow:
         flow = self
         renderer = self.workflow.__renderer__
         logger = self.logger
-        status = logger.status()
-        if status not in ['idle', 'error']:
+
+        if self.is_runnable() == False:
             return False
 
         logger.set_status("pending")
+        logger.set_index(-1)
 
         def runningThread():
-            logger.set_status("running")
-
             def display(*args):
                 args = list(args)
                 for i in range(len(args)):
@@ -122,22 +123,26 @@ class Flow:
                     for pflow in previous_flow:
                         _pflow = flow.workflow.flow(pflow)
                         pindex = _pflow.index()
-                        active = _pflow.active()
                         pstatus = _pflow.status()
-                        if active:
-                            if pstatus not in ['idle', 'error']:
-                                isactive = False
-                            if pindex <= 0:
-                                isactive = False
-                            
-                            if pindex == -2:
-                                logger.set_status("idle")
-                                logger.set_index(-2)
-                                logger.set_log("Stop")
-                                raise SystemExit()
+                        
+                        # active = _pflow.active()
+                        # if active:
+                        if pstatus not in ['idle', 'error']:
+                            isactive = False
+                        if pindex <= 0:
+                            isactive = False
+                        
+                        if pindex == -2:
+                            logger.set_status("idle")
+                            logger.set_index(-2)
+                            logger.set_log("Stop")
+                            raise SystemExit()
                     if isactive:
                         break
-                    time.sleep(1)
+                    time.sleep(0.1)
+
+                logger.set_status("running")
+                flow.logger.clear_log()
 
                 data = dict()
                 data['flow_id'] = flow.id()
@@ -161,10 +166,11 @@ class Flow:
                 pass
 
             except:
-                stderr = traceback.format_exc()
+                stderr = traceback.format_exc().replace("\n", "<br>").replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;").replace(" ", "&nbsp;").strip()
+                stderr = f"<div class='text-red'>{stderr}</div>"
                 logger.set_status("error")
                 logger.set_index(-1)
-                logger.set_log(stderr.strip())
+                logger.set_log(stderr)
 
         process = util.os.Thread(target=runningThread)
         process.start()
