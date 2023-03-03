@@ -70,6 +70,11 @@ class LoggerObject:
         self.logger.logs[self.flow_id] = []
         self.onchange(self.flow_id, "log.clear", True)
 
+    def set_api(self, value):
+        flow_id = self.flow_id
+        logger = self.logger
+        self.onchange(self.flow_id, "flow.api", value)
+
 class Logger:
     def __init__(self, workflow):
         self.workflow = workflow

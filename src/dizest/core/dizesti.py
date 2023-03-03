@@ -3,12 +3,30 @@ import time
 import os
 
 class DizestInstance:
-    def __init__(self, flow, data):
+    def __init__(self, flow, data, flask=None, path=None):
         self._timestamp = time.time()
         self._flow = flow
         self._data = data
         self._output = dict()
-    
+        
+        if flask is not None:
+            self.response = util.web.Response(flask)
+            self.request = util.web.Request(flask, path)
+        else:
+            self.response = None
+            self.request = None
+
+    def __bind__(self, flask, path):
+        self.response = util.web.Response(flask)
+        self.request = util.web.Request(flask, path)
+
+    def __unbind__(self):
+        self.response = None
+        self.request = None
+
+    def __isbind__(self):
+        return self.response is not None
+
     def clear(self):
         self._flow.logger.clear_log()
 
@@ -91,7 +109,13 @@ class DizestInstance:
         cache = self._flow.workflow.cache
 
         # if arguments exists
-        if len(args) > 0:
+        if len(args) == 1:
+            name = args[0]
+            if name in self._output:
+                return self._output[name]
+            return None
+
+        if len(args) >= 2:
             name = args[0]
             value = None
             if len(args) > 1:

@@ -12,6 +12,7 @@ class uWeb:
     def __init__(self, **config):
         self.events = dict()
         self.config = uWebConfig(config)
+        self.flask = flask
         self.app = app = flask.Flask('__main__', static_url_path='')
         log = logging.getLogger('werkzeug')
         log.disabled = True

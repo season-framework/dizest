@@ -84,6 +84,52 @@ class Flow:
                     inputs[vname] = ({"type": vtype, "data": flow['data'][vname]})
         return inputs
 
+    def api(self, flask, fnname, path):
+        flow = self
+        logger = self.logger
+
+        def display(*args):
+            args = list(args)
+            for i in range(len(args)):
+                args[i] = str(args[i])
+            log = " ".join(args)
+            logger.set_api(log.strip())
+
+        try:
+            app = self.app()
+            code = app.api()
+            inputs = flow.inputs()
+            
+            data = dict()
+            data['flow_id'] = flow.id()
+            data['inputs'] = inputs
+
+            if flow.id() in flow.workflow.cache:
+                dizesti = flow.workflow.cache[flow.id()]
+                dizesti.__bind__(flask, path)
+            else:
+                dizesti = DizestInstance(flow, data, flask=flask, path=path)
+                flow.workflow.cache[flow.id()] = dizesti
+                
+            env = dict()
+            env['dizest'] = dizesti
+            env['print'] = display
+            env['display'] = display
+            env['flow'] = flow
+
+            exec(code, env)
+
+            env[fnname]()
+        except util.web.ResponseException as e1:
+            code, response = e1.get_response()
+            return response, code
+        except Exception as e2:
+            stderr = traceback.format_exc()
+            logger.set_api(stderr)
+            return {"code": 500, "data": stderr}, 500
+
+        return {"code": 404}, 404
+
     def run(self, threaded=True):
         flow = self
         renderer = self.workflow.__renderer__
@@ -148,8 +194,12 @@ class Flow:
                 data['flow_id'] = flow.id()
                 data['inputs'] = inputs
 
-                dizesti = DizestInstance(flow, data)
-                flow.workflow.cache[flow.id()] = dizesti
+                if flow.id() in flow.workflow.cache:
+                    dizesti = flow.workflow.cache[flow.id()]
+                    dizesti.__unbind__()
+                else:
+                    dizesti = DizestInstance(flow, data)
+                    flow.workflow.cache[flow.id()] = dizesti
 
                 env = dict()
                 env['dizest'] = dizesti

@@ -164,6 +164,7 @@ class WorkflowServer:
                 return {'code': 500}
         
     def bind_flow(self):
+        uweb = self.uweb 
         app = self.uweb.app
         query = self.uweb.query
 
@@ -221,9 +222,25 @@ class WorkflowServer:
                 return {'code': 500}
             return {'code': 200}
 
+        @app.route('/flow/api/<namespace>/<flow_id>/<path:path>', methods=['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])
+        def flow_api(namespace, flow_id, path):
+            workflow = self.workflow(namespace)
+            if workflow is None:
+                return {'code': 404}
+            flow = workflow.flow(flow_id)
+            if flow is None:
+                return {'code': 404}
+            try:
+                path = path.split("/")
+                fnname = path[0]
+                path = "/".join(path[1:])
+                return flow.api(uweb.flask, fnname, path)
+            except Exception as e:
+                return {'code': 500, "data": str(e)}, 500
+            
+            return {'code': 404}, 404
+
     def bind(self):
         self.bind_workflow()
         self.bind_app()
         self.bind_flow()
-
-        
