@@ -17,7 +17,7 @@ class LoggerObject:
             flow_id = self.flow_id
             logger = self.logger
             status = logger.status[flow_id]['status']
-            if status not in  ['idle', 'pending', 'running', 'error']:
+            if status not in  ['idle', 'pending', 'running', 'error', 'ready']:
                 status = 'idle'
         except:
             status = 'idle'
@@ -26,7 +26,7 @@ class LoggerObject:
     def set_status(self, status='idle'):
         flow_id = self.flow_id
         logger = self.logger
-        if status not in  ['idle', 'pending', 'running', 'error']:
+        if status not in  ['idle', 'pending', 'running', 'error', 'ready']:
             status = 'idle'
         logger.status[flow_id]['status'] = status
         self.onchange(self.flow_id, "flow.status", status)

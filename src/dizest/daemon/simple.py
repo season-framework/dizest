@@ -35,7 +35,7 @@ uweb = dizest.uWeb(port=PORT)
 def onchange(namespace, workflow_id, flow_id, event, value):
     try:
         data = dict()
-        data['namespace'] = namespace
+        data['channel'] = namespace
         data['workflow_id'] = workflow_id
         data['flow_id'] = flow_id
         data['event'] = event

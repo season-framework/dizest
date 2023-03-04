@@ -135,6 +135,10 @@ class Workflow:
         flows = self.flows()
         for flow_id in flows:
             flow = self.flow(flow_id)
+            flow.status("ready")
+        
+        for flow_id in flows:
+            flow = self.flow(flow_id)
             if flow.active():
                 flow.run(threaded=threaded)
                     

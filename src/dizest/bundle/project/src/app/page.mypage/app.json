@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.mypage",
+    "title": "/mypage",
+    "namespace": "mypage",
+    "viewuri": "/mypage",
+    "category": "mypage",
+    "preview": "/mypage",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.mypage",
+        "name": "PageMypageComponent",
+        "path": "./page.mypage/page.mypage.component"
+    },
+    "ng": {
+        "selector": "wiz-page-mypage",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-mypage()"
+}

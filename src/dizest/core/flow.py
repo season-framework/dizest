@@ -56,11 +56,14 @@ class Flow:
     def app(self):
         return self.workflow.app(self.package['app_id'])
 
-    def status(self):
-        return self.logger.status()
+    def status(self, status=None):
+        if status in ['idle', 'error', 'pending', 'running', 'ready']:
+            self.logger.set_status(status)
+        status = self.logger.status()
+        return status
 
     def is_runnable(self):
-        return self.status() in ['idle', 'error']
+        return self.status() in ['idle', 'error', 'ready']
 
     def index(self):
         return self.logger.index()
@@ -83,6 +86,10 @@ class Flow:
                 if vname in flow['data']:
                     inputs[vname] = ({"type": vtype, "data": flow['data'][vname]})
         return inputs
+    
+    # TODO: find next flows
+    def next(self):
+        pass
 
     def api(self, flask, fnname, path):
         flow = self
@@ -107,6 +114,7 @@ class Flow:
             if flow.id() in flow.workflow.cache:
                 dizesti = flow.workflow.cache[flow.id()]
                 dizesti.__bind__(flask, path)
+                dizesti.__changed__(flow, data)
             else:
                 dizesti = DizestInstance(flow, data, flask=flask, path=path)
                 flow.workflow.cache[flow.id()] = dizesti
@@ -116,6 +124,7 @@ class Flow:
             env['print'] = display
             env['display'] = display
             env['flow'] = flow
+            env['workflow'] = flow.workflow
 
             exec(code, env)
 
@@ -171,8 +180,6 @@ class Flow:
                         pindex = _pflow.index()
                         pstatus = _pflow.status()
                         
-                        # active = _pflow.active()
-                        # if active:
                         if pstatus not in ['idle', 'error']:
                             isactive = False
                         if pindex <= 0:
@@ -197,6 +204,7 @@ class Flow:
                 if flow.id() in flow.workflow.cache:
                     dizesti = flow.workflow.cache[flow.id()]
                     dizesti.__unbind__()
+                    dizesti.__changed__(flow, data)
                 else:
                     dizesti = DizestInstance(flow, data)
                     flow.workflow.cache[flow.id()] = dizesti
@@ -205,6 +213,8 @@ class Flow:
                 env['dizest'] = dizesti
                 env['print'] = display
                 env['display'] = display
+                env['flow'] = flow
+                env['workflow'] = flow.workflow
 
                 exec(code, env)
 

@@ -1,1 +1,1 @@
-from dizest.spawner.simple import SimpleSpawner as simple
+from dizest.spawner import base, simple

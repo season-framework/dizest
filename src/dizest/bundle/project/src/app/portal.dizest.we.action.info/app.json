@@ -1,0 +1,20 @@
+{
+    "mode": "portal",
+    "id": "portal.dizest.we.action.info",
+    "title": "Action/Workflow Info",
+    "namespace": "dizest.we.action.info",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "",
+    "template": "wiz-portal-dizest-we-action-info()",
+    "ng.build": {
+        "id": "portal.dizest.we.action.info",
+        "name": "PortalDizestWeActionInfoComponent",
+        "path": "./portal.dizest.we.action.info/portal.dizest.we.action.info.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-we-action-info",
+        "inputs": [],
+        "outputs": []
+    }
+}

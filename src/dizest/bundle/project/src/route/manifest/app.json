@@ -1,0 +1,8 @@
+{
+    "id": "manifest",
+    "title": "/manifest.json",
+    "route": "/manifest.json",
+    "viewuri": "/manifest.json",
+    "category": "dizest",
+    "controller": ""
+}

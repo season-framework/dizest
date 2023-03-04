@@ -1,0 +1,22 @@
+{
+    "mode": "portal",
+    "id": "portal.dizest.we.action.codeflow.note",
+    "title": "Action/CodeFlow/Note",
+    "namespace": "dizest.we.action.codeflow.note",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "",
+    "template": "wiz-portal-dizest-we-action-codeflow-note([app]=\"\")",
+    "ng.build": {
+        "id": "portal.dizest.we.action.codeflow.note",
+        "name": "PortalDizestWeActionCodeflowNoteComponent",
+        "path": "./portal.dizest.we.action.codeflow.note/portal.dizest.we.action.codeflow.note.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-we-action-codeflow-note",
+        "inputs": [
+            "app"
+        ],
+        "outputs": []
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "mode": "portal",
+    "id": "portal.dizest.we.drawflow.node",
+    "title": "Drawflow/Node",
+    "namespace": "dizest.we.drawflow.node",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "",
+    "template": "wiz-portal-dizest-we-drawflow-node()",
+    "ng.build": {
+        "id": "portal.dizest.we.drawflow.node",
+        "name": "PortalDizestWeDrawflowNodeComponent",
+        "path": "./portal.dizest.we.drawflow.node/portal.dizest.we.drawflow.node.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-we-drawflow-node",
+        "inputs": [],
+        "outputs": []
+    }
+}

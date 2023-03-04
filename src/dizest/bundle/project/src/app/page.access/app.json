@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.access",
+    "title": "/access",
+    "namespace": "access",
+    "viewuri": "/access",
+    "category": "auth",
+    "preview": "/access",
+    "controller": "base",
+    "layout": "layout.empty",
+    "ng.build": {
+        "id": "page.access",
+        "name": "PageAccessComponent",
+        "path": "./page.access/page.access.component"
+    },
+    "ng": {
+        "selector": "wiz-page-access",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-access()"
+}

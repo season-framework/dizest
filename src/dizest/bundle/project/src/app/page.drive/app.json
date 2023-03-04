@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.drive",
+    "title": "/drive",
+    "namespace": "drive",
+    "viewuri": "/drive",
+    "category": "dizest",
+    "preview": "/drive",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.drive",
+        "name": "PageDriveComponent",
+        "path": "./page.drive/page.drive.component"
+    },
+    "ng": {
+        "selector": "wiz-page-drive",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-drive()"
+}

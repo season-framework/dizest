@@ -1,0 +1,22 @@
+{
+    "mode": "portal",
+    "id": "portal.season.alert",
+    "title": "\uc54c\ub9bc \ud31d\uc5c5",
+    "namespace": "season.alert",
+    "viewuri": "",
+    "category": "season",
+    "controller": "",
+    "ng.build": {
+        "id": "portal.season.alert",
+        "name": "PortalSeasonAlertComponent",
+        "path": "./portal.season.alert/portal.season.alert.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-season-alert",
+        "inputs": [
+            "model"
+        ],
+        "outputs": []
+    },
+    "template": "wiz-portal-season-alert([model]=\"\")"
+}

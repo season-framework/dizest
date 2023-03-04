@@ -67,6 +67,7 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 - [core] process logic changed
 - [core] support multi-thread jobs
 - [core] job scheduler
+- [ui] terminal for admin
 
 ### 3.1.x
 

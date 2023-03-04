@@ -27,6 +27,10 @@ class DizestInstance:
     def __isbind__(self):
         return self.response is not None
 
+    def __changed__(self, flow, data):
+        self._flow = flow
+        self._data = data
+
     def clear(self):
         self._flow.logger.clear_log()
 

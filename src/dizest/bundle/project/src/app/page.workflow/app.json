@@ -1,0 +1,22 @@
+{
+    "mode": "page",
+    "id": "page.workflow",
+    "title": "/workflow",
+    "namespace": "workflow",
+    "viewuri": "/workflow",
+    "category": "workflow",
+    "preview": "/workflow",
+    "controller": "user",
+    "layout": "layout.aside",
+    "ng.build": {
+        "id": "page.workflow",
+        "name": "PageWorkflowComponent",
+        "path": "./page.workflow/page.workflow.component"
+    },
+    "ng": {
+        "selector": "wiz-page-workflow",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-workflow()"
+}

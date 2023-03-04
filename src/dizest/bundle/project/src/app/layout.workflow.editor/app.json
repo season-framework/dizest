@@ -1,0 +1,20 @@
+{
+    "mode": "layout",
+    "id": "layout.workflow.editor",
+    "title": "Workflow Editor",
+    "namespace": "workflow.editor",
+    "viewuri": "",
+    "category": "workflow",
+    "controller": "",
+    "ng.build": {
+        "id": "layout.workflow.editor",
+        "name": "LayoutWorkflowEditorComponent",
+        "path": "./layout.workflow.editor/layout.workflow.editor.component"
+    },
+    "ng": {
+        "selector": "wiz-layout-workflow-editor",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-layout-workflow-editor()"
+}

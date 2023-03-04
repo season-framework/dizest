@@ -1,0 +1,23 @@
+{
+    "mode": "portal",
+    "id": "portal.dizest.workflow.ui",
+    "title": "Workflow UI",
+    "namespace": "dizest.workflow.ui",
+    "viewuri": "",
+    "category": "workflow",
+    "controller": "",
+    "template": "wiz-portal-dizest-workflow-ui([zone]=\"\", [workflow_id]=\"\")",
+    "ng.build": {
+        "id": "portal.dizest.workflow.ui",
+        "name": "PortalDizestWorkflowUiComponent",
+        "path": "./portal.dizest.workflow.ui/portal.dizest.workflow.ui.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-workflow-ui",
+        "inputs": [
+            "zone",
+            "workflow_id"
+        ],
+        "outputs": []
+    }
+}
