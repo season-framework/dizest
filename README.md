@@ -62,6 +62,11 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.2.1
+
+- [ui] install bug fixed
+- [ui] config path changed (`./config/dizest/`)
+
 ### 3.2.0
 
 - [core] process logic changed

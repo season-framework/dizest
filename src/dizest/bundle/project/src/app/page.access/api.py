@@ -1,6 +1,7 @@
 userdb = wiz.model("portal/season/orm").use("user")
 workflowdb = wiz.model("portal/season/orm").use("workflow")
-fs = wiz.workspace().fs("config/dizest")
+dconfig = wiz.model("portal/dizest/dconfig")
+fs = dconfig.configfs()
 
 IS_INSTALLED = False
 try:

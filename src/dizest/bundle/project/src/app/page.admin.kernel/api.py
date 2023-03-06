@@ -2,7 +2,8 @@ import os
 import json
 import season
 
-fs = wiz.workspace("service").fs("config", "dizest")
+dconfig = wiz.model("portal/dizest/dconfig")
+fs = dconfig.configfs()
 
 class Conda:
     def list(self):

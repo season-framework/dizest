@@ -1,6 +1,7 @@
 import json
 
-fs = wiz.workspace("service").fs("config/dizest")
+dconfig = wiz.model("portal/dizest/dconfig")
+fs = dconfig.configfs()
 
 def load():
     config = fs.read.json("config.json", {})

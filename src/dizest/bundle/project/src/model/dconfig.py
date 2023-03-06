@@ -29,7 +29,7 @@ class dConfig:
         return f"/home/{user}"
 
     def kernel(self):
-        fs = wiz.workspace().fs("config", "dizest")
+        fs = self.configfs()
         kernel = fs.read.json("kernel.json", [])
         if len(kernel) == 0:
             kernel.append(dict(name="base"))
@@ -55,5 +55,15 @@ class dConfig:
         db = wiz.model("portal/season/orm").use("workflow")
         user = self.user()
         db.update(data, id=workflow_id, user_id=user)
-        
+    
+    def configfs(self):
+        return wiz.workspace().fs(wiz.server.path.root, "config", "dizest")
+    
+    def databaseConfig(self):
+        fs = self.configfs()
+        database = fs.read.json("database.json", dict(type="sqlite", path="dizest.db"))
+        if 'port' in database:
+            database['port'] = int(database['port'])
+        return database
+
 Model = dConfig()

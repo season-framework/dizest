@@ -7,15 +7,17 @@ import datetime
 
 class Model(pw.Model):
     class Meta:
-        config = wiz.config("config").get("database")['dizest']
-        if config.type == 'mysql':
+        dconfig = wiz.model("portal/dizest/dconfig")
+        config = dconfig.databaseConfig()
+        if config['type'] == 'mysql':
+            databasename = config['database']
             opts = dict()
             for key in ['host', 'user', 'password', 'charset', 'port']:
                 if key in config:
                     opts[key] = config[key]
-            database = pw.MySQLDatabase(config.database, **opts)
+            database = pw.MySQLDatabase(databasename, **opts)
         else:
-            sqlitedb = os.path.realpath(os.path.join(wiz.server.path.root, config.path))
+            sqlitedb = os.path.realpath(os.path.join(wiz.server.path.root, config['path']))
             database = pw.SqliteDatabase(sqlitedb)
 
     class PasswordField(pw.TextField):

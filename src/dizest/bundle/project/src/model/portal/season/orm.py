@@ -94,9 +94,9 @@ class Model:
                 query = query.group_by(*groupby)
             
                 return len(query)
-            
+
             return query.dicts()[0]['cnt']
-        except:
+        except Exception as e:
             pass
         return None
 
