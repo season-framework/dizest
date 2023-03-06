@@ -37,12 +37,23 @@ class dConfig:
 
     def dsocket(self):
         branch = wiz.branch()
+
         host = urllib.parse.urlparse(wiz.request.request().base_url)
         host = f"{host.scheme}://{host.netloc}"
+
+        fs = self.configfs()
+        config = fs.read.json("config.json", dict())
+        if 'dsocket_host' in config:
+            host = config['dsocket_host']
+
         dsocket_api = f"{host}/wiz/app/{branch}/portal.dizest.workflow.ui"
         return dsocket_api
 
     def cron_host(self):
+        fs = self.configfs()
+        config = fs.read.json("config.json", dict())
+        if 'cron_host' in config:
+            return config['cron_host']
         return "http://127.0.0.1:3000"
 
     def getWorkflowSpec(self, workflow_id, zone=None):

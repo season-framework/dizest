@@ -62,6 +62,9 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.2.2
+- [ui] add config (cron_host, dsocket_host)
+
 ### 3.2.1
 
 - [ui] install bug fixed
