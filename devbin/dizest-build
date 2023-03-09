@@ -1,0 +1,52 @@
+#!/bin/bash
+ACTION=$1
+
+PYTHON_PKG_PATH="$(python -c 'import sys; print(sys.path[-1])')/season"
+DIZEST_GIT_PATH=$(pwd)
+DIZEST_LIB_PATH="$DIZEST_GIT_PATH/src/dizest"
+
+if grep -Fq "github.com/season-framework/dizest" .git/config
+then
+    case $ACTION in
+        init)
+            # install git source as python package
+            rm $PYTHON_PKG_PATH
+            ln -s $DIZEST_LIB_PATH $PYTHON_PKG_PATH 
+
+            # create dev project
+            rm -rf "$DIZEST_GIT_PATH/dev"
+            wiz create dev --uri https://github.com/season-framework/dizest-ui-angular
+            ;;
+
+        bundle)
+            # bundle dump
+            rm -rf src/dizest/bundle/project/www
+            rm -rf src/dizest/bundle/project/src
+            cp -r dev/branch/main/build/dist/build src/dizest/bundle/project/www
+            cp -r dev/branch/main/src src/dizest/bundle/project/src
+            rm -rf src/dizest/bundle/project/src/angular
+            find ./src/dizest/bundle/project/src/app/ -name "*.ts" -type f -delete
+            find ./src/dizest/bundle/project/src/app/ -name "*.html" -type f -delete
+            find ./src/dizest/bundle/project/src/app/ -name "*.pug" -type f -delete
+            find ./src/dizest/bundle/project/src/app/ -name "*.scss" -type f -delete
+            ;;
+
+        build)
+            VERSION=$2
+            rm -rf dist
+            rm -rf build
+            python setup.py bdist_wheel
+            twine upload dist/dizest-$VERSION-py3-none-any.whl 
+            ;;
+        
+        kill)
+            kill -9 $(ps -ef | grep python | grep dizest | awk '{print $2}')
+            ;;
+
+        *)
+            echo "dizest-build [ init | bundle | git ]"
+            ;;
+    esac
+else
+    echo "Not dizest project"
+fi

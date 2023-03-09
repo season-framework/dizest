@@ -62,7 +62,15 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.2.3
+
+- [ui] set browser title on workflow
+- [ui] code block drag bug fixed on codeflow
+- [ui] opacity changed on focused app
+- [ui] pip install btn bug fixed
+
 ### 3.2.2
+
 - [ui] add config (cron_host, dsocket_host)
 
 ### 3.2.1
@@ -103,72 +111,36 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
     - [ui] monaco bug fixed
     - [ui] login bug fixed
 
-### 3.0.14
+### 3.0.x
 
-- add `dizest server start --log <file>` method 
+- [3.0.0]
+    - define dizest process `server`, `kernel`, `spawner`
+    - update workflow editor ui: `codeflow`, `kernel selector`, etc
+    - multi kernel support (support multi language like R)
+    - support 3rd party development (spawner, kernel)
 
-### 3.0.13
-
-- update command changed
-
-### 3.0.12
-
-- add crontab
-
-### 3.0.11
-
-- dizest run command bug fixed
-
-### 3.0.10
-
-- add kill command
-- wiz config changed (for pwa)
-
-### 3.0.9
-
-- apply natsort in drive api
-- kernel api method usage changed: dizest.output(key1=value1, key2=value2)
-- upgrade r kernel
-
-### 3.0.8
-
-- remove useless import
-- python kernel
-    - add `dizest.clear()` function
-    - log sync on multi view
-    - enhanced plot log
-    - dizest.input logic changed: get last proceed result
-- add dependencies: pymysql, natsort
-
-### 3.0.7
-
-- kernel logging updated
-
-### 3.0.6
-
-- port bug fixed on command line
-- kernel communication changed (http to socket)
-- process stabilization
-
-### 3.0.5
-
-- support dizest server command (daemon)
-
-### 3.0.4
-
-- child process bug fixed
-
-### 3.0.3
-
-- bug fixed at sudo spawner
-
-### 3.0.2
-
-- add `executable` option
-
-### 3.0.0
-
-- define dizest process `server`, `kernel`, `spawner`
-- update workflow editor ui: `codeflow`, `kernel selector`, etc
-- multi kernel support (support multi language like R)
-- support 3rd party development (spawner, kernel)
+- 3.0.1 ~ 14
+    - add `executable` option
+    - bug fixed at sudo spawner
+    - child process bug fixed
+    - support dizest server command (daemon)
+    - port bug fixed on command line
+    - kernel communication changed (http to socket)
+    - process stabilization
+    - kernel logging updated
+    - remove useless import
+    - python kernel
+        - add `dizest.clear()` function
+        - log sync on multi view
+        - enhanced plot log
+        - dizest.input logic changed: get last proceed result
+    - add dependencies: pymysql, natsort
+    - apply natsort in drive api
+    - kernel api method usage changed: dizest.output(key1=value1, key2=value2)
+    - upgrade r kernel
+    - add kill command
+    - wiz config changed (for pwa)
+    - dizest run command bug fixed
+    - add crontab
+    - update command changed
+    - add `dizest server start --log <file>` method 
