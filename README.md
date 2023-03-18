@@ -62,6 +62,12 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.2.4
+
+- [ui] dconfig.py home path bug fixed
+- [ui] node start bug fixed
+- [core] ui api bug fixed (flask send_file api)
+
 ### 3.2.3
 
 - [ui] set browser title on workflow

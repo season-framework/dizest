@@ -1,3 +1,4 @@
+import os
 import urllib
 from season.util.std import stdClass
 
@@ -23,10 +24,7 @@ class dConfig:
         return channel
 
     def cwd(self):
-        user = self.user()
-        if user == "root":
-            return "/root"
-        return f"/home/{user}"
+        return os.path.expanduser('~')
 
     def kernel(self):
         fs = self.configfs()
