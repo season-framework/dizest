@@ -62,6 +62,10 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.2.5
+
+- [ui] user home path bug fixed
+
 ### 3.2.4
 
 - [ui] dconfig.py home path bug fixed

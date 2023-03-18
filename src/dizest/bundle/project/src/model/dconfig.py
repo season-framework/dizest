@@ -24,7 +24,8 @@ class dConfig:
         return channel
 
     def cwd(self):
-        return os.path.expanduser('~')
+        user = self.user()
+        return os.path.expanduser(f'~{user}')
 
     def kernel(self):
         fs = self.configfs()
