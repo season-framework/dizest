@@ -62,6 +62,10 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.2.6
+
+- [core] python-socketio version fixed (5.7.2)
+
 ### 3.2.5
 
 - [ui] user home path bug fixed

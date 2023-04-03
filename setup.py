@@ -56,6 +56,7 @@ setup(
         'season',
         'peewee',
         'bcrypt',
+        'python-socketio==5.7.2',
         'python-socketio[client]'
     ],
     python_requires='>=3.6',
