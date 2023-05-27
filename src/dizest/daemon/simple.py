@@ -2,13 +2,12 @@ from urllib.parse import urlparse
 import os
 import dizest
 import time
-import requests
 import socketio
 
 PORT = os.environ['PORT']
-DSOCKET = os.environ['DSOCKET']
+SOCKET = os.environ['SOCKET']
 
-parts = urlparse(DSOCKET)
+parts = urlparse(SOCKET)
 host = parts.scheme + "://" + parts.netloc
 io_namespace = parts.path
 socket_client = socketio.Client()
@@ -31,11 +30,11 @@ def queue():
 process = dizest.util.os.Thread(target=queue)
 process.start()
 
-uweb = dizest.uWeb(port=PORT)
+kernel = dizest.Kernel(port=PORT)
 def onchange(namespace, workflow_id, flow_id, event, value):
     try:
         data = dict()
-        data['channel'] = namespace
+        data['namespace'] = namespace
         data['workflow_id'] = workflow_id
         data['flow_id'] = flow_id
         data['event'] = event
@@ -45,5 +44,5 @@ def onchange(namespace, workflow_id, flow_id, event, value):
     except Exception as e:
         pass
 
-uweb.on("*", onchange)
-uweb.start()
+kernel.on("*", onchange)
+kernel.start()

@@ -1,1 +1,1 @@
-from dizest.config import base, uweb
+from dizest.config import base, kernel

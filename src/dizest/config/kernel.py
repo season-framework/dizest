@@ -1,6 +1,6 @@
 from dizest.config.base import BaseConfig
 
-class uWebConfig(BaseConfig):
+class KernelConfig(BaseConfig):
     DEFAULT_VALUES = {
         'host': (str, '0.0.0.0'),
         'port': (int, 3000),

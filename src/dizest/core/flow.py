@@ -1,10 +1,7 @@
 from dizest.core.dizesti import DizestInstance
 from dizest import util
-import os
 import time
-import threading
 import traceback
-import psutil
 
 class Flow:
     def __init__(self, workflow, flow_id):
@@ -78,13 +75,16 @@ class Flow:
         inputs = dict()
         for val in appinput:
             vtype = val['type']
+            inputtype = val['inputtype'] if 'inputtype' in val else None
             vname = val['name']
             if vtype == 'output':
                 cons = [[x['node'], x['input']] for x in flow['inputs'][vname]['connections']]
                 inputs[vname] = {"type": vtype, "data": cons}
             elif vtype == 'variable':
                 if vname in flow['data']:
-                    inputs[vname] = ({"type": vtype, "data": flow['data'][vname]})
+                    inputs[vname] = ({"type": vtype, "data": flow['data'][vname], "inputtype": inputtype})
+                else:
+                    inputs[vname] = ({"type": vtype, "data": None, "inputtype": inputtype})
         return inputs
     
     # TODO: find next flows
@@ -151,11 +151,11 @@ class Flow:
         logger.set_index(-1)
 
         def runningThread():
-            def display(*args):
+            def display(*args, **kwargs):
                 args = list(args)
                 for i in range(len(args)):
                     try:
-                        args[i] = renderer(args[i])
+                        args[i] = renderer(args[i], **kwargs)
                     except Exception as e:
                         args[i] = str(args[i])
                 log = " ".join(args)
@@ -216,7 +216,16 @@ class Flow:
                 env['flow'] = flow
                 env['workflow'] = flow.workflow
 
+                for key in inputs:
+                    env[key] = dizesti.input(key)
+
                 exec(code, env)
+
+                for key in self.app().outputs():
+                    if key in dizesti._output:
+                        continue
+                    if key in env:
+                        dizesti.output(key, env[key])
 
                 flow.workflow.index = flow.workflow.index + 1
                 logger.set_status("idle")

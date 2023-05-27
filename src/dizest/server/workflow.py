@@ -5,8 +5,8 @@ import time
 import datetime
 
 class WorkflowServer:
-    def __init__(self, uweb):
-        self.uweb = uweb
+    def __init__(self, kernel):
+        self.kernel = kernel
         self.workflows = dict()
 
     def workflow(self, workflow_id):
@@ -15,14 +15,14 @@ class WorkflowServer:
         return self.workflows[workflow_id]
 
     def bind_workflow(self):
-        uweb = self.uweb
-        app = self.uweb.app
-        query = self.uweb.query
+        kernel = self.kernel
+        app = self.kernel.app
+        query = self.kernel.query
         
         @app.route('/workflow/init', methods=['POST'])
         def workflow_init():
             try:
-                namespace = query("channel")
+                namespace = query("namespace")
                 package = query("package")
                 package = json.loads(package)
 
@@ -33,8 +33,8 @@ class WorkflowServer:
                 workflow = dizest.Workflow(namespace)
                 workflow.load(package)
 
-                for eventname in uweb.events:
-                    workflow.on(eventname, uweb.events[eventname])
+                for eventname in kernel.events:
+                    workflow.on(eventname, kernel.events[eventname])
 
                 self.workflows[namespace] = workflow
                 return {'code': 200}
@@ -44,7 +44,7 @@ class WorkflowServer:
         @app.route('/workflow/update', methods=['POST'])
         def workflow_update():
             try:
-                namespace = query("channel")
+                namespace = query("namespace")
                 package = query("package")
                 package = json.loads(package)
                 workflow = self.workflow(namespace)
@@ -59,9 +59,9 @@ class WorkflowServer:
         @app.route('/workflow/status', methods=['GET', 'POST'])
         def workflow_status_all():
             res = dict()
-            for channel in self.workflows:
+            for namespace in self.workflows:
                 try:
-                    res[channel] = dict(status=self.workflows[channel].status(), id=self.workflows[channel].id())
+                    res[namespace] = dict(status=self.workflows[namespace].status(), id=self.workflows[namespace].id())
                 except:
                     pass
             return {'code': 200, 'data': res}
@@ -134,8 +134,8 @@ class WorkflowServer:
             return {'code': 200}
 
     def bind_app(self):
-        app = self.uweb.app
-        query = self.uweb.query
+        app = self.kernel.app
+        query = self.kernel.query
 
         @app.route('/app/update/<namespace>', methods=['POST'])
         def app_update(namespace):
@@ -164,9 +164,9 @@ class WorkflowServer:
                 return {'code': 500}
         
     def bind_flow(self):
-        uweb = self.uweb 
-        app = self.uweb.app
-        query = self.uweb.query
+        kernel = self.kernel 
+        app = self.kernel.app
+        query = self.kernel.query
 
         @app.route('/flow/update/<namespace>', methods=['POST'])
         def flow_update(namespace):
@@ -234,7 +234,7 @@ class WorkflowServer:
                 path = path.split("/")
                 fnname = path[0]
                 path = "/".join(path[1:])
-                return flow.api(uweb.flask, fnname, path)
+                return flow.api(kernel.flask, fnname, path)
             except Exception as e:
                 return {'code': 500, "data": str(e)}, 500
             

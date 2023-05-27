@@ -1,5 +1,3 @@
-import time
-
 class Scheduler:
     def __init__(self, workflow):
         self.workflow = workflow

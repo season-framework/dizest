@@ -40,13 +40,21 @@ class DizestInstance:
             inputs = self._data['inputs']
             if name not in inputs:
                 return default
-            
+
             itype = inputs[name]['type']
             ivalue = inputs[name]['data']
 
             # load from variable
             if itype == 'variable':
+                inputtype = None
+                if 'inputtype' in inputs[name]: 
+                    inputtype = inputs[name]['inputtype']
                 if ivalue is not None and len(ivalue) > 0:
+                    try:
+                        if inputtype == 'number':
+                            ivalue = float(ivalue)
+                    except:
+                        pass
                     return ivalue
                 else:
                     return default
@@ -110,8 +118,6 @@ class DizestInstance:
         return []
 
     def output(self, *args, **kwargs):
-        cache = self._flow.workflow.cache
-
         # if arguments exists
         if len(args) == 1:
             name = args[0]

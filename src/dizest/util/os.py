@@ -6,7 +6,6 @@ import os
 import json
 import shutil
 import mimetypes
-import numpy as np
 import pandas as pd
 import pickle
 import time
@@ -15,8 +14,6 @@ import socket
 import natsort
 import threading
 import sys
-import psutil
-import ctypes
 
 class Thread(threading.Thread): 
     def __init__(self, *args, **keywords): 
@@ -158,7 +155,7 @@ def port(number, host="127.0.0.1"):
     return False
 
 # file system util
-class storage:
+class FileSystem:
     def __init__(self, basepath="."):
         self.config = std.stdClass()
         self.config.path = basepath
@@ -308,9 +305,6 @@ class storage:
 
         self.read = read(self)
         self.write = write(self)
-        
-    def basepath(self):
-        return os.path.join(self.config.path, self.namespace)
 
     def __json__(self, jsonstr):
         try:
@@ -323,69 +317,10 @@ class storage:
         for root, dirs, files in os.walk(dirname):
             for filename in files:
                 if filename.startswith('.'): continue
-                abspath = os.path.join(root, filename)
+                abspath = self.join(root, filename)
                 result.append(abspath[len(self.basepath()):])
         result = natsort.natsorted(result)
         return result
-
-    def use(self, namespace):
-        namespace = os.path.join(self.namespace, namespace)
-        fs = storage(self.config.path)
-        fs.namespace = namespace
-        return fs
-
-    def set_path(self, path):
-        self.config.path = path
-        return self
-
-    def cd(self, namespace):
-        namespace = os.path.join(self.namespace, namespace)
-        self.namespace = namespace
-        return self
-
-    def pwd(self):
-        return self.abspath()
-
-    def ls(self):
-        return self.files()
-
-    def list(self):
-        return self.files()
-
-    def files(self, filepath="", page=None, dump=20, recursive=False):
-        try:
-            abspath = self.abspath(filepath)
-            if recursive == True:
-                return self.__walkdir__(abspath)
-
-            files = os.listdir(abspath)
-            files = natsort.natsorted(files)
-            if page is None:
-                return files
-            page = (page - 1) * dump
-            return files[page:page+dump]
-        except Exception as e:
-            return []
-
-    def count(self, filepath=""):
-        try:
-            abspath = self.abspath(filepath)
-            return len(os.listdir(abspath))
-        except Exception as e:
-            return 0
-
-    def exists(self, filepath=""):
-        if self.isfile(filepath):
-            return True
-        if self.isdir(filepath):
-            return True
-        return False
-
-    def isfile(self, filepath=""):
-        return os.path.isfile(self.abspath(filepath))
-    
-    def isdir(self, filepath=""):
-        return os.path.isdir(self.abspath(filepath))
 
     def __copy__(self, src, dest, ignore=None):
         if os.path.isdir(src):
@@ -395,50 +330,150 @@ class storage:
             ignored = set()
             for f in files:
                 if f not in ignored:
-                    self.__copy__(os.path.join(src, f), os.path.join(dest, f), ignore)
+                    self.__copy__(self.join(src, f), self.join(dest, f), ignore)
         else:
             shutil.copyfile(src, dest)
 
-    def copy(self, filepath1, filepath2):
-        filepath1 = self.abspath(filepath1)
-        filepath2 = self.abspath(filepath2)
-        self.__copy__(filepath1, filepath2)
-
-    def abspath(self, filepath=""):
-        target_path = os.path.join(self.basepath(), filepath)
-        notallowed = ["", "/"]
-        if target_path in notallowed: 
-            raise Exception("not allowed path")
-        return os.path.realpath(target_path)
-
-    def makedirs(self, path=""):
+    def __makedirs__(self, *args):
         try:
-            path = self.abspath(path)
-            os.makedirs(path)
-        except Exception as e:
-            pass
-
-    def __makedirs__(self, path):
-        try:
-            filedir = os.path.dirname(path)
+            filedir = os.path.dirname(self.join(*args))
             os.makedirs(filedir)
         except Exception as e:
             pass
 
-    def mimetype(self, path):
-        path = self.abspath(path)
-        return mimetypes.guess_type(path)[0]
+    def basepath(self):
+        return self.join(self.config.path, self.namespace)
 
+    def join(self, *args):
+        if len(args) > 0:
+            path = os.path.join(*args)
+            if len(path) > 1:
+                if path[-1] == "/":
+                    path = path[:-1]
+            return path
+        return ""
+    
+    def abspath(self, *args):
+        return self.join(self.basepath(), *args)
+
+    def use(self, *args):
+        namespace = self.join(self.namespace, *args)
+        fs = FileSystem(self.config.path)
+        fs.namespace = namespace
+        return fs
+
+    def set_path(self, *args):
+        self.config.path = self.join(*args)
+        return self
+
+    def cd(self, *args):
+        self.namespace = self.join(self.namespace, *args)
+        return self
+
+    def pwd(self):
+        return self.abspath()
+
+    def count(self, *args):
+        try:
+            abspath = self.abspath(self.join(*args))
+            return len(os.listdir(abspath))
+        except Exception as e:
+            return 0
+
+    def exists(self, *args):
+        filepath = self.join(*args)
+        if self.isfile(filepath):
+            return True
+        if self.isdir(filepath):
+            return True
+        return False
+
+    def isfile(self, *args):
+        filepath = self.join(*args)
+        return os.path.isfile(self.abspath(filepath))
+    
+    def isdir(self, *args):
+        filepath = self.join(*args)
+        return os.path.isdir(self.abspath(filepath))
+
+    def dirname(self, *args):
+        filepath = self.join(*args)
+        return os.path.dirname(filepath)
+
+    # [list function]
+    # - alias: ls, list, files
+    def ls(self, *args, page=None, dump=20, recursive=False):
+        try:
+            filepath = self.join(*args)
+            abspath = self.abspath(filepath)
+            if recursive == True:
+                return self.__walkdir__(abspath)
+            files = os.listdir(abspath)
+            files = natsort.natsorted(files)
+            if page is None:
+                return files
+            page = (page - 1) * dump
+            return files[page:page+dump]
+        except Exception as e:
+            return []
+
+    def list(self, *args, **kwargs):
+        return self.ls(*args, **kwargs)
+
+    def files(self, *args, **kwargs):
+        return self.ls(*args, **kwargs)
+
+    # [make directory function]
+    # - alias: makedirs, mkdirs, makedir, mkdir
+    def makedirs(self, *args):
+        try:
+            path = self.abspath(*args)
+            os.makedirs(path)
+        except Exception as e:
+            pass
+    
+    def makedir(self, *args):
+        return self.makedirs(*args)
+    
+    def mkdirs(self, *args):
+        return self.makedirs(*args)
+
+    def mkdir(self, *args):
+        return self.makedirs(*args)
+
+    # [move function]
+    # - alias: move, mv
     def move(self, path, rename):
         path = self.abspath(path)
         rename = self.abspath(rename)
         shutil.move(path, rename)
+    
+    def mv(self, path, rename):
+        return self.move(path, rename)
 
-    def remove(self, filepath=""):
-        self.delete(filepath)
+    # [copy function]
+    # - alias: copy, cp
+    def copy(self, filepath1, filepath2):
+        filepath1 = self.abspath(filepath1)
+        filepath2 = self.abspath(filepath2)
+        if self.exists(filepath2):
+            raise Exception("already exists")
+        if not self.exists(self.dirname(filepath2)):
+            self.makedirs(self.dirname(filepath2))
+        self.__copy__(filepath1, filepath2)
+    
+    def cp(self, filepath1, filepath2):
+        return self.copy(filepath1, filepath2)
 
-    def delete(self, filepath=""):
-        abspath = self.abspath(filepath)
+    # [delete function]
+    # - alias: delete, remove, rm
+    def delete(self, *args):
+        abspath = self.abspath(self.join(*args))
+
+        notallowed = ["", "/"]
+        if abspath in notallowed: 
+            raise Exception("not allowed path")
+    
         try:
             shutil.rmtree(abspath)
         except Exception as e:
@@ -447,3 +482,19 @@ class storage:
             except Exception as e:
                 return False
         return True
+
+    def remove(self, *args):
+        return self.delete(*args)
+
+    def rm(self, *args):
+        return self.delete(*args)
+
+    # [mimetype function]
+    # - alias: mimetype
+    def mimetype(self, *args):
+        path = self.abspath(self.join(*args))
+        return mimetypes.guess_type(path)[0]
+
+storage = FileSystem
+FS = FileSystem
+fs = FileSystem

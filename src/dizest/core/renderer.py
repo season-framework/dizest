@@ -7,7 +7,7 @@ import traceback
 import numpy as np
 
 class Renderer:
-    def render(self, v):
+    def render(self, v, **kwargs):
         try:
             if v == pyplot:
                 img = io.BytesIO()
@@ -37,13 +37,21 @@ class Renderer:
         
         try:
             if hasattr(v, 'to_html'):
-                val = v.to_html().replace("\n", "")
-                if len(val) > 20000:
-                    return f"<div class='text-red'>Output is too long</div>"
+                try:
+                    if 'max_rows' not in kwargs: kwargs['max_rows'] = 10
+                    if 'max_cols' not in kwargs: kwargs['max_cols'] = 10
+                    val = v.to_html(**kwargs).replace("\n", "")
+                except:
+                    val = v.to_html().replace("\n", "")
+                if len(val) > 10000: return f"<div class='text-red'>Output is too long</div>"
                 return val
         except Exception as e:
             pass
 
         v = str(v)
         v = html.escape(v)
+
+        size = kwargs['size'] if 'size' in kwargs else 100
+        if len(v) > size: 
+            v = v[:size - 10] + " ... " + v[-10:]
         return v

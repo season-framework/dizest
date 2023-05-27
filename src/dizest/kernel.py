@@ -1,17 +1,15 @@
-import sys
-import signal
 import os
 import flask
 import logging
 
 from dizest.server.drive import DriveServer
 from dizest.server.workflow import WorkflowServer
-from dizest.config.uweb import uWebConfig
+from dizest.config.kernel import KernelConfig
 
-class uWeb:
+class Kernel:
     def __init__(self, **config):
         self.events = dict()
-        self.config = uWebConfig(config)
+        self.config = KernelConfig(config)
         self.flask = flask
         self.app = app = flask.Flask('__main__', static_url_path='')
         log = logging.getLogger('werkzeug')
@@ -32,6 +30,10 @@ class uWeb:
 
     def bind(self):
         app = self.app
+
+        @app.errorhandler(Exception)
+        def handle_exception(e):
+            return {"code": 500, "data": str(e)}
 
         @app.route('/health', methods=['GET'])
         def health():
