@@ -4,10 +4,14 @@ import pypugjs
 from pypugjs.ext import jinja
 import sass
 
-dconfig = wiz.model("portal/dizest/dconfig")
-uWebClass = wiz.model("portal/dizest/uweb")
+config = wiz.model("portal/dizest/config")
+KernelClass = wiz.model("portal/dizest/kernel")
+kernel = KernelClass.getInstance(config.kernel_id())
 
-fs = wiz.workspace().fs("src/assets/portal/dizest")
+if kernel is None:
+    wiz.response.status(401)
+
+fs = wiz.workspace().fs("cache/src/assets/portal/dizest")
 jquery = fs.read("jquery.js")
 
 HEADJS = '''
@@ -62,13 +66,13 @@ window.API = (()=> {
 
 def render(segment):
     segment = segment.path.split("/")
-    zone = segment[0]
+    namespace = segment[0]
     workflow_id = segment[1]
     flow_id = segment[2]
-    user_id = dconfig.user()
 
-    wfdata = dconfig.getWorkflowSpec(workflow_id, zone=zone)
+    workflow = kernel.workflow(workflow_id)
 
+    wfdata = workflow.get(workflow_id)
     if wfdata is None:
         wiz.response.abort(404)
 
@@ -83,8 +87,7 @@ def render(segment):
             pass
         return default
 
-    url = "/".join(wiz.request.uri().split("/")[:4] + ['api', zone, workflow_id, flow_id])
-    
+    url = "/".join(wiz.request.uri().split("/")[:4] + ['api', namespace, flow_id])
     headjs = HEADJS.replace('{url}', url)
 
     pugconfig = dict()
@@ -126,17 +129,11 @@ def render(segment):
 
 def api(segment):
     segment = segment.path.split("/")
-    zone = segment[0]
-    workflow_id = segment[1]
-    flow_id = segment[2]
-    user_id = dconfig.user()
-    fnname = "/".join(segment[3:])
+    namespace = segment[0]
+    flow_id = segment[1]
+    fnname = "/".join(segment[2:])
 
-    channel = dconfig.channel(zone=zone, workflow_id=workflow_id)
-
-    uweb = uWebClass()
-    uweburi = uweb.uri()
-
+    kernel_uri = kernel.uri()
     request = wiz.request.request()
 
     kwargs = dict(
@@ -145,7 +142,8 @@ def api(segment):
         data=request.values,
         cookies=request.cookies,
         files=request.files)
-    kwargs["url"] = uweburi + "/flow/api/" + channel + "/" + flow_id + "/" + fnname
+
+    kwargs["url"] = kernel_uri + "/flow/api/" + namespace + "/" + flow_id + "/" + fnname
     kwargs["allow_redirects"] = False
     
     resp = requests.request(**kwargs)

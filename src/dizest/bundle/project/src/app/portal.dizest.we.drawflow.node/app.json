@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.we.drawflow.node",
     "title": "Drawflow/Node",
-    "namespace": "dizest.we.drawflow.node",
+    "namespace": "we.drawflow.node",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -16,5 +16,6 @@
         "selector": "wiz-portal-dizest-we-drawflow-node",
         "inputs": [],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/we.drawflow.node/app.json"
 }

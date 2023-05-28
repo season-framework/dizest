@@ -2,8 +2,8 @@ import os
 import json
 import season
 
-dconfig = wiz.model("portal/dizest/dconfig")
-fs = dconfig.configfs()
+config = wiz.model("portal/dizest/config")
+fs = config.fs()
 
 class Conda:
     def list(self):
@@ -62,7 +62,7 @@ class Conda:
 conda = Conda()
 
 def load():
-    config = fs.read.json("kernel.json", [])
+    config = fs.read.json("spec.json", [])
     wiz.response.status(200, config)
 
 def update():
@@ -72,5 +72,5 @@ def update():
         if 'conda' in data[i]:
             condaenv = data[i]['conda']
             data[i]['executable'] = f"/opt/anaconda3/envs/{condaenv}/bin/python"
-    config = fs.write.json("kernel.json", data)
+    config = fs.write.json("spec.json", data)
     wiz.response.status(200)

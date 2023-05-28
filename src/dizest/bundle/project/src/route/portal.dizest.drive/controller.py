@@ -1,12 +1,13 @@
 from flask import Response
 import json
+config = wiz.model("portal/dizest/config")
+KernelClass = wiz.model("portal/dizest/kernel")
+
+kernel_id = config.kernel_id()
+kernel = KernelClass.createInstance(kernel_id)
 
 segment = wiz.request.match("/dizest/drive/<path:path>")
 segment = segment.path.split("/")
-
-uWebClass = wiz.model("portal/dizest/uweb")
-
-uweb = uWebClass()
 
 fnname = segment[0]
 path = "/".join(segment[1:])
@@ -15,16 +16,16 @@ request = wiz.request.request()
 resp = None
 
 if fnname == 'ls':
-    resp = uweb.drive.ls(path)
+    resp = kernel.drive.ls(path)
 elif fnname == 'create':
     data = wiz.request.query()
-    resp = uweb.drive.create(path, data)
+    resp = kernel.drive.create(path, data)
 elif fnname == 'rename':
     data = wiz.request.query()
-    resp = uweb.drive.rename(path, data)
+    resp = kernel.drive.rename(path, data)
 elif fnname == 'remove':
     data = wiz.request.query()
-    resp = uweb.drive.remove(path, data)
+    resp = kernel.drive.remove(path, data)
 elif fnname == 'upload':
     filepath = wiz.request.query("filepath", "[]")
     filepath = json.loads(filepath)
@@ -35,10 +36,10 @@ elif fnname == 'upload':
         fdd = dict()
         if len(filepath) > 0: 
             fdd['filepath'] = filepath[i]
-        uweb.drive.upload(path, method=request.method, files={"file": fd}, data=fdd)
+        kernel.drive.upload(path, method=request.method, files={"file": fd}, data=fdd)
     wiz.response.status(200)
 elif fnname == 'download':
-    resp = uweb.drive.download(path)
+    resp = kernel.drive.download(path)
 
 if resp is None:
     wiz.response.status(404)

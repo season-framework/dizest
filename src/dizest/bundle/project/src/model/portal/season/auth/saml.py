@@ -4,20 +4,18 @@ import datetime
 from urllib.parse import urlparse
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 
-SAML_ENTITY = wiz.config("season").get("saml_entity", "season")
-SAML_BASE_PATH = wiz.config("season").get("saml_base_path", "config/auth/saml")
-SAML_ACS = wiz.config("season").get("saml_acs", None)
-SAML_ERROR = wiz.config("season").get("saml_error", "/")
+config = wiz.model("portal/season/config")
+session = wiz.model("portal/season/session")
 
-session = wiz.model("portal/season/session").use()
+BASEURI = config.auth_baseuri
+SAML_ENTITY = config.auth_saml_entity
+SAML_BASE_PATH = config.auth_saml_base_path
+SAML_ACS = config.auth_saml_acs
+SAML_ERROR = config.auth_saml_error_uri
 
-class Model:
+class SAML:
     def __init__(self):
-        self.basepath = '/auth'
-
-    @classmethod
-    def baseuri(cls, basepath='/auth'):
-        return cls()()
+        self.basepath = BASEURI
 
     def __call__(self):
         def build_auth(entity=SAML_ENTITY):
@@ -36,12 +34,14 @@ class Model:
             basepath = wiz.branch.path(os.path.join(SAML_BASE_PATH, entity))
             return OneLogin_Saml2_Auth(req, custom_base_path=basepath)
 
-        self.__auth__ = build_auth()
         pattern = self.basepath + "/saml/<action>/<path:path>"
         segment = wiz.request.match(pattern)
 
         if segment is None:
             return
+
+        self.__auth__ = build_auth()
+
         action = segment.action
         if action is None:
             return
@@ -51,10 +51,13 @@ class Model:
         if fn is None:
             return
         fn()
+    
+    def proceed(self, entity=SAML_ENTITY):
+        self.__call__(entity=entity)
 
     def login(self):
         auth = self.__auth__
-        if session.has("id"):
+        if session.user_id() is not None:
             wiz.response.redirect("/")
         redirect = wiz.request.query('redirect', '/')
         session.set(AuthNRequestID=auth.get_last_request_id(), SAML_REDIRECT=redirect)
@@ -77,10 +80,10 @@ class Model:
             if SAML_ACS is not None:
                 sessiondata = SAML_ACS(userinfo)
     
-            redirect = wiz.request.query('RelayState', None)
-            if redirect is None:
-                redirect = session.get('SAML_REDIRECT', '/')
+            redirect = session.get('SAML_REDIRECT', None)
             session.delete('SAML_REDIRECT')
+            if redirect is None:
+                redirect = wiz.request.query('RelayState', "/")
 
             sessiondata['samlNameId'] = auth.get_nameid()
             sessiondata['samlNameIdFormat'] = auth.get_nameid_format()
@@ -128,3 +131,5 @@ class Model:
             wiz.response.send(metadata, content_type='text/xml')
         else:
             wiz.response.send(', '.join(errors))
+
+Model = SAML()

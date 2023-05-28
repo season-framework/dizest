@@ -6,25 +6,34 @@ class Controller:
         pass
 
     def join(self, data, io):
-        dconfig = wiz.model("portal/dizest/dconfig")
-        channel = dconfig.channel(**data)
-        io.join(channel)
-    
-    def leave(self, flask, data, io):
-        io.leave(data)
+        KernelClass = wiz.model("portal/dizest/kernel")
+        config = wiz.model("portal/dizest/config")
+        kernel_id = config.kernel_id(**data)
+        kernel = KernelClass.getInstance(kernel_id)
+        if kernel is None:
+            return
+        
+        namespace = data['namespace']
+        workflow = kernel.workflow(namespace)
+        status = workflow.status()
+        
+        if status is None:
+            return
 
+        io.join(namespace)
+    
     def wplog(self, data, io):
         branch = wiz.branch()
-        namespace = f"/wiz/app/{branch}/component.dizest.workflow"
+        socketNamespace = f"/wiz/app/{branch}/component.dizest.workflow"
 
         for log in data:
             event = log['event']
             workflow_id = log['workflow_id']
-            to = log['channel']
-            del log['channel']
+            to = log['namespace']
+            del log['namespace']
             del log['workflow_id']
             del log['event']
-            io.emit(event, log, to=to, namespace=namespace, broadcast=True)
+            io.emit(event, log, to=to, namespace=socketNamespace, broadcast=True)
 
     def disconnect(self, flask, io):
         pass

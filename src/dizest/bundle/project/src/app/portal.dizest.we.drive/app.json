@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.we.drive",
     "title": "Drive",
-    "namespace": "dizest.we.drive",
+    "namespace": "we.drive",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -19,5 +19,6 @@
             "binding"
         ],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/we.drive/app.json"
 }

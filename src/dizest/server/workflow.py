@@ -61,7 +61,8 @@ class WorkflowServer:
             res = dict()
             for namespace in self.workflows:
                 try:
-                    res[namespace] = dict(status=self.workflows[namespace].status(), id=self.workflows[namespace].id())
+                    workflow = self.workflows[namespace]
+                    res[namespace] = dict(status=workflow.status(), id=self.workflows[namespace].id(), index=workflow.index)
                 except:
                     pass
             return {'code': 200, 'data': res}

@@ -1,38 +1,38 @@
-dconfig = wiz.model("portal/dizest/dconfig")
-uWebClass = wiz.model("portal/dizest/uweb")
+config = wiz.model("portal/dizest/config")
+KernelClass = wiz.model("portal/dizest/kernel")
+
+kernel_id = config.kernel_id()
 
 if wiz.request.match("/dizest/server/check") is not None:
-    try:
-        uweb = uWebClass()
-        status = uweb.status()
-    except:
-        status = 'stop'
-    wiz.response.status(200, status)
+    kernel = KernelClass.getInstance(kernel_id)
+    if kernel is None:
+        wiz.response.status(200, 'stop')
+    wiz.response.status(200, kernel.status())
 
 if wiz.request.match("/dizest/server/start") is not None:
-    try:
-        uweb = uWebClass()
-        kernelspec = wiz.request.query()
-        uWebClass = wiz.model("portal/dizest/uweb")
-        uweb = uWebClass()
-        uweb.kernel(kernelspec)
-        uweb.start()
-    except Exception as e:
-        wiz.response.status(500, uweb.status())
-    wiz.response.status(200, uweb.status())
+    spec = wiz.request.query()
+
+    kernelConfig = dict()
+    kernelConfig['kernel_id'] = kernel_id
+    kernelConfig['spec'] = spec
+    kernelConfig['cwd'] = config.cwd()
+    kernelConfig['user'] = config.user()
+    kernelConfig['socket'] = config.socket()
+    
+    kernel = KernelClass.createInstance(**kernelConfig)
+    kernel.set(spec=spec)
+    kernel.start()
+    wiz.response.status(200, kernel.status())
 
 if wiz.request.match("/dizest/server/stop") is not None:
-    try:
-        uweb = uWebClass()
-        uWebClass = wiz.model("portal/dizest/uweb")
-        uweb = uWebClass()
-        uweb.stop()
-    except:
-        wiz.response.status(500, uweb.status())
-    wiz.response.status(200, uweb.status())
+    kernel = KernelClass.getInstance(kernel_id)
+    if kernel is None:
+        wiz.response.status(200, 'stop')
+    kernel.stop()
+    wiz.response.status(200, kernel.status())
 
 if wiz.request.match("/dizest/server/kernels") is not None:
-    data = dconfig.kernel()
-    wiz.response.status(200, data)
+    specs = KernelClass.specs()
+    wiz.response.status(200, specs)
 
 wiz.response.status(404)

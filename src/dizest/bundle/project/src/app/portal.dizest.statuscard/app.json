@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.statuscard",
     "title": "Status Card",
-    "namespace": "dizest.statuscard",
+    "namespace": "statuscard",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -19,5 +19,6 @@
             "items"
         ],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/statuscard/app.json"
 }

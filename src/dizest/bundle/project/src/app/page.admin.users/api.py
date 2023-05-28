@@ -1,5 +1,5 @@
-uWebClass = wiz.model("portal/dizest/uweb")
-
+KernelClass = wiz.model("portal/dizest/kernel")
+config = wiz.model("portal/dizest/config")
 db = wiz.model("portal/season/orm").use("user")
 
 def load():
@@ -37,9 +37,10 @@ def delete():
     user_id = wiz.request.query("id", True)
 
     try:
-        uweb = uWebClass.getInstance(user_id)
-        if uweb is not None:
-            uweb.clear()
+        kernel_id = config.kernel_id()
+        kernel = KernelClass.getInstance(kernel_id)
+        if kernel is not None:
+            kernel.stop()
     except:
         pass
 

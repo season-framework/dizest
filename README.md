@@ -45,6 +45,100 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ```
 
+## DIZEST CLI
+
+### Create Project
+- `dizest install [Project Name]`
+    - Example
+        ```bash
+        dizest install myapp
+        ```
+
+### Daemon API
+- `dizest run --host=<host> --port=<port> --log=<log file path>`
+    - Flag
+        | Flag | Syntax | Description |
+        |---|---|---|
+        | --port | dizest run [action] --port=PORT | Web server port, Default 3000 |
+        | --host | dizest run [action] --host=HOST | Web server host, Default 0.0.0.0 |
+        | --log | dizest run [action] --log=PATH | Log file path, Default None |
+    - Example
+        ```bash
+        dizest run --port=3000
+        dizest run --port=3000 --host=0.0.0.0
+        dizest run --port 3000 --log dizest.log
+        ```
+
+- `dizest server [action] --log=<log file path> --force`
+    - Action
+        | Action | Syntax | Description |
+        |---|---|---|
+        | start | dizest server start [flags] | Start dizest server as daemon |
+        | stop | dizest server stop [flags] | Stop dizest server daemon |
+        | restart | dizest server restart [flags] | Restart dizest server daemon |
+    - Flag
+        | Flag | Syntax | Description |
+        |---|---|---|
+        | --log | dizest server [action] --log=PATH | Log file path, Default None |
+        | --force | dizest server start --force | Force start daemon |
+    - Example
+        ```bash
+        dizest server start --force
+        dizest server stop
+        dizest server restart
+        ```
+
+### Service API
+- `dizest service list`
+    - Example
+        ```bash
+        dizest service list
+        ```
+
+- `dizest service regist [name]`
+    - Same AS
+        - `install`
+    - Example
+        ```bash
+        dizest service regist myapp
+        # or
+        dizest service install myapp
+        ```
+
+- `dizest service unregist [name]`
+    - Same AS
+        - `uninstall`, `remove`, `delete`, `rm`
+    - Example
+        ```bash
+        dizest service unregist myapp
+        # or
+        dizest service remove myapp
+        ```
+
+- `dizest service status [name]`
+    - Example
+        ```bash
+        dizest service status myapp
+        ```
+
+- `dizest service start [name]`
+    - Example
+        ```bash
+        dizest service start myapp
+        ```
+
+- `dizest service stop [name]`
+    - Example
+        ```bash
+        dizest service stop myapp
+        ```
+
+- `dizest service restart [name]`
+    - Example
+        ```bash
+        dizest service restart myapp
+        ```
+
 ## Roadmap
 
 - Spawner
@@ -65,44 +159,36 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 ### 3.3.0
 
 - [core] dizest input/output automation
+- [core] dizest cli updated (service)
 - [ui] code refactoring
+- [ui] display filename on file delete popup
+- [ui] codeflow resize bug fixed
+- [ui] support multiple app upload
+- [ui] open workflow as href
+- [ui] workflow favorite and category added
+- [ui] support activated workflow list
 
-### 3.2.6
+### 3.2.x
 
-- [core] python-socketio version fixed (5.7.2)
+- [3.2.0]
+    - [core] process logic changed
+    - [core] support multi-thread jobs
+    - [core] job scheduler
+    - [ui] terminal for admin
 
-### 3.2.5
-
-- [ui] user home path bug fixed
-
-### 3.2.4
-
-- [ui] dconfig.py home path bug fixed
-- [ui] node start bug fixed
-- [core] ui api bug fixed (flask send_file api)
-
-### 3.2.3
-
-- [ui] set browser title on workflow
-- [ui] code block drag bug fixed on codeflow
-- [ui] opacity changed on focused app
-- [ui] pip install btn bug fixed
-
-### 3.2.2
-
-- [ui] add config (cron_host, dsocket_host)
-
-### 3.2.1
-
-- [ui] install bug fixed
-- [ui] config path changed (`./config/dizest/`)
-
-### 3.2.0
-
-- [core] process logic changed
-- [core] support multi-thread jobs
-- [core] job scheduler
-- [ui] terminal for admin
+- 3.2.1 ~ 6
+    - [ui] install bug fixed
+    - [ui] config path changed (`./config/dizest/`)
+    - [ui] add config (cron_host, dsocket_host)
+    - [ui] set browser title on workflow
+    - [ui] code block drag bug fixed on codeflow
+    - [ui] opacity changed on focused app
+    - [ui] pip install btn bug fixed
+    - [ui] dconfig.py home path bug fixed
+    - [ui] node start bug fixed
+    - [core] ui api bug fixed (flask send_file api)
+    - [ui] user home path bug fixed
+    - [core] python-socketio version fixed (5.7.2)
 
 ### 3.1.x
 

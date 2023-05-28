@@ -1,7 +1,7 @@
 import json
 
-dconfig = wiz.model("portal/dizest/dconfig")
-fs = dconfig.configfs()
+config = wiz.model("portal/dizest/config")
+fs = config.fs()
 
 def load():
     config = fs.read.json("config.json", {})

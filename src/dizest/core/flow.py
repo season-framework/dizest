@@ -87,10 +87,6 @@ class Flow:
                     inputs[vname] = ({"type": vtype, "data": None, "inputtype": inputtype})
         return inputs
     
-    # TODO: find next flows
-    def next(self):
-        pass
-
     def api(self, flask, fnname, path):
         flow = self
         logger = self.logger
@@ -218,6 +214,8 @@ class Flow:
 
                 for key in inputs:
                     env[key] = dizesti.input(key)
+
+                dizesti._output = dict()
 
                 exec(code, env)
 

@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.we.action.codeflow.appinfo",
     "title": "Action/CodeFlow/AppInfo",
-    "namespace": "dizest.we.action.codeflow.appinfo",
+    "namespace": "we.action.codeflow.appinfo",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -18,5 +18,6 @@
             "app"
         ],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/we.action.codeflow.appinfo/app.json"
 }

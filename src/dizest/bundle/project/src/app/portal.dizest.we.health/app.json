@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.we.health",
     "title": "Nav/Health",
-    "namespace": "dizest.we.health",
+    "namespace": "we.health",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -16,5 +16,6 @@
         "selector": "wiz-portal-dizest-we-health",
         "inputs": [],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/we.health/app.json"
 }

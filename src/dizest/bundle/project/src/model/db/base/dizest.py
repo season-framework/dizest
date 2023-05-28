@@ -7,8 +7,10 @@ import datetime
 
 class Model(pw.Model):
     class Meta:
-        dconfig = wiz.model("portal/dizest/dconfig")
-        config = dconfig.databaseConfig()
+        config = wiz.model("portal/dizest/config").fs().read.json("database.json", dict(type="sqlite", path="dizest.db"))
+        if 'port' in config:
+            config['port'] = int(config['port'])
+
         if config['type'] == 'mysql':
             databasename = config['database']
             opts = dict()

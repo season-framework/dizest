@@ -2,8 +2,8 @@ import pkg_resources
 import subprocess
 import sys
 
-dconfig = wiz.model("portal/dizest/dconfig")
-kernelspecs = dconfig.kernel()
+KernelClass = wiz.model("portal/dizest/kernel")
+kernelspecs = KernelClass.specs()
 
 kernel_name = wiz.request.query("kernel_name", None)
 kernel = dict(name="base")

@@ -29,11 +29,7 @@ def upgrade():
         print("dizest not installed")
         return
 
-    fs.remove(os.path.join("project", "cache"))
-    fs.remove(os.path.join("project", "src"))
-    fs.remove(os.path.join("project", "www"))
-    
-    fs.copy(os.path.join(PATH_BUNDLE, "project", "src"), os.path.join("project", "src"))
-    fs.copy(os.path.join(PATH_BUNDLE, "project", "www"), os.path.join("project", "www"))
+    fs.remove("project")
+    fs.copy(os.path.join(PATH_BUNDLE, "project"), "project")
 
     print("dizest upgraded")

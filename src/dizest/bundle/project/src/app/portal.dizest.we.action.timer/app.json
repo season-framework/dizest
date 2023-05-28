@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.we.action.timer",
     "title": "Action/Timer",
-    "namespace": "dizest.we.action.timer",
+    "namespace": "we.action.timer",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -16,5 +16,6 @@
         "selector": "wiz-portal-dizest-we-action-timer",
         "inputs": [],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/we.action.timer/app.json"
 }

@@ -1,25 +1,34 @@
-uWebClass = wiz.model("portal/dizest/uweb")
-try:
-    uweb = uWebClass()
-except:
-    wiz.response.status(500)
-user = wiz.session.get("id")
-db = wiz.model("portal/season/orm").use("workflow")
-workflow_id = wiz.request.query("workflow_id", True)
-workflow = uweb.workflow(workflow_id=workflow_id)
+def loadPreset():
+    zone = "dizest"
+    workflow_id = wiz.request.query("workflow_id", True)
+    namespace = f"{zone}.{workflow_id}"
+    kernel = wiz.model("portal/dizest/kernel").getInstance()
+    if kernel is None:
+        wiz.response.status(401)
+    workflow = kernel.workflow(namespace)
+    return workflow_id, kernel, workflow
 
 def run():
-    wpdata = db.get(id=workflow_id)
+    workflow_id, kernel, workflow = loadPreset()
+    wpdata = kernel.workflow.get(workflow_id)
     workflow.update(wpdata)
     workflow.run()
     wiz.response.status(200)
 
 def stop():
+    workflow_id, kernel, workflow = loadPreset()
     workflow.stop()
     wiz.response.status(200)
 
 def get():
-    item = db.get(id=workflow_id)
-    if item['visibility'] != 'public' and item['user_id'] != user:
-        wiz.response.status(404)    
+    workflow_id, kernel, workflow = loadPreset()
+    wpdata = kernel.workflow.get(workflow_id)
     wiz.response.status(200, item)
+
+def update():
+    user = wiz.session.user_id()
+    workflow_id = wiz.request.query('id', True)
+    data = wiz.request.query()
+    db = wiz.model("portal/season/orm").use("workflow")
+    db.update(data, id=workflow_id, user_id=user)
+    wiz.response.status(200)

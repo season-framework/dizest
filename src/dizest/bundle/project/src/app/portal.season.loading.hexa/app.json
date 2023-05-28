@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.season.loading.hexa",
     "title": "\ud5e5\uc0ac \ub85c\ub529",
-    "namespace": "season.loading.hexa",
+    "namespace": "loading.hexa",
     "viewuri": "",
     "category": "season",
     "controller": "",
@@ -16,5 +16,6 @@
         "inputs": [],
         "outputs": []
     },
-    "template": "wiz-portal-season-loading-hexa()"
+    "template": "wiz-portal-season-loading-hexa()",
+    "path": "portal/season/app/loading.hexa/app.json"
 }

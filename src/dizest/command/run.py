@@ -21,7 +21,7 @@ PATH_PID = os.path.join(PATH_WEBSRC, "dizest.pid")
 @arg('--port', help='3000')
 @arg('--log', help='log filename')
 def run(host='0.0.0.0', port=None, log=None):
-    if os.path.exists(os.path.join(PATH_WEBSRC, "project", "config")) == False:
+    if os.path.exists(os.path.join(PATH_WEBSRC, "project", "urlmap")) == False:
         print("Invalid Project path: dizest structure not found in this folder.")
         return
 
@@ -167,7 +167,7 @@ def runnable(stdout, stderr):
 @arg('--log', help='log file path')
 @arg('action', default=None, help="start|stop|restart")
 def server(action, force=False, log=None):
-    if os.path.exists(os.path.join(PATH_WEBSRC, "project", "config")) == False:
+    if os.path.exists(os.path.join(PATH_WEBSRC, "project", "urlmap")) == False:
         print("Invalid Project path: dizest structure not found in this folder.")
         return
 

@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.we.navigator",
     "title": "Nav",
-    "namespace": "dizest.we.navigator",
+    "namespace": "we.navigator",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -16,5 +16,6 @@
         "selector": "wiz-portal-dizest-we-navigator",
         "inputs": [],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/we.navigator/app.json"
 }

@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.we.action.codeflow",
     "title": "Action/CodeFlow",
-    "namespace": "dizest.we.action.codeflow",
+    "namespace": "we.action.codeflow",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -16,5 +16,6 @@
         "selector": "wiz-portal-dizest-we-action-codeflow",
         "inputs": [],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/we.action.codeflow/app.json"
 }

@@ -10,6 +10,8 @@ class Model(base):
     title = pw.CharField(index=True, max_length=96)
     version = pw.CharField(index=True, max_length=24)
     visibility = pw.CharField(index=True, max_length=16)
+    category = pw.CharField(index=True, max_length=32)
+    favorite = pw.CharField(index=True, max_length=1)
     created = pw.DateTimeField(index=True)
     updated = pw.DateTimeField(index=True)
     

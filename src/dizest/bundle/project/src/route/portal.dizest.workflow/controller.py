@@ -1,12 +1,17 @@
 import json
+import datetime
 
-dconfig = wiz.model("portal/dizest/dconfig")
-uWebClass = wiz.model("portal/dizest/uweb")
-zone = wiz.request.query("zone", True)
+config = wiz.model("portal/dizest/config")
+KernelClass = wiz.model("portal/dizest/kernel")
+
+kernel_id = config.kernel_id()
+namespace = wiz.request.query("namespace", True)
 workflow_id = wiz.request.query("workflow_id", True)
-user = dconfig.user()
-uweb = uWebClass()
-workflow = uweb.workflow(zone=zone, workflow_id=workflow_id)
+
+kernel = KernelClass.getInstance(kernel_id)
+if kernel is None:
+    wiz.response.status(401)
+workflow = kernel.workflow(namespace)
 
 if wiz.request.match("/dizest/workflow/stop") is not None:
     res = workflow.stop()
@@ -17,27 +22,28 @@ if wiz.request.match("/dizest/workflow/run") is not None:
     wiz.response.status(res.code, res.data)
 
 if wiz.request.match("/dizest/workflow/update") is not None:
-    item = dconfig.getWorkflowSpec(workflow_id, zone=zone)
+    item = workflow.get(workflow_id)
     if item is None:
         wiz.response.status(404)
     try:
         data = json.loads(wiz.request.query("data", True))
         data['id'] = workflow_id
-        dconfig.updateWorkflowSpec(workflow_id, data, zone=zone)
+        data['updated'] = datetime.datetime.now()
         workflow.update(data)
     except:
         wiz.response.status(500)
     wiz.response.status(200)
 
 if wiz.request.match("/dizest/workflow/info") is not None:
-    item = dconfig.getWorkflowSpec(workflow_id, zone=zone)
+    item = workflow.get(workflow_id)
     if item is None:
         wiz.response.status(404)
+    
     status = workflow.status()
     if status is None:
         workflow.update(item)
     
-    flow_status = workflow.flow_status()
+    flow_status = workflow.flow.status()
 
     for key in item['flow']:
         try:

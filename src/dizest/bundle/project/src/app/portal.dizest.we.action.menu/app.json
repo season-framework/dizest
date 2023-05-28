@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.we.action.menu",
     "title": "Action",
-    "namespace": "dizest.we.action.menu",
+    "namespace": "we.action.menu",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -16,5 +16,6 @@
         "selector": "wiz-portal-dizest-we-action-menu",
         "inputs": [],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/we.action.menu/app.json"
 }

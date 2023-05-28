@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.we.action.info",
     "title": "Action/Workflow Info",
-    "namespace": "dizest.we.action.info",
+    "namespace": "we.action.info",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -16,5 +16,6 @@
         "selector": "wiz-portal-dizest-we-action-info",
         "inputs": [],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/we.action.info/app.json"
 }

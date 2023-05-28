@@ -2,7 +2,7 @@
     "mode": "portal",
     "id": "portal.dizest.we.action.uimode",
     "title": "Action/UIMode",
-    "namespace": "dizest.we.action.uimode",
+    "namespace": "we.action.uimode",
     "viewuri": "",
     "category": "dizest",
     "controller": "",
@@ -16,5 +16,6 @@
         "selector": "wiz-portal-dizest-we-action-uimode",
         "inputs": [],
         "outputs": []
-    }
+    },
+    "path": "portal/dizest/widget/we.action.uimode/app.json"
 }

@@ -20,15 +20,10 @@ then
 
         bundle)
             # bundle dump
-            rm -rf src/dizest/bundle/project/www
+            rm -rf src/dizest/bundle/project/*
             rm -rf src/dizest/bundle/project/src
-            cp -r dev/branch/main/build/dist/build src/dizest/bundle/project/www
-            cp -r dev/branch/main/src src/dizest/bundle/project/src
-            rm -rf src/dizest/bundle/project/src/angular
-            find ./src/dizest/bundle/project/src/app/ -name "*.ts" -type f -delete
-            find ./src/dizest/bundle/project/src/app/ -name "*.html" -type f -delete
-            find ./src/dizest/bundle/project/src/app/ -name "*.pug" -type f -delete
-            find ./src/dizest/bundle/project/src/app/ -name "*.scss" -type f -delete
+            cp -r dev/branch/main/bundle/* src/dizest/bundle/project/
+            rm -rf src/dizest/bundle/project/config
             ;;
 
         build)

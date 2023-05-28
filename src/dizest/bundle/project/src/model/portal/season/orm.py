@@ -5,8 +5,10 @@ import string as _string
 import random as _random
 import peewee as pw
 from playhouse.shortcuts import model_to_dict, dict_to_model
-        
-ORM_BASE = wiz.config("season").get("orm_base", "db/")
+
+config = wiz.model("portal/season/config")
+
+ORM_BASE = config.orm_base
 
 class Model:
     def __init__(self, tablename=None):

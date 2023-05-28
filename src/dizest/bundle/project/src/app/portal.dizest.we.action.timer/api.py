@@ -1,6 +1,12 @@
 from crontab import CronTab
 
-zone = wiz.request.query("zone", True)
+config = wiz.model("portal/dizest/config")
+KernelClass = wiz.model("portal/dizest/kernel")
+
+kernel_id = config.kernel_id()
+user_id = config.user()
+cwd = config.cwd()
+namespace = wiz.request.query("namespace", True)
 workflow_id = wiz.request.query("workflow_id", True)
 
 def binder(path):
@@ -9,10 +15,6 @@ def binder(path):
         return True
     return False
 
-dconfig = wiz.model("portal/dizest/dconfig")
-
-user_id = dconfig.user()
-channel = dconfig.channel(zone=zone, workflow_id=workflow_id)
 
 def list():
     try:
@@ -22,7 +24,7 @@ def list():
             time = " ".join([str(x) for x in job.slices])
             comment = job.comment.split(";")
             cron_namespace = comment[0]
-            if cron_namespace == channel:
+            if cron_namespace == namespace:
                 comment = ";".join(comment[1:])
                 res.append(dict(comment=comment, time=time))
     except Exception as e:
@@ -32,7 +34,7 @@ def list():
 def remove():
     try:
         comment = wiz.request.query("comment", True)
-        comment = f"{channel};{comment}"
+        comment = f"{namespace};{comment}"
         cron  = CronTab(user=user_id)
         rows = cron.find_comment(comment)
         for job in rows:
@@ -45,16 +47,16 @@ def remove():
 
 def add():
     try:
-        host = dconfig.cron_host()
+        host = config.cronhost()
         host = f"{host}/dizest/api/cron"
 
         comment = wiz.request.query("comment", True)
-        comment = f"{channel};{comment}"
+        comment = f"{namespace};{comment}"
 
         time = wiz.request.query("time", True)
         spec = wiz.request.query("spec", True)
 
-        command = f'curl "{host}?user={user_id}&kernel={spec}&zone={zone}&workflow_id={workflow_id}"'
+        command = f'curl "{host}?id={kernel_id}&namespace={namespace}&workflow_id={workflow_id}&spec={spec}&user={user_id}&cwd={cwd}"'
 
         cron  = CronTab(user=user_id)
         job = cron.new(command=command, comment=comment)
@@ -62,5 +64,6 @@ def add():
         cron.write()
         job.enable()
     except Exception as e:
+        print(e)
         wiz.response.status(500, e)
     wiz.response.status(200)
