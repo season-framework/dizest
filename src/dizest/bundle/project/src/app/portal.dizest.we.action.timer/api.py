@@ -15,7 +15,6 @@ def binder(path):
         return True
     return False
 
-
 def list():
     try:
         res = []

@@ -4,13 +4,6 @@ import pypugjs
 from pypugjs.ext import jinja
 import sass
 
-config = wiz.model("portal/dizest/config")
-KernelClass = wiz.model("portal/dizest/kernel")
-kernel = KernelClass.getInstance(config.kernel_id())
-
-if kernel is None:
-    wiz.response.status(401)
-
 fs = wiz.workspace().fs("cache/src/assets/portal/dizest")
 jquery = fs.read("jquery.js")
 
@@ -64,12 +57,22 @@ window.API = (()=> {
 </script>
 '''
 
+def getKernel(**kwargs):
+    config = wiz.model("portal/dizest/config")
+    KernelClass = wiz.model("portal/dizest/kernel")
+    kernel = KernelClass.getInstance(config.kernel_id(**kwargs))
+    if kernel is None:
+        wiz.response.status(401)
+    return kernel
+
 def render(segment):
     segment = segment.path.split("/")
     namespace = segment[0]
     workflow_id = segment[1]
     flow_id = segment[2]
+    kernel_id = wiz.request.query("kernel_id", None)
 
+    kernel = getKernel(kernel_id=kernel_id)
     workflow = kernel.workflow(workflow_id)
 
     wfdata = workflow.get(workflow_id)
@@ -132,6 +135,9 @@ def api(segment):
     namespace = segment[0]
     flow_id = segment[1]
     fnname = "/".join(segment[2:])
+    kernel_id = wiz.request.query("kernel_id", None)
+
+    kernel = getKernel(kernel_id=kernel_id)
 
     kernel_uri = kernel.uri()
     request = wiz.request.request()

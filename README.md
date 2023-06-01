@@ -156,6 +156,10 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.3.1
+
+- [ui] uimode bug fixed 
+
 ### 3.3.0
 
 - [core] dizest input/output automation
