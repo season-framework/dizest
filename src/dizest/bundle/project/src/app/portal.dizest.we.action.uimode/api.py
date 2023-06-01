@@ -4,7 +4,7 @@ import pypugjs
 from pypugjs.ext import jinja
 import sass
 
-fs = wiz.workspace().fs("cache/src/assets/portal/dizest")
+fs = wiz.workspace().fs("src/assets")
 jquery = fs.read("jquery.js")
 
 HEADJS = '''
