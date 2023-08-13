@@ -1,0 +1,24 @@
+{
+    "mode": "portal",
+    "type": "app",
+    "id": "portal.dizest.sidebar.workflowinfo",
+    "title": "Sidebar/WorkfowInfo",
+    "namespace": "sidebar.workflowinfo",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "",
+    "template": "wiz-portal-dizest-sidebar-workflowinfo([sidebar]=\"\")",
+    "ng.build": {
+        "id": "portal.dizest.sidebar.workflowinfo",
+        "name": "PortalDizestSidebarWorkflowinfoComponent",
+        "path": "./portal.dizest.sidebar.workflowinfo/portal.dizest.sidebar.workflowinfo.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-sidebar-workflowinfo",
+        "inputs": [
+            "sidebar"
+        ],
+        "outputs": []
+    },
+    "path": "portal/dizest/app/sidebar.workflowinfo/app.json"
+}

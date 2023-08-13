@@ -156,6 +156,13 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.0
+
+- [ui] UI full changed (Single page hub)
+- [ui] Remove installation page
+- [ui] change user login using linux account
+- [ui] using kernel for each workflow
+
 ### 3.3.2
 
 - [ui] uimode bug fixed 

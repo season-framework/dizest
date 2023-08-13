@@ -1,8 +1,0 @@
-{
-    "id": "portal.dizest.flow",
-    "title": "/dizest/flow/<path:path>",
-    "route": "/dizest/flow/<path:path>",
-    "viewuri": "",
-    "category": "dizest",
-    "controller": ""
-}

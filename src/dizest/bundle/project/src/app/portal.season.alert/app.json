@@ -1,7 +1,7 @@
 {
     "mode": "portal",
     "id": "portal.season.alert",
-    "title": "\uc54c\ub9bc \ud31d\uc5c5",
+    "title": "Alert Modal",
     "namespace": "alert",
     "viewuri": "",
     "category": "season",

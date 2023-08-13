@@ -1,0 +1,24 @@
+{
+    "mode": "portal",
+    "type": "app",
+    "id": "portal.dizest.editor.setting",
+    "title": "Editor/Setting",
+    "namespace": "editor.setting",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "portal/dizest/base",
+    "template": "wiz-portal-dizest-editor-setting([tab]=\"\")",
+    "ng.build": {
+        "id": "portal.dizest.editor.setting",
+        "name": "PortalDizestEditorSettingComponent",
+        "path": "./portal.dizest.editor.setting/portal.dizest.editor.setting.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-editor-setting",
+        "inputs": [
+            "tab"
+        ],
+        "outputs": []
+    },
+    "path": "portal/dizest/app/editor.setting/app.json"
+}

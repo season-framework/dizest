@@ -1,0 +1,24 @@
+{
+    "mode": "portal",
+    "type": "app",
+    "id": "portal.season.ui.dropdown",
+    "title": "Dropdown Menu",
+    "namespace": "ui.dropdown",
+    "viewuri": "",
+    "category": "ui",
+    "controller": "",
+    "template": "wiz-portal-season-ui-dropdown([menuStyle]=\"\")",
+    "ng.build": {
+        "id": "portal.season.ui.dropdown",
+        "name": "PortalSeasonUiDropdownComponent",
+        "path": "./portal.season.ui.dropdown/portal.season.ui.dropdown.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-season-ui-dropdown",
+        "inputs": [
+            "menuStyle"
+        ],
+        "outputs": []
+    },
+    "path": "portal/season/app/ui.dropdown/app.json"
+}

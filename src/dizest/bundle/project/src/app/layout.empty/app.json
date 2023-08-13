@@ -3,7 +3,7 @@
     "id": "layout.empty",
     "title": "Empty",
     "namespace": "empty",
-    "viewuri": "",
+    "viewuri": "empty",
     "category": "theme",
     "controller": "",
     "ng.build": {

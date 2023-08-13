@@ -31,6 +31,10 @@ class Session:
         config = wiz.model("portal/season/config")
         session_user_id = config.session_user_id
         return session_user_id()
+    
+    def create(self, key):
+        config = wiz.model("portal/season/config")
+        config.session_create(wiz, key)
 
     @classmethod
     def use(cls):

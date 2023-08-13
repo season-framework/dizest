@@ -1,90 +1,116 @@
+import os
+import sys
 import requests
 import datetime
 import season
-import dizest
 import json
+import string as _string
+import random as _random
 
-Config = wiz.model("portal/dizest/config")
-Drive = wiz.model("portal/dizest/api/drive")
-Workflow = wiz.model("portal/dizest/api/workflow")
+config = wiz.model("portal/dizest/config")
+Workflow = wiz.model("portal/dizest/workflow")
 
 class Model:
-    def __init__(self, kernel_id, spec=dict(name="base"), socket=None, user=None, cwd=None):
-        self.kernel_id = kernel_id
-        if user is None:
-            session = wiz.model("portal/season/session")
-            user = session.user_id()
-        self.user = user
-        self.cwd = cwd
-        self.socket = socket
+    def __init__(self, zone):
+        self.zone = zone
 
-        # load spawner
-        self.spanwer = dizest.spawner.simple.SimpleSpawner(spec=spec, user=user, cwd=cwd, socket=socket)
-        self.drive = Drive(self)
-        self.workflow = Workflow(self)
-
-    @staticmethod
-    def cache():
+    def cache(self):
+        zone = self.zone
         if 'dizest' not in wiz.server.app: 
             wiz.server.app.dizest = season.util.std.stdClass()
         cache = wiz.server.app.dizest
-        if 'kernel' not in cache:
-            cache.kernel = season.util.std.stdClass()
-        return cache.kernel
+        if zone not in cache:
+            cache[zone] = season.util.std.stdClass()
+        return cache[zone]
+    
+    def random(self, length=16, number=False):
+        string_pool = _string.ascii_letters + _string.digits
+        if number:
+            string_pool = _string.digits
+        result = ""
+        for i in range(length):
+            result += _random.choice(string_pool)
+        return result.lower()
 
-    @staticmethod
-    def getInstance(kernel_id=None):
-        if kernel_id is None: kernel_id = Config.kernel_id()
-        cache = Model.cache()
-        if kernel_id in cache:
-            return cache[kernel_id]
+    def delete_workflow(self, spawner_id):
+        cache = self.cache()
+        if spawner_id in cache:
+            workflow = cache[spawner_id]
+            workflow.kill()
+            del cache[spawner_id]
+
+    def workflow_by_spawner(self, spawner_id):
+        cache = self.cache()
+        if spawner_id in cache:
+            return cache[spawner_id]
         return None
 
-    @staticmethod
-    def createInstance(kernel_id=None, **kwargs):
-        if kernel_id is None: kernel_id = Config.kernel_id()
+    def workflow(self, workflow_id):
+        zone = self.zone
+        cache = self.cache()
 
-        cache = Model.cache()
-        if kernel_id in cache:
-            return cache[kernel_id]
-        cache[kernel_id] = Model(kernel_id, **kwargs)
-        return cache[kernel_id]
+        data = config.get_workflow(wiz, zone, workflow_id)
+        data['id'] = workflow_id
 
-    @staticmethod
-    def isInstance(kernel_id=None):
-        if kernel_id is None: kernel_id = Config.kernel_id()
-        cache = Model.cache()
-        if kernel_id in cache:
-            return True
-        return False
+        spawner_id = None
+        if 'spawner_id' in data:
+            spawner_id = data['spawner_id']
+        if spawner_id in cache:
+            cache[spawner_id].update_id(workflow_id)
+            return cache[spawner_id]
+
+        spawner_id = self.random(16)
+        while spawner_id in cache:
+            spawner_id = self.random(16)        
+        data['spawner_id'] = spawner_id
+
+        workflow = Workflow(self, data)
+        cache[spawner_id] = workflow
+        config.update_workflow(wiz, zone, workflow_id, data)
+        
+        return workflow
+    
+    def workflows(self):
+        res = dict()
+        cache = self.cache()
+        for key in cache:
+            if cache[key].status() != 'stop':
+                res[cache[key].id()] = dict(spawner_id=key, status=cache[key].status())
+        return res
+
+    def spec(self, name):
+        condapath = config.condapath
+        condafs = season.util.os.FileSystem(condapath)
+        specs = self.specs()
+        for spec in specs:
+            if spec['conda'] == name:
+                return spec
+        return dict(name="base", title="base", conda="base", executable=condafs.abspath(sys.executable))
 
     @staticmethod
     def specs():
-        fs = Config.fs()
-        specs = fs.read.json("spec.json", [])
-        if len(specs) == 0:
-            specs.append(dict(name="base"))
-        return specs
+        def hasDizest(condafs, env):
+            path = os.path.join("envs", env, "bin", "dizest")
+            return condafs.exists(path)
 
-    def uri(self):
-        return self.spanwer.uri()
+        condapath = config.condapath
+        condafs = season.util.os.FileSystem(condapath)
+        envs = condafs.list("envs")
+        res = []
 
-    def start(self):
-        self.spanwer.start()
+        env = "base"
+        basepath = condafs.abspath(sys.executable)
+        res.append(dict(name=env, title=env, conda=env, executable=basepath))
 
-    def restart(self):
-        self.spanwer.stop()
-        self.spanwer.start()
-
-    def stop(self):
-        self.spanwer.stop()
-        cache = Model.cache()
-        kernel_id = self.kernel_id
-        if kernel_id in cache:
-            del cache[kernel_id]
-
-    def status(self):
-        return self.spanwer.status()
-
-    def set(self, **kwargs):
-        self.spanwer.set(**kwargs)
+        for env in envs:
+            if env[0] == ".": continue
+            if condafs.isdir(os.path.join("envs", env)):
+                path = os.path.join("envs", env, "bin", "python")
+                path = condafs.abspath(path)
+                
+                if hasDizest(condafs, env) == False:
+                    continue
+                if path == basepath: 
+                    continue
+                res.append(dict(name=env, title=env, conda=env, executable=path))
+        return res

@@ -22,7 +22,7 @@ then
             # bundle dump
             rm -rf src/dizest/bundle/project/*
             rm -rf src/dizest/bundle/project/src
-            cp -r dev/branch/main/bundle/* src/dizest/bundle/project/
+            cp -r dev/branch/local/bundle/* src/dizest/bundle/project/
             rm -rf src/dizest/bundle/project/config
             ;;
 

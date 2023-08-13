@@ -1,0 +1,8 @@
+{
+    "id": "portal.dizest.uimode",
+    "title": "/api/dizest/ui/<path:path>",
+    "route": "/api/dizest/ui/<path:path>",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "portal/dizest/base"
+}

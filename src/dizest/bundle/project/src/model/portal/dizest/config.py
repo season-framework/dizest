@@ -1,6 +1,7 @@
 import os
-import urllib
+import sys
 import season
+import urllib
 
 class BaseConfig(season.util.std.stdClass):
     DEFAULT_VALUES = dict()
@@ -26,73 +27,87 @@ class BaseConfig(season.util.std.stdClass):
             if _type is not None: val = _type(val)
         return val
 
-DEFAULT_VALUES = ['kernel_id', 'user', 'cwd', 'socket', 'cronhost', 'get_workflow', 'update_workflow']
+condapath = str(sys.executable)
+condapath = os.path.dirname(condapath)
+condapath = os.path.dirname(condapath)
+if condapath.split("/")[-2] == "envs":
+    condapath = os.path.dirname(condapath)
+    condapath = os.path.dirname(condapath)
 
-configpath = wiz.config("dizest").get('configpath', os.path.join(wiz.server.path.root, "config", "dizest"))
-fs = season.util.os.FileSystem(configpath)
-code = fs.read("kernel.py", "")
-configfile = season.util.os.compiler(code, name=configpath, logger=print, wiz=wiz)
-configdata = dict()
-for key in configfile:
-    if key in DEFAULT_VALUES:
-        configdata[key] = configfile[key]
+def user_id(wiz, zone):
+    return wiz.session.get("id")
 
-def get_kernel_id():
-    session = wiz.model("portal/season/session")
-    return session.user_id()
+def acl(wiz, zone):
+    uid = user_id(wiz, zone)
+    return uid == zone
 
-def user():
-    session = wiz.model("portal/season/session")
-    return session.user_id()
+def admin_access(wiz, zone):
+    user = user_id(wiz, zone)
+    return user == 'root'
 
-def cwd():
-    session = wiz.model("portal/season/session")
-    user = session.user_id()
-    if user == "root":
-        return "/root"
-    return f"/home/{user}"
+def cron_access(wiz, zone):
+    ip = wiz.request.ip()
+    return ip == '127.0.0.1'
 
-def socket():
+def storage_path(wiz, zone):
+    homepath = os.path.expanduser(f"~{zone}")
+    return homepath
+
+def socket_uri(wiz, zone, workflow_id):
     branch = wiz.branch()
     host = urllib.parse.urlparse(wiz.request.request().base_url)
     host = f"{host.scheme}://{host.netloc}"
-    uri = f"{host}/wiz/app/{branch}/portal.dizest.workflow.ui"
+    uri = f"{host}/wiz/app/{branch}/page.main"
     return uri
 
-def cronhost():
+def cwd(wiz, zone, workflow_id):
+    fs = season.util.os.FileSystem(storage_path(wiz, zone))
+    path = fs.abspath(workflow_id)
+    return os.path.dirname(path)
+
+def cron_uri(wiz, zone, workflow_id):
     host = urllib.parse.urlparse(wiz.request.request().base_url)
     port = host.netloc.split(":")[-1]
     host = f"{host.scheme}://127.0.0.1:{port}"
     return host
 
-def get_workflow(namespace, workflow_id, acl):
-    db = wiz.model("portal/season/orm").use("workflow")
-    if acl:
-        session = wiz.model("portal/season/session")
-        user = session.user_id()
-        return db.get(id=workflow_id, user_id=user)
-    return db.get(id=workflow_id)
+def get_workflow(wiz, zone, workflow_id):
+    fs = season.util.os.FileSystem(storage_path(wiz, zone))
+    if fs.exists(workflow_id) == False:
+        return None
+    data = fs.read.json(workflow_id, None)
+    return data
 
-def update_workflow(namespace, workflow_id, data, acl):
-    session = wiz.model("portal/season/session")
-    user = session.user_id()
-    db = wiz.model("portal/season/orm").use("workflow")
-    db.update(data, id=workflow_id, user_id=user)
+def update_workflow(wiz, zone, workflow_id, data):
+    fs = season.util.os.FileSystem(storage_path(wiz, zone))
+    fs.write.json(workflow_id, data)    
 
-def config_fs():
-    fs = season.util.os.FileSystem(configpath)
-    return fs
+configfs = season.util.os.FileSystem(os.getcwd())
 
 class Config(BaseConfig):
     DEFAULT_VALUES = {
-        'kernel_id': (None, get_kernel_id),
-        'user': (None, user),
+        'fs': (None, configfs),
+        'condapath': (str, condapath),
+        'storage_path': (None, storage_path),
+        'user_id': (None, user_id),
+        'acl': (None, acl),
+        'cron_access': (None, cron_access),
+        'admin_access': (None, admin_access),
         'cwd': (None, cwd),
-        'socket': (None, socket),
-        'cronhost': (None, cronhost),
+        'socket_uri': (None, socket_uri),
+        'cron_uri': (None, cron_uri),
         'get_workflow': (None, get_workflow),
-        'update_workflow': (None, update_workflow),
-        'fs': (None, config_fs)
+        'update_workflow': (None, update_workflow)
     }
 
-Model = Config(configdata)
+if configfs.exists(".dizest/config.py"):
+    code = configfs.read(".dizest/config.py", "")
+    configfile = season.util.os.compiler(code, name="dizest.config", logger=print, wiz=wiz)
+    config = dict()
+    for key in configfile:
+        if key in Config.DEFAULT_VALUES:
+            config[key] = configfile[key]
+else:
+    config = wiz.config("dizest")
+
+Model = Config(config)

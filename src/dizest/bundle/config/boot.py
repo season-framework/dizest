@@ -11,8 +11,7 @@ socketio['always_connect'] = False
 socketio['manage_session'] = True
 
 run = dict()
+run['allow_unsafe_werkzeug'] = True
 run['host'] = "0.0.0.0"
 run['port'] = 4000
-run['debug'] = False
 run['use_reloader'] = False
-run['allow_unsafe_werkzeug'] = True

@@ -1,8 +1,8 @@
 {
     "id": "portal.dizest.workflow",
-    "title": "/dizest/workflow/<path:path>",
-    "route": "/dizest/workflow/<path:path>",
+    "title": "/api/dizest/workflow/<zone>/<path:path>",
+    "route": "/api/dizest/workflow/<zone>/<path:path>",
     "viewuri": "",
     "category": "dizest",
-    "controller": ""
+    "controller": "portal/dizest/base"
 }
