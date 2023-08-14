@@ -87,7 +87,7 @@ if action == "flow/run":
 
 if action == "flow/stop":
     flow_id = wiz.request.query("flow_id")
-    res = workflow.flow.run(flow_id)
+    res = workflow.flow.stop(flow_id)
     wiz.response.status(res.code)
 
 if action == "spec":

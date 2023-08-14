@@ -156,6 +156,11 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.1
+
+- [ui] draw workflow bug fixed
+- [ui] flow stop bug fixed
+
 ### 3.4.0
 
 - [ui] UI full changed (Single page hub)
