@@ -27,6 +27,28 @@ if action == "active":
 workflow_id = wiz.request.query("workflow_id", True)
 workflow = kernel.workflow(workflow_id)
 
+def driveItem(path):
+    def convert_size():
+        size_bytes = os.path.getsize(fs.abspath(path)) 
+        if size_bytes == 0:
+            return "0B"
+        size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+        i = int(math.floor(math.log(size_bytes, 1024)))
+        p = math.pow(1024, i)
+        s = round(size_bytes / p, 2)
+        return "%s %s" % (s, size_name[i])
+
+    item = dict()
+    item['id'] = path
+    item['type'] = 'folder' if fs.isdir(path) else 'file'
+    item['title'] = os.path.basename(path)
+    item['root_id'] = os.path.dirname(path)
+    item['created'] = datetime.datetime.fromtimestamp(os.stat(fs.abspath(path)).st_ctime).strftime('%Y-%m-%d %H:%M:%S')
+    item['modified'] = datetime.datetime.fromtimestamp(os.stat(fs.abspath(path)).st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+    item['size'] = convert_size()
+    item['sizebyte'] = os.path.getsize(fs.abspath(path)) 
+    return item
+
 if action == "load":
     data = workflow.data()
     status = workflow.status()
@@ -99,5 +121,26 @@ if action == "spec/update":
     if specdata['name'] == spec:
         workflow.set(spec=spec)
     wiz.response.status(200)
+
+if action == "drive/list":
+    path = wiz.request.query("path", "")
+    scanparent = wiz.request.query("scanparent", None)
+    if scanparent is not None:
+        path = os.path.dirname(path)
+
+    basedir = os.path.dirname(workflow_id)
+    basedir = os.path.join(basedir, path)
+    files = fs.ls(basedir)
+    res = []
+    for f in files:
+        fi = driveItem(os.path.join(basedir, f))
+        fi['id'] = os.path.join(path, f)
+        res.append(fi)
+
+    parent = None
+    if len(path) > 0:
+        parent = os.path.dirname(path)
+    
+    wiz.response.status(200, parent=parent, files=res)
 
 wiz.response.status(404)

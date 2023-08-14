@@ -31,7 +31,12 @@ class Controller:
         pass
 
     def close(self, wiz, data, io):
+        config = wiz.model("portal/dizest/config")
+        wiz.session = wiz.model("portal/season/session")
         zone = data['zone']
+        if config.acl(wiz, zone) == False:
+            return
+
         namespace = data['namespace']
         cache = getCache(wiz, zone, namespace)
         if cache["child_pid"] is not None:
@@ -43,8 +48,13 @@ class Controller:
             os.system(f"kill -9 {ppid} > /dev/null")
 
     def join(self, wiz, data, io):
-        branch = wiz.branch()
+        config = wiz.model("portal/dizest/config")
+        wiz.session = wiz.model("portal/season/session")
         zone = data['zone']
+        if config.acl(wiz, zone) == False:
+            return
+        
+        branch = wiz.branch()
         cache_namespace = data['namespace']
         cache = getCache(wiz, zone, cache_namespace)
         namespace = f"/wiz/app/{branch}/portal.dizest.editor.terminal"
@@ -52,9 +62,14 @@ class Controller:
         io.join(to)
 
     def create(self, wiz, data, io):
+        wiz.session = wiz.model("portal/season/session")
         config = wiz.model("portal/dizest/config")
         branch = wiz.branch()
         zone = data['zone']
+                
+        if config.acl(wiz, zone) == False:
+            return
+
         user_id = config.user_id(wiz, zone)
         cwd = config.storage_path(wiz, zone)
         cache_namespace = data['namespace']
@@ -100,14 +115,24 @@ class Controller:
             socketio.start_background_task(target=read_and_forward_pty_output)
         
     def ptyinput(self, wiz, data):
+        config = wiz.model("portal/dizest/config")
+        wiz.session = wiz.model("portal/season/session")
         zone = data['zone']
+        if config.acl(wiz, zone) == False:
+            return
+
         namespace = data['namespace']
         cache = getCache(wiz, zone, namespace)
         if cache["fd"]:
             os.write(cache["fd"], data["input"].encode())
 
     def resize(self, wiz, data):
+        config = wiz.model("portal/dizest/config")
+        wiz.session = wiz.model("portal/season/session")
         zone = data['zone']
+        if config.acl(wiz, zone) == False:
+            return
+            
         namespace = data['namespace']
         cache = getCache(wiz, zone, namespace)
         if cache["fd"]:

@@ -1,0 +1,8 @@
+{
+    "id": "authenticate",
+    "title": "/authenticate",
+    "route": "/authenticate",
+    "viewuri": "/authenticate",
+    "category": "dizest",
+    "controller": "base"
+}

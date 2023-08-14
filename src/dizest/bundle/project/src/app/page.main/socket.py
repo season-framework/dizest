@@ -6,8 +6,13 @@ class Controller:
         pass
 
     def join(self, data, io):
+        config = wiz.model("portal/dizest/config")
+        wiz.session = wiz.model("portal/season/session")
         zone = data['zone']
         workflow_id = data['workflow_id']
+
+        if config.acl(wiz, zone) == False:
+            return
 
         Kernel = wiz.model("portal/dizest/kernel")
         config = wiz.model("portal/dizest/config")

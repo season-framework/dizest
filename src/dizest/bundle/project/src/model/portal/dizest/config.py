@@ -37,6 +37,29 @@ if condapath.split("/")[-2] == "envs":
 def user_id(wiz, zone):
     return wiz.session.get("id")
 
+def login(wiz, user, password):
+    import crypt
+    import getpass
+    import spwd
+    try:
+        enc_pwd = spwd.getspnam(user)[1]
+        if enc_pwd in ["NP", "!", "", None]:
+            return "user '%s' has no password set" % user
+        if enc_pwd in ["LK", "*"]:
+            return "account is locked"
+        if enc_pwd == "!!":
+            return "password has expired"
+        if crypt.crypt(password, enc_pwd) == enc_pwd:
+            return True
+        else:
+            return "incorrect password"
+    except KeyError:
+        return "user '%s' not found" % user
+    return "unknown error"
+
+def authenticate(wiz):
+    wiz.response.redirect("/access")
+
 def acl(wiz, zone):
     uid = user_id(wiz, zone)
     return uid == zone
@@ -87,8 +110,10 @@ configfs = season.util.os.FileSystem(os.getcwd())
 class Config(BaseConfig):
     DEFAULT_VALUES = {
         'fs': (None, configfs),
+        'authenticate': (None, authenticate),
         'condapath': (str, condapath),
         'storage_path': (None, storage_path),
+        'login': (None, login),
         'user_id': (None, user_id),
         'acl': (None, acl),
         'cron_access': (None, cron_access),

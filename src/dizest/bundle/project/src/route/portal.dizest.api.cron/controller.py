@@ -34,8 +34,11 @@ if action == "start":
             workflow.set(spec=spec)
             workflow.kill()
             workflow.start()
-    elif workflow_status == 'stop':
+    
+    workflow_status = workflow.status()
+    if workflow_status == 'stop':
         workflow.start()
+
     workflow.run()
     wiz.response.status(200, 'started')
 
