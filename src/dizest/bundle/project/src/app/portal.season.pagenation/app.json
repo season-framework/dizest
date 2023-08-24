@@ -16,13 +16,14 @@
         "inputs": [
             "current",
             "start",
-            "end"
+            "end",
+            "maxlength"
         ],
         "outputs": [
             "pageMove"
         ]
     },
-    "template": "wiz-portal-season-pagenation([current]=\"\", [start]=\"\", [end]=\"\", (pageMove)=\"\")",
+    "template": "wiz-portal-season-pagenation([current]=\"\", [start]=\"\", [end]=\"\", [maxlength]=\"\", (pageMove)=\"\")",
     "type": "app",
     "path": "portal/season/app/pagenation/app.json"
 }

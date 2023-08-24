@@ -156,6 +156,11 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.3
+
+- support customize Workflow Node
+- `/api/drive` ownership bug fixed
+
 ### 3.4.2
 
 - [ui] terminal bug fixed

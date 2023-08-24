@@ -55,6 +55,7 @@ setup(
         'natsort',
         'season>=2.3',
         'peewee',
+        'libsass',
         'bcrypt',
         'python-socketio==5.7.2',
         'python-socketio[client]'

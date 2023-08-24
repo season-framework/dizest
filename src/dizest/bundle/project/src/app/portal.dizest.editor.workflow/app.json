@@ -7,7 +7,7 @@
     "viewuri": "",
     "category": "dizest",
     "controller": "",
-    "template": "wiz-portal-dizest-editor-workflow([tab]=\"\")",
+    "template": "wiz-portal-dizest-editor-workflow([tab]=\"\", [DrawflowNodeComponent]=\"\")",
     "ng.build": {
         "id": "portal.dizest.editor.workflow",
         "name": "PortalDizestEditorWorkflowComponent",
@@ -16,7 +16,8 @@
     "ng": {
         "selector": "wiz-portal-dizest-editor-workflow",
         "inputs": [
-            "tab"
+            "tab",
+            "DrawflowNodeComponent"
         ],
         "outputs": []
     },

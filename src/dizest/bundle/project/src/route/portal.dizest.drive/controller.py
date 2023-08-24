@@ -17,6 +17,8 @@ fs = season.util.os.FileSystem(config.storage_path(wiz, zone))
 if config.acl(wiz, zone) == False:
     wiz.response.status(401)
 
+user = config.user_id(wiz, zone)
+
 def driveItem(path):
     def convert_size():
         size_bytes = os.path.getsize(fs.abspath(path)) 
@@ -71,12 +73,14 @@ if action.startswith("create"):
         fs.makedirs(path)
     else:
         fs.write(path, data)
+    shutil.chown(fs.abspath(path), user=user, group=user)
     wiz.response.status(200)
 
 if action.startswith("update_file"):
     file_id = wiz.request.query("id", True)
     data = wiz.request.query("data", True)
     fs.write(file_id, data)
+    shutil.chown(fs.abspath(file_id), user=user, group=user)
     wiz.response.status(200)
 
 if action.startswith("update"):
@@ -87,6 +91,7 @@ if action.startswith("update"):
     if fs.exists(path):
         wiz.response.status(401)
     fs.move(file_id, path)
+    shutil.chown(fs.abspath(path), user=user, group=user)
     wiz.response.status(200)
 
 if action == "delete":
@@ -121,7 +126,9 @@ if action.startswith("upload"):
         name = f.filename
         if fpath is not None:
             name = fpath
-        fs.write.file(os.path.join(path, name), f)
+        target = os.path.join(path, name)
+        fs.write.file(target, f)
+        shutil.chown(fs.abspath(target), user=user, group=user)
     wiz.response.status(200)
 
 if action.startswith("download"):
