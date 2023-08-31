@@ -18,13 +18,21 @@ def queue():
     global cache
     global io_namespace
     while True:
+        error = False
         try:
             if len(cache) > 0:
                 data = cache[:100]
                 socket_client.emit('wplog', data, namespace=io_namespace)
                 cache = cache[100:]
         except:
-            pass
+            error = True
+        if error:
+            try:
+                socket_client.disconnect()
+            except:
+                pass
+            socket_client = socketio.Client()
+            socket_client.connect(host, namespaces=[io_namespace])
         time.sleep(1)
 
 process = dizest.util.os.Thread(target=queue)

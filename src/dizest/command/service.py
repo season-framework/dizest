@@ -108,7 +108,7 @@ WantedBy=multi-user.target
         services = [['service', 'systemd', 'binary']]
         for target in files:
             if target.startswith("dizest."):
-                name = ".".join(target[4:].split(".")[:-1])
+                name = ".".join(target[7:].split(".")[:-1])
                 path = f"/etc/systemd/{target}"
                 binary = f"/usr/local/bin/dizest.{name}"
                 services.append([name, path, binary])

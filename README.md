@@ -156,6 +156,11 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.4
+
+- kernel socket error fixed
+- dizest service display bug fixed
+
 ### 3.4.3
 
 - support customize Workflow Node
