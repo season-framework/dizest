@@ -10,13 +10,14 @@ SOCKET = os.environ['SOCKET']
 parts = urlparse(SOCKET)
 host = parts.scheme + "://" + parts.netloc
 io_namespace = parts.path
-socket_client = socketio.Client()
-socket_client.connect(host, namespaces=[io_namespace])
 
 cache = []
 def queue():
     global cache
     global io_namespace
+    socket_client = socketio.Client()
+    socket_client.connect(host, namespaces=[io_namespace])
+
     while True:
         error = False
         try:
@@ -26,6 +27,7 @@ def queue():
                 cache = cache[100:]
         except:
             error = True
+
         if error:
             try:
                 socket_client.disconnect()
@@ -33,6 +35,7 @@ def queue():
                 pass
             socket_client = socketio.Client()
             socket_client.connect(host, namespaces=[io_namespace])
+
         time.sleep(1)
 
 process = dizest.util.os.Thread(target=queue)

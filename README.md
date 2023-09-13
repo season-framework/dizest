@@ -156,6 +156,19 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.6
+
+- [ui] scroll bug fixed at system info
+- [ui] kill workflow button at drive
+- [ui] move workflow bug fixed when workflow is running
+- [ui] display file upload status at drive
+- [ui] restart server (admin)
+- [core] kernel socket error fixed
+
+### 3.4.5
+
+- kernel socket error fixed
+
 ### 3.4.4
 
 - kernel socket error fixed

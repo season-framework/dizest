@@ -1,3 +1,6 @@
+import os
+import psutil
+import signal
 import json
 
 config = wiz.model("portal/dizest/config")
@@ -19,4 +22,15 @@ def update():
     if fs.exists(".dizest") == False:
         fs.makedirs(".dizest")
     fs.write.json(".dizest/config.json", data)
+    wiz.response.status(200)
+
+def restart():
+    pid = os.getpid()
+    for child in psutil.Process(pid).children(recursive=True):
+        child.terminate()
+        os.kill(child.pid, signal.SIGKILL)
+    os.kill(pid, signal.SIGKILL)
+    wiz.response.status(200)
+
+def status():
     wiz.response.status(200)
