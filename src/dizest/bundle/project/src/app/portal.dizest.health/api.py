@@ -7,6 +7,7 @@ import platform
 import subprocess
 import json
 
+config = wiz.model("portal/dizest/config")
 stdClass = season.util.std.stdClass
 
 DEFAULT_ATTRIBUTES = (
@@ -49,7 +50,7 @@ def health():
     memory = memory + " / " + str(int(psutil.virtual_memory().total / 1024 / 1024 / 1024 * 100) / 100) + ' GB'
     data.system.append(dict(key='Memory', value=memory))
     
-    hdd = psutil.disk_usage('/')
+    hdd = psutil.disk_usage(config.disk)
     disk = str(int(hdd.used / 1024 / 1024 / 1024 * 100) / 100) + ' GB'
     disk = disk + " / " + str(int(hdd.total / 1024 / 1024 / 1024 * 100) / 100) + ' GB'
     data.system.append(dict(key='Disk', value=disk))

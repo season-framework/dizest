@@ -21,7 +21,22 @@ def getPythonInfo(condafs, path):
     version = version.replace("\n", " ").strip()
     return path, version
 
+def getDizestInfo(condafs, path):
+    path = condafs.abspath(path)
+    txts = os.popen(path + " freeze | grep dizest").read()
+    txts = txts.split("\n")
+    version = ""
+    for txt in txts:
+        if "dizest" in txt:
+            version = txt.split("==")
+            if len(version) == 2:
+                version = version[1]
+            else:
+                version = 'latest'
+    return version
+
 if action == "list":
+    withDizest = wiz.request.query("dizest", None)
     condapath = config.condapath    
     condafs = season.util.os.FileSystem(condapath)
     envs = condafs.list("envs")
@@ -40,8 +55,22 @@ if action == "list":
             path = os.path.join("envs", env, "bin", "python")
             path, version = getPythonInfo(condafs, path)
             isbase = path == basepath
-            res.append(dict(name=env, version=version, path=path, isbase=isbase))
+            item = dict(name=env, version=version, path=path, isbase=isbase)
+            if withDizest:
+                item['dizest'] = getDizestInfo(condafs, os.path.join("envs", env, "bin", "pip"))
+            res.append(item)
+
     wiz.response.status(200, res)
+
+if action == "upgrade":
+    condapath = config.condapath
+    condafs = season.util.os.FileSystem(condapath)
+    name = wiz.request.query("name", True)
+    envs = condafs.list("envs")
+    if name not in envs:
+        wiz.response.status(404)
+    os.system(f"{condapath}/envs/{name}/bin/python -m pip install dizest --upgrade")
+    wiz.response.status(200)
 
 if action == "create":
     condapath = config.condapath

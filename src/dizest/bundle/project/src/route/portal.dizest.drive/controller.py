@@ -154,3 +154,14 @@ if action.startswith("download"):
         path = zippath
 
     wiz.response.download(path)
+
+if action.startswith("video"):
+    segment = wiz.request.match("/api/dizest/drive/<zone>/video/<path:path>")
+    rangeHeader = wiz.request.headers('Range', None)
+    path = segment.path
+    path = fs.abspath(path)
+
+    if fs.isdir(path) or fs.exists(path) is False:
+        wiz.response.abort(404)
+
+    wiz.response.stream(path, rangeHeader=rangeHeader)

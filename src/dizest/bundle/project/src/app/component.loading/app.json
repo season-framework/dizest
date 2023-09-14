@@ -1,0 +1,20 @@
+{
+    "mode": "component",
+    "id": "component.loading",
+    "title": "Loading",
+    "namespace": "loading",
+    "viewuri": "",
+    "category": "",
+    "controller": "",
+    "ng.build": {
+        "id": "component.loading",
+        "name": "ComponentLoadingComponent",
+        "path": "./component.loading/component.loading.component"
+    },
+    "ng": {
+        "selector": "wiz-component-loading",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-component-loading()"
+}

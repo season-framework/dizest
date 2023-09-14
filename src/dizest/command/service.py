@@ -14,25 +14,32 @@ PATH_ROOT = fs.abspath()
 EXEC_SCRIPT = f"""#!/bin/bash
 source /root/.bashrc
 cd {PATH_ROOT}
-{PATH_EXEC_DIZEST} run
+{PATH_EXEC_DIZEST} run $params
 """
 
 class ServiceCommand:
      
-    def regist(self, serviceName=None):
+    def regist(self, serviceName=None, port=None):
         if fs.exists(os.path.join("public", "app.py")) == False:
             print("Invalid Project path: wiz structure not found in this folder.")
             return
 
         if serviceName is None or len(serviceName) == 0:
-            print("wiz service regist [Service Name]")
+            print("dizest service regist [Service Name]")
             return
         
         serviceName = "dizest." + serviceName.lower()
         commandPath = f"/usr/local/bin/{serviceName}"
         servicePath = f"/etc/systemd/system/{serviceName}.service"
-        
-        fs.write(commandPath, EXEC_SCRIPT)
+
+        _params = []
+        if port is not None:
+            _params.append(f"--port {str(port)}")
+        _params = " ".join(_params)
+
+        _script = EXEC_SCRIPT.replace("$params", _params)
+
+        fs.write(commandPath, _script)
         os.system(f"chmod +x {commandPath}")
         print(f"`{commandPath}` created")
 
@@ -90,16 +97,40 @@ WantedBy=multi-user.target
     def status(self, serviceName=None):
         serviceName = "dizest." + serviceName.lower()
         os.system(f"systemctl status {serviceName}")
-    
+
+    def _list(self):
+        files = fs.files("/etc/systemd/system")
+        services = []
+        for target in files:
+            if target.startswith("dizest."):
+                name = ".".join(target[7:].split(".")[:-1])
+                services.append(name)
+        return services
+
     def start(self, serviceName=None):
+        if serviceName is None:
+            services = self._list()
+            for service in services:
+                self.start(service)
+            return
         serviceName = "dizest." + serviceName.lower()
         os.system(f"systemctl start {serviceName}")
     
     def stop(self, serviceName=None):
+        if serviceName is None:
+            services = self._list()
+            for service in services:
+                self.stop(service)
+            return
         serviceName = "dizest." + serviceName.lower()
         os.system(f"systemctl stop {serviceName}")
 
     def restart(self, serviceName=None):
+        if serviceName is None:
+            services = self._list()
+            for service in services:
+                self.restart(service)
+            return
         serviceName = "dizest." + serviceName.lower()
         os.system(f"systemctl restart {serviceName}")
 

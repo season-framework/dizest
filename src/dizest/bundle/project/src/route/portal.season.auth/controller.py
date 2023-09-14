@@ -9,6 +9,9 @@ if wiz.request.match(f"{BASEURI}/check") is not None:
     wiz.response.status(200, status=status, session=data)
 
 if wiz.request.match(f"{BASEURI}/logout") is not None:
+    returnTo = wiz.request.query("returnTo", "/")
+    wiz.session.set(returnTo=returnTo)
+
     if LOGOUT_URI is not None and LOGOUT_URI != f"{BASEURI}/logout":
         wiz.response.redirect(LOGOUT_URI)
 
@@ -17,7 +20,7 @@ if wiz.request.match(f"{BASEURI}/logout") is not None:
         wiz.response.redirect(f"{BASEURI}/saml/logout")
 
     wiz.session.clear()
-    wiz.response.redirect("/")
+    wiz.response.redirect(returnTo)
 
 if wiz.request.match(f"{BASEURI}/login") is not None:
     if LOGIN_URL is not None and LOGIN_URL != f"{BASEURI}/login":

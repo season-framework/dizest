@@ -2,7 +2,7 @@
     "mode": "portal",
     "type": "app",
     "id": "portal.dizest.editor.text",
-    "title": "Editor/Text",
+    "title": "Editor/Drive/Text",
     "namespace": "editor.text",
     "viewuri": "",
     "category": "dizest",

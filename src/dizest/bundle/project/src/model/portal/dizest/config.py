@@ -110,6 +110,7 @@ configfs = season.util.os.FileSystem(os.getcwd())
 class Config(BaseConfig):
     DEFAULT_VALUES = {
         'fs': (None, configfs),
+        'disk': (str, '/'),
         'authenticate': (None, authenticate),
         'condapath': (str, condapath),
         'storage_path': (None, storage_path),

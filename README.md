@@ -156,6 +156,13 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.7
+
+- [ui] loading ui design changed
+- [ui] image/video viewer at drive
+- [ui] disk path config added for system status
+- [core] service command updated
+
 ### 3.4.6
 
 - [ui] scroll bug fixed at system info
@@ -163,6 +170,7 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 - [ui] move workflow bug fixed when workflow is running
 - [ui] display file upload status at drive
 - [ui] restart server (admin)
+- [ui] conda env upgrade at admin setting page
 - [core] kernel socket error fixed
 
 ### 3.4.5

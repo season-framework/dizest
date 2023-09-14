@@ -119,6 +119,7 @@ class SAML:
     def sls(self):
         auth = self.__auth__
         request_id = session.get('LogoutRequestID', None)
+        returnTo = session.get('returnTo', "/")
 
         session.clear()
         url = auth.process_slo(request_id=request_id)
@@ -129,7 +130,8 @@ class SAML:
                 wiz.response.redirect(url)
         elif auth.get_settings().is_debug_active():
             auth.get_last_error_reason()
-        wiz.response.redirect('/')
+
+        wiz.response.redirect(returnTo)
     
     def metadata(self):
         auth = self.__auth__
