@@ -156,6 +156,11 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.8
+
+- [ui] sidebar lifecycle changed
+- [core] wiz version
+
 ### 3.4.7
 
 - [ui] loading ui design changed

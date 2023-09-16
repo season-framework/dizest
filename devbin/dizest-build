@@ -39,7 +39,7 @@ then
             ;;
 
         *)
-            echo "dizest-build [ init | bundle | git ]"
+            echo "dizest-build [ init | bundle | build | kill ]"
             ;;
     esac
 else

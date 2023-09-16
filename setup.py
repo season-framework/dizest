@@ -53,7 +53,7 @@ setup(
         'pandas',
         'pymysql',
         'natsort',
-        'season==2.3.17',
+        'season>=2.3.18',
         'peewee',
         'libsass',
         'bcrypt',
