@@ -51,7 +51,7 @@ class Renderer:
         v = str(v)
         v = html.escape(v)
 
-        size = kwargs['size'] if 'size' in kwargs else 100
+        size = kwargs['size'] if 'size' in kwargs else 2000
         if len(v) > size: 
-            v = v[:size - 10] + " ... " + v[-10:]
+            v = v[:size - 50] + " ... " + v[-50:]
         return v

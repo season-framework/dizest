@@ -47,6 +47,7 @@ if action.startswith("tree"):
     root = driveItem(path)
     children = []
     for item in fs.ls(path):
+        if item == '__pycache__': continue
         children.append(driveItem(os.path.join(path, item)))
 
     wiz.response.status(200, dict(root=root, children=children))
@@ -129,6 +130,14 @@ if action.startswith("upload"):
         target = os.path.join(path, name)
         fs.write.file(target, f)
         shutil.chown(fs.abspath(target), user=user, group=user)
+        dirname = os.path.dirname(target)
+        while fs.abspath() in dirname:
+            try:
+                shutil.chown(fs.abspath(dirname), user=user, group=user)
+            except:
+                pass
+            dirname = os.path.dirname(dirname)
+
     wiz.response.status(200)
 
 if action.startswith("download"):

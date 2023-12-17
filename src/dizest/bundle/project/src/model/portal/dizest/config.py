@@ -126,8 +126,9 @@ class Config(BaseConfig):
         'update_workflow': (None, update_workflow)
     }
 
-if configfs.exists(".dizest/config.py"):
-    code = configfs.read(".dizest/config.py", "")
+if configfs.exists(".dizest/config.py") or configfs.exists("config.py"):
+    if configfs.exists(".dizest/config.py"): code = configfs.read(".dizest/config.py", "")
+    else: code = configfs.read("config.py", "")
     configfile = season.util.os.compiler(code, name="dizest.config", logger=print, wiz=wiz)
     config = dict()
     for key in configfile:

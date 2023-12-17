@@ -1,3 +1,4 @@
+import os
 from dizest import util
 from dizest.core.app import App
 from dizest.core.flow import Flow
@@ -14,6 +15,11 @@ class Workflow:
         self.__trigger__ = dict()
         self.__renderer__ = Renderer().render
         self.scheduler = Scheduler(self)
+        self.cwd = os.getcwd()
+
+        code = "import os\nimport sys\nsys.path.insert(0, os.getcwd())"
+        exec(code)
+
         self.load(package)
 
     def namespace(self):

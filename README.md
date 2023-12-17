@@ -47,11 +47,30 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## DIZEST CLI
 
-### Create Project
-- `dizest install [Project Name]`
+### Project API
+- `dizest install [Project Name] --mode single --password 1234`
+    - Flag
+        | Flag | Syntax | Description |
+        |---|---|---|
+        | --mode | dizest install [Project Name] --mode=single | single or system, default single |
+        | --password | dizest install [Project Name] --password=1234 | root account password, default 1234 |
     - Example
         ```bash
         dizest install myapp
+        ```
+
+- `dizest upgrade`
+    - Example
+        ```bash
+        cd myapp
+        dizest upgrade
+        ```
+    
+- `dizest password <password>`
+    - change root user password on single mode
+    - Example
+        ```bash
+        dizest password mypassword
         ```
 
 ### Daemon API
@@ -156,6 +175,15 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.9
+
+- [ui] terminal width/height bug fixed
+- [ui] terminal starting path changed
+- [ui] input list bug fixed at node
+- [ui] display text max length changed (100 to 2000)
+- [ui] user login changed (multi to single and support auth mode)
+- [core] install command changed (default as single user mode)
+
 ### 3.4.8
 
 - [ui] sidebar lifecycle changed
@@ -210,25 +238,22 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 - [ui] change user login using linux account
 - [ui] using kernel for each workflow
 
-### 3.3.2
+### 3.3.x
 
-- [ui] uimode bug fixed 
+- [3.3.0]
+    - [core] dizest input/output automation
+    - [core] dizest cli updated (service)
+    - [ui] code refactoring
+    - [ui] display filename on file delete popup
+    - [ui] codeflow resize bug fixed
+    - [ui] support multiple app upload
+    - [ui] open workflow as href
+    - [ui] workflow favorite and category added
+    - [ui] support activated workflow list
 
-### 3.3.1
-
-- [ui] uimode bug fixed 
-
-### 3.3.0
-
-- [core] dizest input/output automation
-- [core] dizest cli updated (service)
-- [ui] code refactoring
-- [ui] display filename on file delete popup
-- [ui] codeflow resize bug fixed
-- [ui] support multiple app upload
-- [ui] open workflow as href
-- [ui] workflow favorite and category added
-- [ui] support activated workflow list
+- 3.3.1 ~ 2
+    - [ui] uimode bug fixed 
+    - [ui] uimode bug fixed 
 
 ### 3.2.x
 

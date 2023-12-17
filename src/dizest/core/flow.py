@@ -1,3 +1,4 @@
+import os
 from dizest.core.dizesti import DizestInstance
 from dizest import util
 import time
@@ -206,6 +207,7 @@ class Flow:
                     flow.workflow.cache[flow.id()] = dizesti
 
                 env = dict()
+                env['__name__'] = os.path.join(flow.workflow.cwd)
                 env['dizest'] = dizesti
                 env['print'] = display
                 env['display'] = display
@@ -216,6 +218,8 @@ class Flow:
                     env[key] = dizesti.input(key)
 
                 dizesti._output = dict()
+
+                os.chdir(flow.workflow.cwd)
 
                 exec(code, env)
 

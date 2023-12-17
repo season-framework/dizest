@@ -30,6 +30,8 @@ class DriveServer:
 
             res = fs.ls()
             for i in range(len(res)):
+                if res[i] == "__pycache__":
+                    continue
                 obj = dict()
                 obj['name'] = res[i]
                 obj['type'] = 'folder'

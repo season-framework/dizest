@@ -5,6 +5,8 @@ PYTHON_PKG_PATH="$(python -c 'import sys; print(sys.path[-1])')/season"
 DIZEST_GIT_PATH=$(pwd)
 DIZEST_LIB_PATH="$DIZEST_GIT_PATH/src/dizest"
 
+find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
+
 if grep -Fq "github.com/season-framework/dizest" .git/config
 then
     case $ACTION in

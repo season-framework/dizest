@@ -9,7 +9,7 @@ import shlex
 import select
 import psutil
 
-def set_winsize(fd, row, col, xpix=0, ypix=0):
+def set_winsize(fd, row, col, xpix=9, ypix=17):
     winsize = struct.pack("HHHH", row, col, xpix, ypix)
     fcntl.ioctl(fd, termios.TIOCSWINSZ, winsize)
 
@@ -89,8 +89,11 @@ class Controller:
                         if data_ready:
                             branch = wiz.branch()
                             output = os.read(cache["fd"], max_read_bytes).decode(errors="ignore")
+                            if "'unknown': I need something more specific." in output:
+                                output = output.replace("'unknown': I need something more specific.", "\033\143")
                             io.emit("ptyoutput", {"output": output}, to=to, namespace=namespace, broadcast=True)
                 except Exception as e:
+                    io.emit("exit", {}, to=to, namespace=namespace, broadcast=True)
                     cache["fd"] = None
                     break
 
@@ -105,12 +108,14 @@ class Controller:
 
         (child_pid, fd) = pty.fork()
 
+        os.chdir(cwd)
+
         if child_pid == 0:
             subprocess.run(cache["cmd"])
         else:
             cache["fd"] = fd
             cache["child_pid"] = child_pid
-            set_winsize(fd, 50, 50)
+            set_winsize(fd, data["rows"], data["cols"])
             cmd = " ".join(shlex.quote(c) for c in cache["cmd"])
             socketio.start_background_task(target=read_and_forward_pty_output)
         
