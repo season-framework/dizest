@@ -37,6 +37,9 @@ def upgrade():
 
     fs.remove("project")
     fs.copy(os.path.join(PATH_BUNDLE, "project"), "project")
+    
+    fs.remove("plugin")
+    fs.copy(os.path.join(PATH_BUNDLE, "plugin"), "plugin")
 
     print("dizest upgraded")
 

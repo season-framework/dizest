@@ -33,7 +33,7 @@ then
             rm -rf dist
             rm -rf build
             python setup.py bdist_wheel
-            twine upload dist/dizest-$VERSION-py3-none-any.whl 
+            twine upload --verbose dist/dizest-$VERSION-py3-none-any.whl
             ;;
         
         kill)
