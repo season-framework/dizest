@@ -1,0 +1,21 @@
+.cmd-container
+    .cmd-plt
+        .input-wrap.d-flex
+            .pr-2.pl-2
+                i.fa-solid.fa-search
+            .pr-2.pl-2(*ngIf="showRoot")
+                label.text-sm(style="line-height: 32px;") {{root}}/
+            input.form-control(
+                '#searchInput'='',
+                type="text",
+                [(ngModel)]="text",
+                (ngModelChange)="onChange()",
+                (keydown)="onKeydown($event)",
+            )
+        ul.search-result.m-0(*ngIf="list.length > 0")
+            li.list-item(
+                *ngFor="let item of display;let i = index",
+                [class.active]="i === idx",
+                [innerHTML]="item",
+                (click)="open(i)",
+            )

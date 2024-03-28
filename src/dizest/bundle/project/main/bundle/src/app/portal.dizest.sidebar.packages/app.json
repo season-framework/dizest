@@ -1,0 +1,25 @@
+{
+    "mode": "portal",
+    "type": "app",
+    "id": "portal.dizest.sidebar.packages",
+    "title": "Sidebar/Packages",
+    "namespace": "sidebar.packages",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "",
+    "template": "wiz-portal-dizest-sidebar-packages([sidebar]=\"\")",
+    "ng.build": {
+        "id": "portal.dizest.sidebar.packages",
+        "name": "PortalDizestSidebarPackagesComponent",
+        "path": "./portal.dizest.sidebar.packages/portal.dizest.sidebar.packages.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-sidebar-packages",
+        "inputs": [
+            "sidebar"
+        ],
+        "outputs": []
+    },
+    "path": "./portal.dizest.sidebar.packages/portal.dizest.sidebar.packages.component",
+    "name": "PortalDizestSidebarPackagesComponent"
+}

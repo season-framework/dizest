@@ -45,14 +45,14 @@ def storage_path(wiz, zone):
     return homepath
 
 def socket_uri(wiz, zone, workflow_id):
-    branch = wiz.branch()
+    project = wiz.project()
     host = urllib.parse.urlparse(wiz.request.request().base_url)
     host = f"{host.scheme}://{host.netloc}"
-    uri = f"{host}/wiz/app/{branch}/page.main"
+    uri = f"{host}/wiz/app/{project}/page.main"
     return uri
 
 def cwd(wiz, zone, workflow_id):
-    fs = season.util.os.FileSystem(storage_path(wiz, zone))
+    fs = season.util.fs(storage_path(wiz, zone))
     path = fs.abspath(workflow_id)
     return os.path.dirname(path)
 
@@ -63,12 +63,12 @@ def cron_uri(wiz, zone, workflow_id):
     return host
 
 def get_workflow(wiz, zone, workflow_id):
-    fs = season.util.os.FileSystem(storage_path(wiz, zone))
+    fs = season.util.fs(storage_path(wiz, zone))
     if fs.exists(workflow_id) == False:
         return None
     data = fs.read.json(workflow_id, None)
     return data
 
 def update_workflow(wiz, zone, workflow_id, data):
-    fs = season.util.os.FileSystem(storage_path(wiz, zone))
+    fs = season.util.fs(storage_path(wiz, zone))
     fs.write.json(workflow_id, data)    

@@ -1,0 +1,9 @@
+{
+    "id": "readme",
+    "title": "Readme",
+    "category": "",
+    "description": "Markdown Viewer",
+    "template": "wiz-workspace-editor-readme([editor]=\"\")",
+    "mod_id": "workspace",
+    "mod_type": "editor"
+}

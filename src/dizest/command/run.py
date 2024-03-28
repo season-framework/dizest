@@ -1,6 +1,6 @@
 import os
 import sys
-from argh import arg, expects_obj
+from argh import arg
 import subprocess
 import time
 import psutil
@@ -18,10 +18,10 @@ PATH_WEBSRC = os.getcwd()
 PATH_PID = os.path.join(PATH_WEBSRC, "dizest.pid")
 
 @arg('--host', help='0.0.0.0')
-@arg('--port', help='3000')
+@arg('--port', help='4000')
 @arg('--log', help='log filename')
-def run(host='0.0.0.0', port=None, log=None):
-    if os.path.exists(os.path.join(PATH_WEBSRC, "project", "urlmap")) == False:
+def run(host='0.0.0.0', port=4000, log=None):
+    if os.path.exists(os.path.join(PATH_WEBSRC, "public", "app.py")) == False:
         print("Invalid Project path: dizest structure not found in this folder.")
         return
 
@@ -30,7 +30,9 @@ def run(host='0.0.0.0', port=None, log=None):
     runconfig = dict(host=host, port=port, log=log)
 
     def run_ctrl():
-        app = season.app(path=PATH_WEBSRC, bundle=True)
+        app = season.server(PATH_WEBSRC)
+        wiz = app.wiz()
+        wiz.server.config.boot.bundle = True
         os.environ['WERKZEUG_RUN_MAIN'] = 'false'
         app.run(**runconfig)
         
@@ -146,7 +148,9 @@ class Daemon:
 
 def runnable(stdout, stderr):
     def run_ctrl():
-        app = season.app(path=PATH_WEBSRC, bundle=True)
+        app = season.server(PATH_WEBSRC)
+        wiz = app.wiz()
+        wiz.server.config.boot.bundle = True
         os.environ['WERKZEUG_RUN_MAIN'] = 'false'
         app.run()
         
@@ -167,7 +171,7 @@ def runnable(stdout, stderr):
 @arg('--log', help='log file path')
 @arg('action', default=None, help="start|stop|restart")
 def server(action, force=False, log=None):
-    if os.path.exists(os.path.join(PATH_WEBSRC, "project", "urlmap")) == False:
+    if os.path.exists(os.path.join(PATH_WEBSRC, "public", "app.py")) == False:
         print("Invalid Project path: dizest structure not found in this folder.")
         return
 

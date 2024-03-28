@@ -5,7 +5,7 @@ import season
 from texttable import Texttable
 from argh import arg
 
-fs = season.util.os.FileSystem(os.getcwd())
+fs = season.util.fs(os.getcwd())
 
 PATH_EXEC = sys.executable
 PATH_EXEC_DIZEST = os.path.join(os.path.dirname(PATH_EXEC), "dizest")

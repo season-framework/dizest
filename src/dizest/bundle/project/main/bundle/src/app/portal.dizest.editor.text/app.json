@@ -1,0 +1,25 @@
+{
+    "mode": "portal",
+    "type": "app",
+    "id": "portal.dizest.editor.text",
+    "title": "Editor/Drive/Text",
+    "namespace": "editor.text",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "",
+    "template": "wiz-portal-dizest-editor-text([tab]=\"\")",
+    "ng.build": {
+        "id": "portal.dizest.editor.text",
+        "name": "PortalDizestEditorTextComponent",
+        "path": "./portal.dizest.editor.text/portal.dizest.editor.text.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-editor-text",
+        "inputs": [
+            "tab"
+        ],
+        "outputs": []
+    },
+    "path": "./portal.dizest.editor.text/portal.dizest.editor.text.component",
+    "name": "PortalDizestEditorTextComponent"
+}

@@ -43,7 +43,7 @@ setup(
         'dizest = dizest.cmd:main [dizest]',
     ]},
     install_requires=[
-        'argh==0.28.1',
+        'argh',
         'python-crontab',
         'matplotlib',
         'psutil',

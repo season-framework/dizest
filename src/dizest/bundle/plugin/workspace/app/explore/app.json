@@ -1,0 +1,21 @@
+{
+    "id": "explore",
+    "title": "Explore",
+    "viewuri": "",
+    "category": "app",
+    "ng.build": {
+        "id": "core.browser",
+        "name": "CoreBrowserComponent",
+        "path": "./core.browser/core.browser.component"
+    },
+    "ng": {
+        "selector": "wiz-core-browser",
+        "inputs": [
+            "title"
+        ],
+        "outputs": []
+    },
+    "template": "wiz-workspace-app-explore()",
+    "mod_id": "workspace",
+    "mod_type": "app"
+}

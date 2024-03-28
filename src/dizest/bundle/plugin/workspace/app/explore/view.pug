@@ -1,0 +1,45 @@
+.side-container
+    .side-body.area-round
+        wiz-core-app-widget-tree([config]="treeConfig")
+            ng-template('#fileTemplate'='', let-data='')
+                .tree-node-container
+                    .tree-node((click)="data.select(); $event.stopPropagation();", [class.active]="data.isActive()", [draggable]="data.type == 'app'", (dragstart)="drag($event, data)") 
+                        i.tree-icon.mr-1([ngClass]="icon(data)", (click)="rename($event, data)")
+
+                        .tree-node-title
+                            span(*ngIf="!data.editable") {{data.title}}
+                            input.form-control.form-control-sm([(ngModel)]="data.rename", placeholder="폴더명", (keyup.enter)="data.update();", *ngIf="data.editable", (click)="$event.stopPropagation();")
+                        
+                        ng-container(*ngIf="enableCreateFile(data)")
+                            i.icon-action.fa-solid.fa-plus((click)="createFile(data); $event.stopPropagation();")
+                        ng-container(*ngIf="enableCreateFolder(data)")
+                            i.icon-action.fa-solid.fa-folder-plus((click)="createFolder(data); $event.stopPropagation();")
+                        ng-container(*ngIf="enableUpload(data)")
+                            i.icon-action.fa-solid.fa-arrow-up-from-bracket((click)="upload(data); $event.stopPropagation();")
+                        ng-container(*ngIf="enableDelete(data)")
+                            i.icon-action.fa-solid.fa-trash-can((click)="delete(data); $event.stopPropagation();")
+                        ng-container(*ngIf="enableDownload(data)")
+                            i.icon-action.fa-solid.fa-download((click)="download(data); $event.stopPropagation();")
+
+                    ng-container(*ngIf="data.newItem && data.newItem.type == 'folder'")
+                        .tree-root
+                            .tree-node
+                                i.tree-icon.fa-regular.fa-folder.mr-2
+                                .tree-node-title
+                                    input.form-control.form-control-sm([(ngModel)]="data.newItem.title", placeholder="폴더명", (keyup.enter)="requestCreateFolder(data)")
+                                i.icon-action-always.fa-solid.fa-xmark((click)="cancelCreate(data); $event.stopPropagation();")
+                                i.icon-action-always.fa-solid.fa-check((click)="requestCreateFolder(data); $event.stopPropagation();")
+                    
+                    ng-container(*ngIf="data.newItem && data.newItem.type == 'file'")
+                        .tree-root
+                            .tree-node
+                                i.tree-icon.fa-regular.fa-file-lines.mr-2
+                                .tree-node-title
+                                    input.form-control.form-control-sm([(ngModel)]="data.newItem.title", placeholder="파일명", (keyup.enter)="requestCreateFile(data)")
+                                i.icon-action-always.fa-solid.fa-xmark((click)="cancelCreate(data); $event.stopPropagation();")
+                                i.icon-action-always.fa-solid.fa-check((click)="requestCreateFile(data); $event.stopPropagation();")
+    
+    .progress(*ngIf="uploadStatus.uploading")
+        .progress-bar.bg-blue(style="width: {{uploadStatus.percent}}%;")
+    
+wiz-core-app-widget-loading(*ngIf="loading")
