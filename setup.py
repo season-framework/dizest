@@ -43,7 +43,7 @@ setup(
         'dizest = dizest.cmd:main [dizest]',
     ]},
     install_requires=[
-        'argh',
+        'argh==0.28.1',
         'python-crontab',
         'matplotlib',
         'psutil',
@@ -53,11 +53,11 @@ setup(
         'pandas',
         'pymysql',
         'natsort',
-        'season>=2.3.25',
+        'season>=2.4.0',
         'peewee',
         'libsass',
         'bcrypt',
-        'python-socketio==5.7.2',
+        'python-socketio',
         'python-socketio[client]'
     ],
     python_requires='>=3.6',

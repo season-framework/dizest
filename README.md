@@ -175,6 +175,10 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.10
+
+- [ui] argh version bug fixed
+
 ### 3.4.9
 
 - [ui] terminal width/height bug fixed
