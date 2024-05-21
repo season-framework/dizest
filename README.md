@@ -175,6 +175,10 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.12
+
+- [core] flow input bug fixed
+
 ### 3.4.11
 
 - [core] update wiz 2.4 & bug fixed

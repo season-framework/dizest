@@ -79,8 +79,11 @@ class Flow:
             inputtype = val['inputtype'] if 'inputtype' in val else None
             vname = val['name']
             if vtype == 'output':
-                cons = [[x['node'], x['input']] for x in flow['inputs'][vname]['connections']]
-                inputs[vname] = {"type": vtype, "data": cons}
+                try:
+                    cons = [[x['node'], x['input']] for x in flow['inputs'][vname]['connections']]
+                    inputs[vname] = {"type": vtype, "data": cons}
+                except:
+                    inputs[vname] = {"type": 'variable', "data": None, "inputtype": None}
             elif vtype == 'variable':
                 if vname in flow['data']:
                     inputs[vname] = ({"type": vtype, "data": flow['data'][vname], "inputtype": inputtype})
