@@ -24,7 +24,8 @@ then
             # bundle dump
             rm -rf src/dizest/bundle/project/*
             rm -rf src/dizest/bundle/project/src
-            cp -r dev/project/main/bundle/* src/dizest/bundle/project/
+            mkdir -p src/dizest/bundle/project/main/bundle/
+            cp -r dev/project/main/bundle/* src/dizest/bundle/project/main/bundle/
             rm -rf src/dizest/bundle/project/config
             ;;
 
