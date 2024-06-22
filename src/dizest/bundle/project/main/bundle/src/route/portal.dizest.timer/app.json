@@ -1,8 +1,0 @@
-{
-    "id": "portal.dizest.timer",
-    "title": "/api/dizest/timer/<zone>/<path:path>",
-    "route": "/api/dizest/timer/<zone>/<path:path>",
-    "viewuri": "",
-    "category": "dizest",
-    "controller": "portal/dizest/base"
-}

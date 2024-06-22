@@ -1,0 +1,25 @@
+{
+    "mode": "portal",
+    "type": "app",
+    "id": "portal.dizest.editor.uimode",
+    "title": "Editor/UIMode",
+    "namespace": "editor.uimode",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "portal/dizest/base",
+    "template": "wiz-portal-dizest-editor-uimode([tab]=\"\")",
+    "ng.build": {
+        "id": "portal.dizest.editor.uimode",
+        "name": "PortalDizestEditorUimodeComponent",
+        "path": "./portal.dizest.editor.uimode/portal.dizest.editor.uimode.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-editor-uimode",
+        "inputs": [
+            "tab"
+        ],
+        "outputs": []
+    },
+    "path": "./portal.dizest.editor.uimode/portal.dizest.editor.uimode.component",
+    "name": "PortalDizestEditorUimodeComponent"
+}

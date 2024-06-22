@@ -1,8 +1,0 @@
-{
-    "id": "portal.season.pwa.swjs",
-    "title": "/sw.js",
-    "route": "/sw.js",
-    "viewuri": "/sw.js",
-    "category": "pwa",
-    "controller": ""
-}

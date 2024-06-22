@@ -1,0 +1,25 @@
+{
+    "mode": "portal",
+    "id": "portal.dizest.statuscard",
+    "title": "Status Card",
+    "namespace": "statuscard",
+    "viewuri": "",
+    "category": "dizest",
+    "controller": "",
+    "template": "wiz-portal-dizest-statuscard([title]=\"\", [items]=\"\")",
+    "ng.build": {
+        "id": "portal.dizest.statuscard",
+        "name": "PortalDizestStatuscardComponent",
+        "path": "./portal.dizest.statuscard/portal.dizest.statuscard.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-statuscard",
+        "inputs": [
+            "title",
+            "items"
+        ],
+        "outputs": []
+    },
+    "path": "./portal.dizest.statuscard/portal.dizest.statuscard.component",
+    "name": "PortalDizestStatuscardComponent"
+}

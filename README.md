@@ -175,6 +175,12 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.13
+
+- [ui] UI Mode bug fixed
+- [ui] upgrade to Angular 18
+- [ui] move App List to sidebar (on workflow)
+
 ### 3.4.12
 
 - [core] flow input bug fixed
