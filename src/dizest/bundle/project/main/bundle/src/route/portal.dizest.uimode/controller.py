@@ -110,7 +110,7 @@ if action == 'dizest.js':
     '''
 
     url = f'/api/dizest/ui/{zone}/{spawner_id}/{flow_id}/api'
-    text = wiz.project.fs("src/assets").read("jquery.js") + text
+    text = wiz.project.fs("bundle/src/assets").read("jquery.js") + text
     text = text.replace('{url}', url)
 
     wiz.response.send(text, content_type="text/javascript")

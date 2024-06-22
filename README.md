@@ -175,6 +175,10 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 3.4.14
+
+- [ui] UI Mode bug fixed
+
 ### 3.4.13
 
 - [ui] UI Mode bug fixed
