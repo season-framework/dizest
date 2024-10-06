@@ -1,0 +1,26 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "editor.workflow.node",
+    "id": "portal.dizest.editor.workflow.node",
+    "namespace": "editor.workflow.node",
+    "viewuri": "",
+    "category": "editor",
+    "controller": "portal/dizest/base",
+    "template": "wiz-portal-dizest-editor-workflow-node([workflow]=\"\", [flow]=\"\")",
+    "path": "./portal.dizest.editor.workflow.node/portal.dizest.editor.workflow.node.component",
+    "name": "PortalDizestEditorWorkflowNodeComponent",
+    "ng.build": {
+        "id": "portal.dizest.editor.workflow.node",
+        "name": "PortalDizestEditorWorkflowNodeComponent",
+        "path": "./portal.dizest.editor.workflow.node/portal.dizest.editor.workflow.node.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-editor-workflow-node",
+        "inputs": [
+            "workflow",
+            "flow"
+        ],
+        "outputs": []
+    }
+}

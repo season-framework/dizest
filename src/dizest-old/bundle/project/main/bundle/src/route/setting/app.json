@@ -1,8 +1,0 @@
-{
-    "id": "setting",
-    "title": "/setting",
-    "route": "/setting",
-    "viewuri": "",
-    "category": "dizest",
-    "controller": "base"
-}

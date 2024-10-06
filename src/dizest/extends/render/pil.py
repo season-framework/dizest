@@ -8,10 +8,12 @@ import traceback
 class PILRenderer(BaseRenderer):
     className = [Image.Image]
 
-    def __render__(self, v, **kwargs):
-        height, width = np.array(v).shape[:2]
-        if width > 256:
-            v = v.resize((256, int(256 * height / width)))
+    def __render__(self, v, width=None, **kwargs):
+        height, _width = np.array(v).shape[:2]
+
+        if width is not None:
+            if _width > width:
+                v = v.resize((width, int(width * height / _width)))
 
         img = io.BytesIO()
         v.save(img, format='PNG')

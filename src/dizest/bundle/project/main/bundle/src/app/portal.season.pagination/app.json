@@ -1,0 +1,30 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "pagination",
+    "id": "portal.season.pagination",
+    "namespace": "pagination",
+    "viewuri": "",
+    "category": "",
+    "controller": "",
+    "template": "wiz-portal-season-pagination([current]=\"\", [start]=\"\", [end]=\"\", [maxlength]=\"\", (pageMove)=\"\")",
+    "path": "./portal.season.pagination/portal.season.pagination.component",
+    "name": "PortalSeasonPaginationComponent",
+    "ng.build": {
+        "id": "portal.season.pagination",
+        "name": "PortalSeasonPaginationComponent",
+        "path": "./portal.season.pagination/portal.season.pagination.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-season-pagination",
+        "inputs": [
+            "current",
+            "start",
+            "end",
+            "maxlength"
+        ],
+        "outputs": [
+            "pageMove"
+        ]
+    }
+}

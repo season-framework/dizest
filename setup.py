@@ -53,14 +53,14 @@ setup(
         'pandas',
         'pymysql',
         'natsort',
-        'season>=2.4.0',
+        'season>=2.4.8',
         'peewee',
         'libsass',
         'bcrypt',
         'python-socketio',
         'python-socketio[client]'
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     classifiers=[
         'License :: OSI Approved :: MIT License'
     ] 

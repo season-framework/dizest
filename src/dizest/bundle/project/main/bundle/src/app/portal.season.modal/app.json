@@ -1,0 +1,25 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "modal",
+    "id": "portal.season.modal",
+    "namespace": "modal",
+    "viewuri": "",
+    "category": "",
+    "controller": "",
+    "template": "wiz-portal-season-modal([model]=\"\")",
+    "path": "./portal.season.modal/portal.season.modal.component",
+    "name": "PortalSeasonModalComponent",
+    "ng.build": {
+        "id": "portal.season.modal",
+        "name": "PortalSeasonModalComponent",
+        "path": "./portal.season.modal/portal.season.modal.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-season-modal",
+        "inputs": [
+            "model"
+        ],
+        "outputs": []
+    }
+}

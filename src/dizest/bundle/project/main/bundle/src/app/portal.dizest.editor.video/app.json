@@ -1,0 +1,26 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "editor.video",
+    "id": "portal.dizest.editor.video",
+    "namespace": "editor.video",
+    "viewuri": "",
+    "category": "editor",
+    "controller": "portal/dizest/base",
+    "template": "wiz-portal-dizest-editor-video([dizest]=\"\", [editor]=\"\")",
+    "path": "./portal.dizest.editor.video/portal.dizest.editor.video.component",
+    "name": "PortalDizestEditorVideoComponent",
+    "ng.build": {
+        "id": "portal.dizest.editor.video",
+        "name": "PortalDizestEditorVideoComponent",
+        "path": "./portal.dizest.editor.video/portal.dizest.editor.video.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-editor-video",
+        "inputs": [
+            "dizest",
+            "editor"
+        ],
+        "outputs": []
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "loading.season",
+    "id": "portal.season.loading.season",
+    "namespace": "loading.season",
+    "viewuri": "",
+    "category": "",
+    "controller": "",
+    "template": "wiz-portal-season-loading-season([className]=\"\")",
+    "path": "./portal.season.loading.season/portal.season.loading.season.component",
+    "name": "PortalSeasonLoadingSeasonComponent",
+    "ng.build": {
+        "id": "portal.season.loading.season",
+        "name": "PortalSeasonLoadingSeasonComponent",
+        "path": "./portal.season.loading.season/portal.season.loading.season.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-season-loading-season",
+        "inputs": [
+            "className"
+        ],
+        "outputs": []
+    }
+}

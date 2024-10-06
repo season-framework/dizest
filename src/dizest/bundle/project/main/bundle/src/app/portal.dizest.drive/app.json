@@ -1,0 +1,26 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "drive",
+    "id": "portal.dizest.drive",
+    "namespace": "drive",
+    "viewuri": "",
+    "category": "",
+    "controller": "portal/dizest/base",
+    "template": "wiz-portal-dizest-drive([dizest]=\"\", [config]=\"\")",
+    "path": "./portal.dizest.drive/portal.dizest.drive.component",
+    "name": "PortalDizestDriveComponent",
+    "ng.build": {
+        "id": "portal.dizest.drive",
+        "name": "PortalDizestDriveComponent",
+        "path": "./portal.dizest.drive/portal.dizest.drive.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-drive",
+        "inputs": [
+            "dizest",
+            "config"
+        ],
+        "outputs": []
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "title": "/workflow",
+    "mode": "page",
+    "namespace": "main",
+    "category": "general",
+    "id": "page.main",
+    "ng.build": {
+        "id": "page.main",
+        "name": "PageMainComponent",
+        "path": "./page.main/page.main.component"
+    },
+    "viewuri": "/workflow/**",
+    "layout": "layout.empty",
+    "preview": "/workflow",
+    "ng": {
+        "selector": "wiz-page-main",
+        "inputs": [],
+        "outputs": []
+    },
+    "template": "wiz-page-main()",
+    "controller": "",
+    "path": "./page.main/page.main.component",
+    "name": "PageMainComponent"
+}

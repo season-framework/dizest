@@ -1,0 +1,26 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "editor.workflow.sidebar.ai",
+    "id": "portal.dizest.editor.workflow.sidebar.ai",
+    "namespace": "editor.workflow.sidebar.ai",
+    "viewuri": "",
+    "category": "",
+    "controller": "portal/dizest/base",
+    "template": "wiz-portal-dizest-editor-workflow-sidebar-ai([app]=\"\", [sidebar]=\"\")",
+    "path": "./portal.dizest.editor.workflow.sidebar.ai/portal.dizest.editor.workflow.sidebar.ai.component",
+    "name": "PortalDizestEditorWorkflowSidebarAiComponent",
+    "ng.build": {
+        "id": "portal.dizest.editor.workflow.sidebar.ai",
+        "name": "PortalDizestEditorWorkflowSidebarAiComponent",
+        "path": "./portal.dizest.editor.workflow.sidebar.ai/portal.dizest.editor.workflow.sidebar.ai.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-editor-workflow-sidebar-ai",
+        "inputs": [
+            "app",
+            "sidebar"
+        ],
+        "outputs": []
+    }
+}

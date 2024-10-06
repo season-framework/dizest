@@ -1,0 +1,25 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "form.dropdown",
+    "id": "portal.season.form.dropdown",
+    "namespace": "form.dropdown",
+    "viewuri": "",
+    "category": "",
+    "controller": "",
+    "template": "wiz-portal-season-form-dropdown([menuStyle]=\"\")",
+    "path": "./portal.season.form.dropdown/portal.season.form.dropdown.component",
+    "name": "PortalSeasonFormDropdownComponent",
+    "ng.build": {
+        "id": "portal.season.form.dropdown",
+        "name": "PortalSeasonFormDropdownComponent",
+        "path": "./portal.season.form.dropdown/portal.season.form.dropdown.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-season-form-dropdown",
+        "inputs": [
+            "menuStyle"
+        ],
+        "outputs": []
+    }
+}

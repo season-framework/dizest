@@ -1,0 +1,26 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "editor.health",
+    "id": "portal.dizest.editor.health",
+    "namespace": "editor.health",
+    "viewuri": "",
+    "category": "",
+    "controller": "portal/dizest/base",
+    "template": "wiz-portal-dizest-editor-health([dizest]=\"\", [editor]=\"\")",
+    "path": "./portal.dizest.editor.health/portal.dizest.editor.health.component",
+    "name": "PortalDizestEditorHealthComponent",
+    "ng.build": {
+        "id": "portal.dizest.editor.health",
+        "name": "PortalDizestEditorHealthComponent",
+        "path": "./portal.dizest.editor.health/portal.dizest.editor.health.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-editor-health",
+        "inputs": [
+            "dizest",
+            "editor"
+        ],
+        "outputs": []
+    }
+}

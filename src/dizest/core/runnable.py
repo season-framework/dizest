@@ -47,7 +47,7 @@ class FlowInstance:
             self.cache['log'] = self.cache['log'][-self.workflow.config.max_log_size:]
             self.onchanged("log.append", value)
         return self.cache['log']
-        
+    
     def clear(self):
         self.cache['log'].clear()
         self.onchanged("log.clear", True)
@@ -151,6 +151,15 @@ class FlowInstance:
             value = kwargs[name]
             self.output_data[name] = value
 
+    def result(self, name=None):
+        if name is None:
+            for key in self.output_data:
+                self.onchanged("result." + key, self.output_data[key])
+            return
+
+        if name in self.output_data:
+            self.onchanged("result." + name, self.output_data[name])
+
     def drive(self, *path):
         cwd = self.flow.workflow.config.cwd
         cwd = os.path.join(cwd, *path)
@@ -163,6 +172,7 @@ class FlowInstance:
                 self.input = parent.input
                 self.inputs = parent.inputs
                 self.output = parent.output
+                self.result = parent.result
                 self.drive = parent.drive
                 if flask is not None:
                     self.run = parent.run
@@ -255,7 +265,6 @@ class FlowInstance:
                         continue
                     if key in env:
                         flow_instance.output(key, env[key])
-                        self.onchanged("output." + key, env[key])
 
                 self.workflow.index = self.workflow.index + 1
                 flow_instance.status("idle")

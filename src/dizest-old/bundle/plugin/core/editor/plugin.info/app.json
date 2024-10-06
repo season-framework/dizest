@@ -1,7 +1,0 @@
-{
-    "id": "plugin.info",
-    "title": "Plugin Info",
-    "category": "",
-    "description": "plugin info",
-    "template": "wiz-core-editor-plugin-info([editor]=\"\")"
-}

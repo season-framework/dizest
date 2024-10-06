@@ -1,0 +1,26 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "editor.image",
+    "id": "portal.dizest.editor.image",
+    "namespace": "editor.image",
+    "viewuri": "",
+    "category": "editor",
+    "controller": "portal/dizest/base",
+    "template": "wiz-portal-dizest-editor-image([dizest]=\"\", [editor]=\"\")",
+    "path": "./portal.dizest.editor.image/portal.dizest.editor.image.component",
+    "name": "PortalDizestEditorImageComponent",
+    "ng.build": {
+        "id": "portal.dizest.editor.image",
+        "name": "PortalDizestEditorImageComponent",
+        "path": "./portal.dizest.editor.image/portal.dizest.editor.image.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-editor-image",
+        "inputs": [
+            "dizest",
+            "editor"
+        ],
+        "outputs": []
+    }
+}

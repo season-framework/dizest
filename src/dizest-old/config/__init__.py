@@ -1,1 +1,0 @@
-from dizest.config import base, kernel

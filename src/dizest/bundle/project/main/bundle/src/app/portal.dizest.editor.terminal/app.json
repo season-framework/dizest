@@ -1,0 +1,26 @@
+{
+    "type": "app",
+    "mode": "portal",
+    "title": "editor.terminal",
+    "id": "portal.dizest.editor.terminal",
+    "namespace": "editor.terminal",
+    "viewuri": "",
+    "category": "",
+    "controller": "portal/dizest/base",
+    "template": "wiz-portal-dizest-editor-terminal([dizest]=\"\", [editor]=\"\")",
+    "path": "./portal.dizest.editor.terminal/portal.dizest.editor.terminal.component",
+    "name": "PortalDizestEditorTerminalComponent",
+    "ng.build": {
+        "id": "portal.dizest.editor.terminal",
+        "name": "PortalDizestEditorTerminalComponent",
+        "path": "./portal.dizest.editor.terminal/portal.dizest.editor.terminal.component"
+    },
+    "ng": {
+        "selector": "wiz-portal-dizest-editor-terminal",
+        "inputs": [
+            "dizest",
+            "editor"
+        ],
+        "outputs": []
+    }
+}

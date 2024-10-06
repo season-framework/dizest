@@ -175,6 +175,15 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 4.0.0
+
+- Improved workflow UI for better usability (node size adjustment)
+- Enhanced usability of UI mode (updated positioning for better node integration)
+- Improved Codeflow usability (including scrolling enhancements)
+- Updated screen layout and structure
+- Added support for LLM integration
+- Core updates for better MSA compatibility
+
 ### 3.4.15
 
 - [ui] wiz version mismatch bug fixed

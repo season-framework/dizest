@@ -1,1 +1,0 @@
-# WIZ Workspace Plugin

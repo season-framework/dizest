@@ -1,8 +1,0 @@
-{
-    "id": "brand",
-    "title": "/brand/<path:path>",
-    "route": "/brand/<path:path>",
-    "viewuri": "",
-    "category": "dizest",
-    "controller": "base"
-}
