@@ -29,7 +29,7 @@ def get_gpu_info(nvidia_smi_path='nvidia-smi', keys=DEFAULT_ATTRIBUTES, no_units
     try:
         nu_opt = '' if not no_units else ',nounits'
         cmd = '%s --query-gpu=%s --format=csv,noheader%s' % (nvidia_smi_path, ','.join(keys), nu_opt)
-        output = subprocess.check_output(cmd, shell=True)
+        output = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
         lines = output.decode().split('\n')
         lines = [ line.strip() for line in lines if line.strip() != '' ]
 

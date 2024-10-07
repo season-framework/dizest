@@ -175,11 +175,20 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 4.0.2
+
+- Allowed relative library paths when running workflows (sys.path.append)
+- Enabled copying of workflow result values
+- Fixed interval disabling issue in Health feature
+- Resolved execution order error in workflows (cache issue with previously executed workflows)
+- Added functionality to view and upgrade DIZEST versions per Python environment in settings
+
 ### 4.0.1
 
 - UI Mode path bug fixed
 
 ### 4.0.0
+> Oct 6, 2024
 
 - Improved workflow UI for better usability (node size adjustment)
 - Enhanced usability of UI mode (updated positioning for better node integration)
@@ -188,190 +197,19 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 - Added support for LLM integration
 - Core updates for better MSA compatibility
 
-### 3.4.15
+### Version 3
+> Aug 7, 2022
 
-- [ui] wiz version mismatch bug fixed
+- UI Enhancements & Bug Fixes: There were multiple bug fixes related to the user interface (UI) across all versions. This includes resolving issues with UI mode in both versions 3.4.13 and 3.4.14, and fixing a version mismatch bug in 3.4.15.
+- Angular Upgrade: In version 3.4.13, the UI was upgraded to Angular 18, representing a significant update in the underlying framework used for the frontend, potentially enhancing performance and development flexibility.
+- UI Restructuring: Version 3.4.13 also introduced changes to the layout by moving the App List to the sidebar in workflows, improving the workflow navigation and overall user experience.
 
-### 3.4.14
+### Version 2
+> May 8, 2022
 
-- [ui] UI Mode bug fixed
+- Workflow and App Development Enhancements: Version 2.0.0 introduced major upgrades to the workflow engine and app development API, along with a complete UI/UX overhaul, including the introduction of the Drive concept. Subsequent updates (2.0.5 to 2.0.8) focused on improving workflow management, with features like workflow import/export, error status display, and process killing on the admin dashboard.
+- UI and Functional Improvements: Version 2.2.0 introduced significant changes to the app editor, including drag-and-drop input/output ordering and CDN configuration, while 2.2.1 updated to Wiz 1.0. These changes enhanced both the app development interface and the backend configuration management.
+- Backend and Configuration Updates: Several versions included updates to the kernel configuration (2.1.5), workflow app variable types (2.1.4), and bug fixes across the board to improve stability, including socket communication improvements and class-related workflow issues.
 
-### 3.4.13
-
-- [ui] UI Mode bug fixed
-- [ui] upgrade to Angular 18
-- [ui] move App List to sidebar (on workflow)
-
-### 3.4.12
-
-- [core] flow input bug fixed
-
-### 3.4.11
-
-- [core] update wiz 2.4 & bug fixed
-
-### 3.4.10
-
-- [ui] argh version bug fixed
-
-### 3.4.9
-
-- [ui] terminal width/height bug fixed
-- [ui] terminal starting path changed
-- [ui] input list bug fixed at node
-- [ui] display text max length changed (100 to 2000)
-- [ui] user login changed (multi to single and support auth mode)
-- [core] install command changed (default as single user mode)
-
-### 3.4.8
-
-- [ui] sidebar lifecycle changed
-- [core] wiz version
-
-### 3.4.7
-
-- [ui] loading ui design changed
-- [ui] image/video viewer at drive
-- [ui] disk path config added for system status
-- [core] service command updated
-
-### 3.4.6
-
-- [ui] scroll bug fixed at system info
-- [ui] kill workflow button at drive
-- [ui] move workflow bug fixed when workflow is running
-- [ui] display file upload status at drive
-- [ui] restart server (admin)
-- [ui] conda env upgrade at admin setting page
-- [core] kernel socket error fixed
-
-### 3.4.5
-
-- kernel socket error fixed
-
-### 3.4.4
-
-- kernel socket error fixed
-- dizest service display bug fixed
-
-### 3.4.3
-
-- support customize Workflow Node
-- `/api/drive` ownership bug fixed
-
-### 3.4.2
-
-- [ui] terminal bug fixed
-- [ui] authenticate api & config
-- [ui] file selector in workflow node bug fixed 
-
-### 3.4.1
-
-- [ui] draw workflow bug fixed
-- [ui] flow stop bug fixed
-
-### 3.4.0
-
-- [ui] UI full changed (Single page hub)
-- [ui] Remove installation page
-- [ui] change user login using linux account
-- [ui] using kernel for each workflow
-
-### 3.3.x
-
-- [3.3.0]
-    - [core] dizest input/output automation
-    - [core] dizest cli updated (service)
-    - [ui] code refactoring
-    - [ui] display filename on file delete popup
-    - [ui] codeflow resize bug fixed
-    - [ui] support multiple app upload
-    - [ui] open workflow as href
-    - [ui] workflow favorite and category added
-    - [ui] support activated workflow list
-
-- 3.3.1 ~ 2
-    - [ui] uimode bug fixed 
-    - [ui] uimode bug fixed 
-
-### 3.2.x
-
-- [3.2.0]
-    - [core] process logic changed
-    - [core] support multi-thread jobs
-    - [core] job scheduler
-    - [ui] terminal for admin
-
-- 3.2.1 ~ 6
-    - [ui] install bug fixed
-    - [ui] config path changed (`./config/dizest/`)
-    - [ui] add config (cron_host, dsocket_host)
-    - [ui] set browser title on workflow
-    - [ui] code block drag bug fixed on codeflow
-    - [ui] opacity changed on focused app
-    - [ui] pip install btn bug fixed
-    - [ui] dconfig.py home path bug fixed
-    - [ui] node start bug fixed
-    - [core] ui api bug fixed (flask send_file api)
-    - [ui] user home path bug fixed
-    - [core] python-socketio version fixed (5.7.2)
-
-### 3.1.x
-
-- [3.1.0]
-    - ui full changed
-    - upgrade command
-    - use built-in web server bundle
-    - upgrade to wiz 2.0
-    - upgrade to angular
-
-- 3.1.1 ~ 13
-    - [ui] bug fixed on run command
-    - [core] bug fixed on kernel
-    - [ui] pwa bug fixed
-    - [ui] safari bug fixed (URLPattern)
-    - [ui] cron bug fixed
-    - [ui] mobile nav bug fixed
-    - [ui] kernel display name bug fixed
-    - [core] drive api update (filename to download_name)
-    - [core] kernel api update
-    - [ui] select previous file on workflow
-    - [ui] bug fixed
-    - [ui] drop workflow & apps
-    - [ui] support app category
-    - [ui] monaco bug fixed
-    - [ui] login bug fixed
-
-### 3.0.x
-
-- [3.0.0]
-    - define dizest process `server`, `kernel`, `spawner`
-    - update workflow editor ui: `codeflow`, `kernel selector`, etc
-    - multi kernel support (support multi language like R)
-    - support 3rd party development (spawner, kernel)
-
-- 3.0.1 ~ 14
-    - add `executable` option
-    - bug fixed at sudo spawner
-    - child process bug fixed
-    - support dizest server command (daemon)
-    - port bug fixed on command line
-    - kernel communication changed (http to socket)
-    - process stabilization
-    - kernel logging updated
-    - remove useless import
-    - python kernel
-        - add `dizest.clear()` function
-        - log sync on multi view
-        - enhanced plot log
-        - dizest.input logic changed: get last proceed result
-    - add dependencies: pymysql, natsort
-    - apply natsort in drive api
-    - kernel api method usage changed: dizest.output(key1=value1, key2=value2)
-    - upgrade r kernel
-    - add kill command
-    - wiz config changed (for pwa)
-    - dizest run command bug fixed
-    - add crontab
-    - update command changed
-    - add `dizest server start --log <file>` method 
+### Version 1
+> Jan 18, 2022

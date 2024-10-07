@@ -258,6 +258,8 @@ class FlowInstance:
                 flow_instance.output_data = dict()
                 os.chdir(self.workflow.config.cwd)
 
+                code = "import os\nimport sys\nsys.path.append(os.getcwd())\n" + code
+
                 exec(code, env)
 
                 for key in app.outputs():
@@ -332,6 +334,8 @@ class FlowInstance:
             env['flow'] = flow
             env['workflow'] = self.workflow
 
+            code = "import os\nimport sys\nsys.path.append(os.getcwd())\n" + code
+
             exec(code, env)
 
             env[fnname]()
@@ -396,6 +400,11 @@ class Runnable:
             if self.is_runnable() == False:
                 return
             flows = self.workflow.flows()
+            for flow in flows:
+                if flow.active():
+                    flow_instance = self.instance(flow)
+                    flow_instance.output_data = dict()
+                    flow_instance.cache = dict(index=-1, log=[], status='idle')
             for flow in flows:
                 if flow.active():
                     flow_instance = self.instance(flow)
