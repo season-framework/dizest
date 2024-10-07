@@ -175,6 +175,10 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 4.0.3
+
+- file browser bug fixed on workflow node file selector
+
 ### 4.0.2
 
 - Allowed relative library paths when running workflows (sys.path.append)

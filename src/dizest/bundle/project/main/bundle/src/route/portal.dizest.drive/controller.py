@@ -13,7 +13,10 @@ action = segment.path
 
 struct = wiz.model("portal/dizest/struct")
 config = struct.config
-fs = season.util.fs(config.storage_path())
+
+base = wiz.request.query("base", None)
+if base is None: fs = season.util.fs(config.storage_path())
+else: fs = season.util.fs(os.path.join(config.storage_path(), base))
 
 config.acl()
 
