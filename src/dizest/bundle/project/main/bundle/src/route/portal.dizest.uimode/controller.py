@@ -64,7 +64,7 @@ if action == 'render/view.css':
     wiz.response.send(text, content_type="text/css")
 
 if action == 'dizest.js':
-    assetsfs = wiz.project.fs("src/portal/dizest/assets")
+    assetsfs = wiz.project.fs("bundle/src/assets/portal/dizest")
     text = assetsfs.read("dizest.js")
     url = f'/ui/{kernel_id}/{flow_id}/api'
     text = text.replace('{url}', url)

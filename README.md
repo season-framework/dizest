@@ -175,6 +175,10 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 4.0.1
+
+- UI Mode path bug fixed
+
 ### 4.0.0
 
 - Improved workflow UI for better usability (node size adjustment)
