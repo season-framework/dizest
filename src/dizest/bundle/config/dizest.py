@@ -6,7 +6,7 @@ import bcrypt
 from dizest.extends.spawner import SimpleSpawner
 
 def storage_path():
-    return os.path.join(os.getcwd(), "data")
+    return os.path.join(wiz.path(), "data")
 
 def spawner_option():
     project = wiz.project()
@@ -45,7 +45,7 @@ def authenticate(path):
 
         def check(password):
             try:
-                fs = season.util.fs(os.getcwd())
+                fs = season.util.fs(wiz.path())
                 value = fs.read("password")
                 value = value.encode('utf-8')
                 def check_password(password):

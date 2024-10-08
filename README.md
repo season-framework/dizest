@@ -168,6 +168,10 @@ curl http://127.0.0.1:4000/dizest/api/run/sample.dwp?message=Hello
 
 ## Release Note
 
+### 4.0.6
+
+- Default Config Bug fixed
+
 ### 4.0.5
 
 - Added variable type checking to workflow nodes
