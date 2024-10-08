@@ -9,14 +9,20 @@ class Controller:
         wiz.session = wiz.model("portal/season/session")
         struct = wiz.model("portal/dizest/struct")
         config = struct.config
-        # TODO: acl
+        try:
+            config.acl()
+        except:
+            return
         io.join(data)
 
     def leave(self, data, io):
         wiz.session = wiz.model("portal/season/session")
         struct = wiz.model("portal/dizest/struct")
         config = struct.config
-        # TODO: acl
+        try:
+            config.acl()
+        except:
+            return
         io.leave(data)
     
     def wplog(self, data, io):

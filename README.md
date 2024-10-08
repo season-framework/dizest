@@ -175,6 +175,11 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## Release Note
 
+### 4.0.4
+
+- update to LLM Stream mode
+- id & password option support at login
+
 ### 4.0.3
 
 - file browser bug fixed on workflow node file selector
