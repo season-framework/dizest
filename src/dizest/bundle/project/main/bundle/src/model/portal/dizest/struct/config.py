@@ -10,7 +10,7 @@ from dizest.base.config import BaseConfig
 project = wiz.project()
 
 def storage_path():
-    return os.path.join(os.getcwd(), "data")
+    return os.path.join(wiz.path(), "data")
 
 def spawner_option():
     socket_uri = urllib.parse.urlparse(wiz.request.request().base_url)
@@ -48,7 +48,7 @@ def authenticate(path):
 
         def check(password):
             try:
-                fs = season.util.fs(os.getcwd())
+                fs = season.util.fs(wiz.path())
                 value = fs.read("password")
                 value = value.encode('utf-8')
                 def check_password(password):
@@ -80,6 +80,10 @@ def acl():
     if wiz.session.user_id() is None:
         wiz.response.status(401)
 
+def acl_api():
+    if wiz.request.ip() not in ['127.0.0.1', wiz.request.request().host.split(":")[0]]:
+        wiz.response.status(401)
+
 class Config(BaseConfig):
     DEFAULT_VALUES = {
         'fs': (None, season.util.fs(storage_path())), 
@@ -96,9 +100,10 @@ class Config(BaseConfig):
         'authenticate': (None, authenticate),
         'logout': (None, logout),
         'acl': (None, acl),
+        'acl_api': (None, acl_api),
     }
 
-fs = season.util.fs(os.getcwd())
+fs = season.util.fs(wiz.path())
 config = dict()
 
 if fs.exists("config.py"):

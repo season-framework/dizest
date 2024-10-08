@@ -45,6 +45,14 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ```
 
+## External API
+
+- `http://127.0.0.1:4000//dizest/api/run/<workflow path>?key=value...`
+    
+```bash
+curl http://127.0.0.1:4000/dizest/api/run/sample.dwp?message=Hello
+```
+
 ## DIZEST CLI
 
 ### Project API
@@ -158,22 +166,13 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
         dizest service restart myapp
         ```
 
-## Roadmap
-
-- Spawner
-    - spawner for k8s
-- General
-    - SAML Authentication
-- Workflow
-    - export/import app
-    - upgrade display function (full function of jupyter)
-- Drive
-    - connect with Google Drive, Dropbox, etc.
-- Dizest Cloud
-    - manage apps & workflow on cloud
-    - connect with hub by API
-
 ## Release Note
+
+### 4.0.5
+
+- Added variable type checking to workflow nodes
+- Added `dizest run <workflow_file>` command
+- Added External Workflow Running API
 
 ### 4.0.4
 

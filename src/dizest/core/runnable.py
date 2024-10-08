@@ -66,6 +66,10 @@ class FlowInstance:
                 inputtype = None
                 if 'inputtype' in inputs[name]: 
                     inputtype = inputs[name]['inputtype']
+                
+                if type(ivalue) == bool:
+                    return ivalue
+
                 if ivalue is not None and len(ivalue) > 0:
                     try:
                         if inputtype == 'number':
@@ -73,8 +77,8 @@ class FlowInstance:
                     except:
                         pass
                     return ivalue
-                else:
-                    return default
+
+                return default
             
             res = None
             timestamp = 0
@@ -151,14 +155,12 @@ class FlowInstance:
             value = kwargs[name]
             self.output_data[name] = value
 
-    def result(self, name=None):
-        if name is None:
-            for key in self.output_data:
-                self.onchanged("result." + key, self.output_data[key])
-            return
-
-        if name in self.output_data:
-            self.onchanged("result." + name, self.output_data[name])
+    def result(self, name, value, **kwargs):
+        try:
+            value = self.workflow.render(value, **kwargs)
+        except Exception as e:
+            value = str(value)
+        self.onchanged("result", dict(name=name, value=value))
 
     def drive(self, *path):
         cwd = self.flow.workflow.config.cwd
@@ -291,7 +293,7 @@ class FlowInstance:
         if threaded == False:
             process.join()
         
-        return self
+        return process
 
     def stop(self):
         if self.process is None:
@@ -395,7 +397,7 @@ class Runnable:
 
         return res
 
-    def __call__(self, flow=None, threaded=True):
+    def __call__(self, flow=None, threaded=True, **kwargs):
         if flow is None:
             if self.is_runnable() == False:
                 return
@@ -409,14 +411,12 @@ class Runnable:
                 if flow.active():
                     flow_instance = self.instance(flow)
                     flow_instance.status("ready")
-                    flow_instance.run(threaded=threaded)
+                    flow_instance.run(threaded=threaded, **kwargs)
             return
 
         flow_instance = self.instance(flow)
-        flow_instance.run(threaded=threaded)
+        return flow_instance.run(threaded=threaded, **kwargs)
         
-        return flow_instance
-    
     def stop(self, flow=None):
         if flow is not None:
             self.instance(flow).stop()

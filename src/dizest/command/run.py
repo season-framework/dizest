@@ -1,16 +1,12 @@
 import os
 import sys
 from argh import arg
-import subprocess
 import time
 import psutil
-import datetime
 import platform
 import signal
 import atexit
-import contextlib
 import multiprocessing as mp
-import threading
 import season
 import dizest
 
@@ -20,7 +16,16 @@ PATH_PID = os.path.join(PATH_WEBSRC, "dizest.pid")
 @arg('--host', help='0.0.0.0')
 @arg('--port', help='4000')
 @arg('--log', help='log filename')
-def run(host='0.0.0.0', port=4000, log=None):
+def run(*args, host='0.0.0.0', port=4000, log=None):
+    if len(args) > 0:
+        filename = args[0]
+        workflow = dizest.Workflow(filename)
+        def onchange(flow_id, event_name, value):
+            print(flow_id, value)
+        workflow.on('log.append', onchange)
+        workflow.run()
+        return
+
     if os.path.exists(os.path.join(PATH_WEBSRC, "public", "app.py")) == False:
         print("Invalid Project path: dizest structure not found in this folder.")
         return
