@@ -47,7 +47,7 @@ wiz create dizest --uri https://github.com/season-framework/dizest-ui-angular
 
 ## External API
 
-- `http://127.0.0.1:4000//dizest/api/run/<workflow path>?key=value...`
+- `http://127.0.0.1:4000/dizest/api/run/<workflow path>?key=value...`
     
 ```bash
 curl http://127.0.0.1:4000/dizest/api/run/sample.dwp?message=Hello
@@ -167,6 +167,12 @@ curl http://127.0.0.1:4000/dizest/api/run/sample.dwp?message=Hello
         ```
 
 ## Release Note
+
+### 4.0.7
+
+- Add External API UI
+- Add Baerer Token for External API
+- Workflow status bug fixed at core
 
 ### 4.0.6
 

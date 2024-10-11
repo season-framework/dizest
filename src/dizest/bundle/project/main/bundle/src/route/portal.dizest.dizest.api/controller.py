@@ -1,3 +1,6 @@
+import json
+import time
+import queue
 import season
 import dizest
 
@@ -11,75 +14,30 @@ path = segment.path
 
 fs = season.util.fs(config.storage_path())
 
-if action == 'run':
-    postdata = wiz.request.query()
+if fs.exists(path) is False or fs.isdir(path):
+    path = path + ".dwp"
+if fs.exists(path) is False:
+    wiz.response.status(404)
 
-    workflow_path = fs.abspath(path)
-    workflow = dizest.Workflow(workflow_path, cwd=fs.abspath())
-    
-    requested = dict()
-    outputs = dict()
+workflow_path = fs.abspath(path)
+workflow = dizest.Workflow(workflow_path, cwd=fs.abspath())
 
-    flows = workflow.flows()
-    for flow in flows:
-        inputs = flow.app().inputs()
-        for inputitem in inputs:
-            if inputitem['type'] == 'output':
-                if flow.id() not in requested:
-                    requested[flow.id()] = dict()
-                key = inputitem['name'] 
-                requested[flow.id()][key] = None
+postdata = wiz.request.query()
+flows = workflow.flows()
+inputs, outputs = workflow.spec()
+for flow_id in inputs:
+    for key in inputs[flow_id]:
+        if key in postdata:
+            inputs[flow_id][key] = postdata[key]
 
-        inputs = flow.inputs()
-        for key in inputs:
-            if inputs[key]['type'] == 'output':
-                if len(inputs[key]['data']) == 0:
-                    if flow.id() not in requested:
-                        requested[flow.id()] = dict()
-                    requested[flow.id()][key] = None
-                else:
-                    if key in requested[flow.id()]:
-                        del requested[flow.id()][key]
-                    for item in inputs[key]['data']:
-                        if item[0] not in outputs:
-                            outputs[item[0]] = dict()
-                        outputs[item[0]][item[1]] = flow.id()
-        
-        output_data = flow.app().outputs()
-        for key in output_data:
-            if flow.id() not in outputs:
-                outputs[flow.id()] = dict()
-            if key not in outputs[flow.id()]:
-                outputs[flow.id()][key] = None
-
-    _outputs = dict()
-    for flow_id in outputs:
-        for out in outputs[flow_id]:
-            if outputs[flow_id][out] is None:
-                if flow_id not in _outputs:
-                    _outputs[flow_id] = []
-                _outputs[flow_id].append(out)
-    outputs = _outputs
-    
-    for flow_id in requested:
-        for key in requested[flow_id]:
-            if key in postdata:
-                requested[flow_id][key] = postdata[key]
-
-    # workflow run
-    logs = []
-    def onchange(flow_id, event_name, value):
-        logs.append(value)
-    workflow.on('log.append', onchange)
-    
+if action == 'run':    
     processes = []
     for flow in flows:
         if flow.active() is False:
             continue
-        
         kwargs = dict()
-        if flow.id() in requested:
-            kwargs = requested[flow.id()]
+        if flow.id() in inputs:
+            kwargs = inputs[flow.id()]
         kwargs['threaded'] = True
         processes.append(workflow.run(flow, **kwargs))
     
@@ -95,6 +53,54 @@ if action == 'run':
         for outname in outputs[flow_id]:
             if outname in resultmap:
                 resp[outname] = workflow.render(resultmap[outname])
+    
     wiz.response.status(200, resp)
+
+elif action == 'stream':
+    log_queue = queue.Queue()
+    def onchange(flow_id, event_name, value):
+        log_queue.put((flow_id, event_name, value))
+    
+    workflow.on('log.append', onchange)
+    workflow.on('workflow.status', onchange)
+    
+    processes = []
+    for flow in flows:
+        if flow.active() is False:
+            continue
+        kwargs = dict()
+        if flow.id() in inputs:
+            kwargs = inputs[flow.id()]
+        kwargs['threaded'] = True
+        processes.append(workflow.run(flow, **kwargs))
+    
+    def generate():
+        while workflow.run.status() != 'idle' or not log_queue.empty():
+            try:
+                flow_id, event_name, value = log_queue.get()
+                if event_name != 'workflow.status':
+                    flow = workflow.flow(flow_id)
+                    log = dict(type='log', flow=flow.title(), data=value)
+                    log = json.dumps(log)
+                    yield f"{log}\n"
+            except Exception as e:
+                pass
+
+        resp = dict()
+        for flow_id in outputs:
+            flow = workflow.flow(flow_id)
+            flow_instance = workflow.run.instance(flow)
+            resultmap = flow_instance.output_data
+
+            for outname in outputs[flow_id]:
+                if outname in resultmap:
+                    value = workflow.render(resultmap[outname])
+                    log = dict(type="output", name=outname, flow=flow.title(), data=value)
+                    log = json.dumps(log)
+                    yield f"{log}\n"        
+
+    Response = wiz.response._flask.Response
+    response = Response(generate(), content_type='text/event-stream')
+    wiz.response.response(response)
 
 wiz.response.status(404)

@@ -18,7 +18,7 @@ class Flow:
     def title(self):
         title = None
         if 'title' in self.package():
-            return self.package()['title'] 
+            title = self.package()['title'] 
         if title is None or len(title) == 0:
             return self.app().title()
         return 'Unknown'

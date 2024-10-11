@@ -76,4 +76,52 @@ class Workflow:
             self.config.event[event_name](flow, event_name, value)
         if '*' in self.config.event and self.config.event['*'] is not None:
             self.config.event["*"](flow, event_name, value)
-        
+    
+    def spec(self):
+        flows = self.flows()
+
+        requested = dict()
+        outputs = dict()
+
+        for flow in flows:
+            inputs = flow.app().inputs()
+            for inputitem in inputs:
+                if inputitem['type'] == 'output':
+                    key = inputitem['name'] 
+                    if flow.id() not in requested:
+                        requested[flow.id()] = dict()
+                    requested[flow.id()][key] = None
+
+            inputs = flow.inputs()
+            for key in inputs:
+                if inputs[key]['type'] == 'output':
+                    if len(inputs[key]['data']) == 0:
+                        if flow.id() not in requested:
+                            requested[flow.id()] = dict()
+                        requested[flow.id()][key] = None
+                    else:
+                        if key in requested[flow.id()]:
+                            del requested[flow.id()][key]
+                        if len(requested[flow.id()]) == 0:
+                            del requested[flow.id()]
+                        for item in inputs[key]['data']:
+                            if item[0] not in outputs:
+                                outputs[item[0]] = dict()
+                            outputs[item[0]][item[1]] = flow.id()
+            
+            output_data = flow.app().outputs()
+            for key in output_data:
+                if flow.id() not in outputs:
+                    outputs[flow.id()] = dict()
+                if key not in outputs[flow.id()]:
+                    outputs[flow.id()][key] = None
+
+        _outputs = dict()
+        for flow_id in outputs:
+            for out in outputs[flow_id]:
+                if outputs[flow_id][out] is None:
+                    if flow_id not in _outputs:
+                        _outputs[flow_id] = []
+                    _outputs[flow_id].append(out)
+        outputs = _outputs
+        return requested, outputs

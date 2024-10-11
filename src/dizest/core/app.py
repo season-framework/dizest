@@ -13,6 +13,8 @@ class App:
         return self.__package__['id']
 
     def title(self):
+        if 'title' not in self.__package__ or len(self.__package__['title']) == 0:
+            return "Unknown"
         return self.__package__['title']
     
     def code(self):

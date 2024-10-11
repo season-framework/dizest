@@ -210,13 +210,14 @@ class FlowInstance:
 
                         previous_index = previous_flow_instance.index()
                         previous_status = previous_flow_instance.status()
-                        
-                        if previous_status not in ['idle', 'error']:
+
+                        if previous_status not in ['idle']:
                             isactive = False
+
                         if previous_index <= 0:
                             isactive = False
                         
-                        if previous_index == -2:
+                        if previous_index == -2 or previous_status in ['stop', 'error']:
                             flow_instance.status("idle")
                             flow_instance.index(-2)
                             flow_instance.log("Stop")
@@ -243,9 +244,17 @@ class FlowInstance:
                 app = flow.app()
                 code = app.code()
 
+                binding = flow_instance.binding()
+                binding.__input__ = binding.input
+                def _input(name, default=None):
+                    if name in params:
+                        return params[name]
+                    return binding.__input__(name, default=default)
+                binding.input = _input
+
                 env = dict()
                 env['__name__'] = os.path.join(self.workflow.config.cwd)
-                env['dizest'] = flow_instance.binding()
+                env['dizest'] = binding
                 env['print'] = display
                 env['display'] = display
                 env['flow'] = flow
