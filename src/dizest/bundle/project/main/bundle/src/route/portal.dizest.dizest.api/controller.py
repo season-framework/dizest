@@ -57,6 +57,8 @@ if action == 'run':
     wiz.response.status(200, resp)
 
 elif action == 'stream':
+    starttime = time.time()
+
     log_queue = queue.Queue()
     def onchange(flow_id, event_name, value):
         log_queue.put((flow_id, event_name, value))
@@ -86,7 +88,7 @@ elif action == 'stream':
             except Exception as e:
                 pass
 
-        resp = dict()
+        output_count = 0
         for flow_id in outputs:
             flow = workflow.flow(flow_id)
             flow_instance = workflow.run.instance(flow)
@@ -97,7 +99,12 @@ elif action == 'stream':
                     value = workflow.render(resultmap[outname])
                     log = dict(type="output", name=outname, flow=flow.title(), data=value)
                     log = json.dumps(log)
-                    yield f"{log}\n"        
+                    yield f"{log}\n"
+                    output_count += 1
+
+        log = dict(type="finish", time=int((time.time()-starttime) * 1000))
+        log = json.dumps(log)
+        yield f"{log}\n"
 
     Response = wiz.response._flask.Response
     response = Response(generate(), content_type='text/event-stream')
