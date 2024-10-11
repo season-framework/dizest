@@ -1,3 +1,4 @@
+import os
 import json
 import time
 import queue
@@ -20,7 +21,8 @@ if fs.exists(path) is False:
     wiz.response.status(404)
 
 workflow_path = fs.abspath(path)
-workflow = dizest.Workflow(workflow_path, cwd=fs.abspath())
+workflow_parent_path = os.path.dirname(workflow_path)
+workflow = dizest.Workflow(workflow_path, cwd=fs.abspath(workflow_parent_path))
 
 postdata = wiz.request.query()
 flows = workflow.flows()
