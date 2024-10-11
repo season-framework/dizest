@@ -3,6 +3,7 @@ import season
 import urllib
 import json
 import bcrypt
+import uuid
 from dizest.extends.spawner import SimpleSpawner
 
 def storage_path():
@@ -76,6 +77,29 @@ def logout(path):
 def acl():
     if wiz.session.user_id() is None:
         wiz.response.status(401)
+
+def acl_api():
+    if wiz.request.ip() in ['127.0.0.1', wiz.request.request().host.split(":")[0]]:
+        return True
+    
+    fs = wiz.fs()
+    data = fs.read.json("dizest.json", {})
+    external_api_key = None
+    if 'external_api_key' in data:
+        external_api_key = data['external_api_key']
+
+    auth_header = wiz.request.request().headers.get('Authorization')
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+        if external_api_key is not None and len(external_api_key) == 32:
+            if token == external_api_key:
+                return True
+
+    wiz.response.status(401)
+
+def kernel_id():
+    user_id = wiz.session.get("id")
+    return user_id + "-" + str(uuid.uuid1())
 
 fs = season.util.fs(storage_path())
 disk = "/"

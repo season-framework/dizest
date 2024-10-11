@@ -103,6 +103,7 @@ class Config(BaseConfig):
     DEFAULT_VALUES = {
         'fs': (None, season.util.fs(storage_path())), 
         'disk': (str, "/"), 
+        'kernel_id': (None, None),
         'use_ai': (str, "notuse"), 
         'llm_gateway': (str, "https://api.openai.com/v1"), 
         'llm_api_key': (str, ""), 

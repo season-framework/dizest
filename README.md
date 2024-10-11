@@ -168,6 +168,10 @@ curl http://127.0.0.1:4000/dizest/api/run/sample.dwp?message=Hello
 
 ## Release Note
 
+### 4.0.8
+
+- Workflow kernel bug fixed (id generation)
+
 ### 4.0.7
 
 - Add External API UI

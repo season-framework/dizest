@@ -35,11 +35,18 @@ class Model:
     """
     def __call__(self, id, cwd=None, executable=None):
         cache = self.cache()
+        print(self.core.config.kernel_id)
+
+        def gen_kernel_id():
+            if self.core.config.kernel_id is not None:
+                return self.core.config.kernel_id()
+            return str(uuid.uuid1())
+        
         if id is None:
-            id = str(uuid.uuid1())
+            id = gen_kernel_id()
 
         if id not in cache:
-            id = str(uuid.uuid1())
+            id = gen_kernel_id()
             cache[id] = Model(self.core, id, cwd, executable)
         return cache[id]
     
