@@ -7,6 +7,8 @@ import requests
 struct = wiz.model("portal/dizest/struct")
 config = struct.config
 
+config.acl()
+
 segment = wiz.request.match("/ui/<kernel_id>/<flow_id>/<path:path>")
 if segment is None:
     wiz.response.status(400)
