@@ -96,6 +96,8 @@ class FlowInstance:
                     else:
                         res = None
 
+            if res is None:
+                return default
             return res
         except Exception as e:
             pass
@@ -167,11 +169,16 @@ class FlowInstance:
         cwd = os.path.join(cwd, *path)
         return util.os.storage(cwd)
     
-    def binding(self, flask=None, path=None):
+    def binding(self, *args, **kwargs):
         class Binding:
             def __init__(self, parent, flask, path):
+                self.flow = parent.flow
                 self.clear = parent.clear
-                self.input = parent.input
+                def _input(name, default=None):
+                    if name in kwargs:
+                        return kwargs[name]
+                    return parent.input(name, default=default)
+                self.input = _input
                 self.inputs = parent.inputs
                 self.output = parent.output
                 self.result = parent.result
@@ -181,6 +188,12 @@ class FlowInstance:
                     self.stop = parent.stop
                     self.response = util.web.Response(flask)
                     self.request = util.web.Request(flask, path)
+        
+        if len(args) > 0:
+            flask = args[0]
+        if len(args) > 1:
+            path = args[1]
+
         return Binding(self, flask, path)
 
     def run(self, threaded=True, **params):
@@ -244,14 +257,8 @@ class FlowInstance:
                 app = flow.app()
                 code = app.code()
 
-                binding = flow_instance.binding()
-                binding.__input__ = binding.input
-                def _input(name, default=None):
-                    if name in params:
-                        return params[name]
-                    return binding.__input__(name, default=default)
-                binding.input = _input
-
+                binding = flow_instance.binding(None, None, **params)
+                
                 env = dict()
                 env['__name__'] = os.path.join(self.workflow.config.cwd)
                 env['dizest'] = binding

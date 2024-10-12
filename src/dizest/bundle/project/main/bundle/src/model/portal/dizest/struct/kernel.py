@@ -35,7 +35,6 @@ class Model:
     """
     def __call__(self, id, cwd=None, executable=None):
         cache = self.cache()
-        print(self.core.config.kernel_id)
 
         def gen_kernel_id():
             if self.core.config.kernel_id is not None:
