@@ -168,6 +168,10 @@ curl http://127.0.0.1:4000/dizest/api/run/sample.dwp?message=Hello
 
 ## Release Note
 
+### 4.0.13
+
+- display log bug fixed (whitespace pre-wrap)
+
 ### 4.0.12
 
 - UI Mode ACL Bug Fixed
