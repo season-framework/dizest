@@ -54,7 +54,7 @@ if action == 'run':
 
         for outname in outputs[flow_id]:
             if outname in resultmap:
-                resp[outname] = workflow.render(resultmap[outname])
+                resp[outname] = resultmap[outname]
     
     wiz.response.status(200, resp)
 
@@ -98,7 +98,7 @@ elif action == 'stream':
 
             for outname in outputs[flow_id]:
                 if outname in resultmap:
-                    value = workflow.render(resultmap[outname])
+                    value = resultmap[outname]
                     log = dict(type="output", name=outname, flow=flow.title(), data=value)
                     log = json.dumps(log)
                     yield f"{log}\n"
