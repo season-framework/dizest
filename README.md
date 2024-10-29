@@ -168,6 +168,10 @@ curl http://127.0.0.1:4000/dizest/api/run/sample.dwp?message=Hello
 
 ## Release Note
 
+### 4.0.15
+
+- add flow status in response at External API
+
 ### 4.0.14
 
 - remove renderer at External API

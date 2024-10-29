@@ -45,8 +45,14 @@ if action == 'run':
     
     for proc in processes:
         proc.join()
-
+    
     resp = dict()
+
+    for flow in flows:
+        flow_instance = workflow.run.instance(flow)
+        if flow_instance.status() == 'error':
+            wiz.response.status(500, flow_instance.log()[-1])
+    
     for flow_id in outputs:
         flow = workflow.flow(flow_id)
         flow_instance = workflow.run.instance(flow)
@@ -84,7 +90,8 @@ elif action == 'stream':
                 flow_id, event_name, value = log_queue.get()
                 if event_name != 'workflow.status':
                     flow = workflow.flow(flow_id)
-                    log = dict(type='log', flow=flow.title(), data=value)
+                    flow_instance = workflow.run.instance(flow)
+                    log = dict(type='log', flow=flow.title(), status=flow_instance.status(), data=value)
                     log = json.dumps(log)
                     yield f"{log}\n"
             except Exception as e:
