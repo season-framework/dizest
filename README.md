@@ -4,8 +4,11 @@
 
 SEASON DIZESThub Platform (dizest) provides visual convenience for artificial intelligence data analysis based on web technology.
 
+![screenshot](./screenshots/2x_DIZEST_Labeling_short.gif)
 
-![screenshot](./screenshots/1x_DIZEST_example3.gif)
+![screenshot](./screenshots/2x_DIZEST_example3.gif)
+
+![screenshot](./screenshots/2x_DIZEST_example4.gif)
 
 ## Installation
 
