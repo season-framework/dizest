@@ -6,6 +6,8 @@ SEASON DIZESThub Platform (dizest) provides visual convenience for artificial in
 
 ![screenshot](./screenshots/3.4.0.gif)
 
+![screenshot](./screenshots/1x_DIZEST_example3.gif)
+
 ## Installation
 
 ```bash
