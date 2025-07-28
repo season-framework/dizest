@@ -4,10 +4,6 @@
 
 SEASON DIZESThub Platform (dizest) provides visual convenience for artificial intelligence and data analysis based on web technology.
 
-<center> 
-**[DIZEST]** 
-</center> 
-
 ![screenshot](./screenshots/2x_DIZEST_main.gif)
 
 :point_up_2: The modular structure of DIZEST allows various developments through inputs and outputs connected to apps by solid lines, and is key to effective software development.
