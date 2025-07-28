@@ -2,7 +2,10 @@
 
 ## Introduction
 
-SEASON DIZESThub Platform (dizest) provides visual convenience for artificial intelligence data analysis based on web technology.
+SEASON DIZESThub Platform (dizest) provides visual convenience for artificial intelligence and data analysis based on web technology.
+
+![screenshot](./screenshots/2x_DIZEST_main.gif)
+The modular structure of DIZEST allows various developments through inputs and outputs connected to apps by solid lines, and is key to effective software development.
 
 
 > **Labeling function in DIZEST**
@@ -13,9 +16,9 @@ Users can leverage Data Labeling directly in DIZEST without the need for externa
 ![screenshot](./screenshots/2x_DIZEST_example3.gif)
 Users can develop the same apps on the same or different Canvases using Drag-and-Drop functions without repetitive tasks.
 
-> **Flexible Workflow in DIZEST**
+> **Flexible Workflows in DIZEST**
 ![screenshot](./screenshots/2x_DIZEST_example4.gif)
-Users can use workflows that are strictly sequential, as well as workflows that run through flexible relationships between apps. 
+Users can create or utilize workflows that are strictly sequential, as well as workflows that run through flexible relationships between apps. 
 
 ## Installation
 
