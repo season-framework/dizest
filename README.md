@@ -1,4 +1,4 @@
-# DIZEST : The Workflow Engine
+# DIZEST : A low-code platform for workflow-driven artificial intelligence and data analysis
 
 ## Introduction
 
