@@ -1,4 +1,4 @@
-# :black_circle: Smart Manufacturing
+# :black_small_square: Smart Manufacturing
 
 ## :small_orange_diamond: Shipyard Automation
 ![screenshot](./screenshots/case-3.png)
