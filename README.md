@@ -8,6 +8,7 @@ SEASON DIZEST Platform (DIZEST) provides visual convenience for artificial intel
 
 :point_up_2: The modular structure of DIZEST allows various developments through inputs and outputs connected to apps by solid lines, and is key to effective software development.
 
+## Example
 
 > **Labeling function in DIZEST**
 ![screenshot](./screenshots/2x_DIZEST_Labeling_short.gif)
