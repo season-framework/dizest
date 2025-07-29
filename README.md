@@ -8,9 +8,11 @@ DIZEST provides visual convenience for artificial intelligence and data analysis
 
 :point_up_2: The modular structure of DIZEST allows various developments through inputs and outputs connected to apps by solid lines, and is key to effective software development.
 
-[Examples] (https://github.com/season-framework/dizest/blob/main/EXAMPLES.md)
+## Examples
+[:link: click here to check the examples](https://github.com/season-framework/dizest/blob/main/EXAMPLES.md)
 
-[Use case] (https://github.com/season-framework/dizest/blob/main/USE_CASES.md)
+## Use case
+[:link: click here to check the use cases](https://github.com/season-framework/dizest/blob/main/USE_CASES.md) 
 
 
 ## Installation
