@@ -1,4 +1,4 @@
-# SEASON Dizest Platform
+# DIZEST : The Workflow Engine
 
 ## Introduction
 
