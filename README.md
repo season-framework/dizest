@@ -11,7 +11,7 @@ DIZEST provides visual convenience for artificial intelligence and data analysis
 ## Examples
 [:link: click here to check the examples](https://github.com/season-framework/dizest/blob/main/EXAMPLES.md)
 
-## Use case
+## Use cases
 [:link: click here to check the use cases](https://github.com/season-framework/dizest/blob/main/USE_CASES.md) 
 
 
