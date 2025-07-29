@@ -23,7 +23,3 @@ DIZEST has also been used for cell analysis research using lens-free technology.
 ## Hyperspectral Image analysis
 ![screenshot](./screenshots/case-1.png)
 The technology for detecting maritime objects in hyperspectral aerial images is a technology closely related to maritime safety, such as saving lives in the event of a maritime accident or detecting floating objects on the sea. DIZEST was used as a research tool to develop this technology and was used to derive various research results, including SCI papers, and demonstrated that large-scale data processing is possible.
-
-## System Monitoring
-![screenshot](./screenshots/case-6.png)
-DIZEST is attempting various applications beyond research purposes or manufacturing. For example, we are using it in a system that monitors the status of our GPU servers. By using DIZEST, you can effectively monitor the status of your GPU server in real time and utilize various analysis and visualization tools to respond appropriately to the situation. This greatly contributes to increasing the efficiency of server operation and preventing failure situations in advance.
