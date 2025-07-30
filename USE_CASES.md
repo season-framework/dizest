@@ -22,4 +22,4 @@ DIZEST has also been used for cell analysis research using lens-free technology.
 
 ## :small_orange_diamond: Hyperspectral Image analysis
 ![screenshot](./screenshots/UseCase_1.png)
-The technology for detecting maritime objects in hyperspectral aerial images is a technology closely related to maritime safety, such as saving lives in the event of a maritime accident or detecting floating objects on the sea. DIZEST was used as a research tool to develop this technology and was used to derive various research results, including SCI papers, and demonstrated that large-scale data processing is possible.
+The technology for detecting maritime objects in hyperspectral aerial images is a technology closely related to maritime safety, such as saving lives in the event of a maritime accident or detecting floating objects on the sea. DIZEST was used as a research tool to develop this technology and was used to derive various research results, and demonstrated that large-scale data processing is possible.
