@@ -1,5 +1,6 @@
 import os
 import sys
+import argparse
 from argh import arg
 import time
 import psutil
@@ -16,14 +17,34 @@ PATH_PID = os.path.join(PATH_WEBSRC, "dizest.pid")
 @arg('--host', help='0.0.0.0')
 @arg('--port', help='4000')
 @arg('--log', help='log filename')
-def run(*args, host='0.0.0.0', port=4000, log=None):
-    if len(args) > 0:
-        filename = args[0]
+@arg('params', nargs=argparse.REMAINDER)
+def run(params, host='0.0.0.0', port=4000, log=None):
+    if len(params) > 0:
+        filename = params[0]
         workflow = dizest.Workflow(filename)
         def onchange(flow_id, event_name, value):
             print(flow_id, value)
         workflow.on('log.append', onchange)
-        workflow.run()
+        
+        workflow_params = dict()
+        i = 1
+        while i < len(params):
+            p = params[i]
+            if p.startswith("--"):
+                if "=" in p:
+                    k, v = p[2:].split("=", 1)
+                    workflow_params[k] = v
+                else:
+                    k = p[2:]
+                    if i + 1 < len(params) and not params[i+1].startswith("--"):
+                        v = params[i+1]
+                        workflow_params[k] = v
+                        i += 1
+                    else:
+                        workflow_params[k] = True
+            i += 1
+        
+        workflow.run(threaded=False, **workflow_params)
         return
 
     if os.path.exists(os.path.join(PATH_WEBSRC, "public", "app.py")) == False:
