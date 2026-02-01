@@ -95,6 +95,12 @@ Open your browser and navigate to `http://localhost:4000`
 
 ### Core Documentation
 
+- **[English Documentation](./docs/en/README.md)** - Complete Guide
+  - [Architecture](./docs/en/architecture.md)
+  - [Usage Guide](./docs/en/usage-guide.md)
+  - [API Reference](./docs/en/api/README.md)
+  - [DWP Specification](./docs/en/dwp-specification.md)
+
 - **[Korean Documentation](./docs/kr/README.md)** - 한국어 문서 (완전한 가이드)
   - [아키텍처](./docs/kr/architecture.md)
   - [사용 가이드](./docs/kr/usage-guide.md)
