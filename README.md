@@ -434,7 +434,7 @@ DIZEST has been featured in academic research and industry applications:
   - Core architecture and design principles of DIZEST platform
 
 **Conference Proceedings:**
-- IEEE International Conference (2024):
+- IEEE International Conference (2025):
   - [Korean Speech Recognition via Retrieval-Augmented Generation-Based Intent-Aware Keyword Correction](https://ieeexplore.ieee.org/document/11262073)
   - [Automated Viability Classification of Human Lymphocytes via Machine Learning-Assisted Digital In-Line Holography](https://ieeexplore.ieee.org/document/11262080)  
   - [A Low-Code Methodology for Developing AI Kiosks: A Case Study with the DIZEST Platform](https://ieeexplore.ieee.org/document/11262171)
